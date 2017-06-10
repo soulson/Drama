@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Drama.Auth.Api\Drama.Auth.Api.csproj" />
+    <ProjectReference Include="..\Drama.Auth.Interfaces\Drama.Auth.Interfaces.csproj" />
   </ItemGroup>
 
 </Project>
