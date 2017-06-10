@@ -2,12 +2,13 @@
 using Drama.Core.Gateway.Networking;
 using Microsoft.Extensions.Configuration;
 using Orleans;
+using Orleans.Runtime.Configuration;
 using System;
 using System.Net;
 
 namespace Drama.Auth.Gateway
 {
-  public class Program
+  public static class Program
   {
     public static void Main(string[] args)
     {
@@ -34,8 +35,7 @@ namespace Drama.Auth.Gateway
         Console.ReadLine();
 
         Console.Write("initializing orleans...");
-        //var orleansConfig = ClientConfiguration.LocalhostSilo(30000);
-        //GrainClient.Initialize(orleansConfig);
+        GrainClient.Initialize(GetOrleansConfiguration(config));
         Console.WriteLine("done!");
 
         try
@@ -62,7 +62,7 @@ namespace Drama.Auth.Gateway
         finally
         {
           Console.Write("stopping orleans...");
-          //GrainClient.Uninitialize();
+          GrainClient.Uninitialize();
           Console.WriteLine("done!");
         }
       }
@@ -75,6 +75,16 @@ namespace Drama.Auth.Gateway
         .Build();
 
       return config.GetSection(nameof(AuthGatewayConfiguration)).Get<AuthGatewayConfiguration>();
+    }
+
+    private static ClientConfiguration GetOrleansConfiguration(AuthGatewayConfiguration config)
+    {
+      var orleansConfig = new ClientConfiguration();
+
+      foreach (var silo in config.Orleans.Silos)
+        orleansConfig.Gateways.Add(new IPEndPoint(IPAddress.Parse(silo.Address), silo.Port));
+
+      return orleansConfig;
     }
   }
 }

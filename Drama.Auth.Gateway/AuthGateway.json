@@ -6,6 +6,14 @@
             "AcceptQueue": "64",
             "ReceiveBufferBlockSize": "2048",
             "ReceiveBufferPoolSize": "128"
+        },
+        "Orleans": {
+            "Silos": [
+                {
+                    "Address": "127.0.0.1",
+                    "Port": "30000"
+                }
+            ]
         }
     }
 }
