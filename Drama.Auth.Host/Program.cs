@@ -2,6 +2,7 @@
 using Orleans.Runtime.Configuration;
 using Orleans.Runtime.Host;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 
@@ -29,6 +30,13 @@ namespace Drama.Auth.Host
         }
 
         Console.WriteLine("press enter to close");
+        Console.ReadLine();
+      }
+      
+      // the debugger will kill the host and gateway as soon as either one terminates, so this lets us wait for a clean shutdown
+      if (Debugger.IsAttached)
+      {
+        Console.WriteLine("running with attached debugger; press enter to quit");
         Console.ReadLine();
       }
     }

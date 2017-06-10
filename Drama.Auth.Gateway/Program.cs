@@ -33,7 +33,7 @@ namespace Drama.Auth.Gateway
         server.DataReceived += (sender, e) => Console.WriteLine($"received {e.ReceivedData.Count} bytes from client {e.Session.Id}");
         server.DataSent += (sender, e) => Console.WriteLine($"sent {e.SentData.Count} bytes to client {e.Session.Id}");
 
-        // since the debugger will start the silo and client at the same time, it's handy to put a pause here
+        // since the debugger will start the host and gateway at the same time, it's handy to put a pause here
         if (Debugger.IsAttached)
         {
           Console.WriteLine("running with attached debugger; press enter to start");
@@ -78,6 +78,13 @@ namespace Drama.Auth.Gateway
           GrainClient.Uninitialize();
           Console.WriteLine("done!");
         }
+      }
+
+      // the debugger will also kill the host and gateway as soon as one terminates, so this lets us wait for a clean shutdown
+      if (Debugger.IsAttached)
+      {
+        Console.WriteLine("running with attached debugger; press enter to quit");
+        Console.ReadLine();
       }
     }
 

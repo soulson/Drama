@@ -1,7 +1,6 @@
 ﻿using Drama.Auth.Interfaces;
 using Orleans;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Drama.Auth.Grains

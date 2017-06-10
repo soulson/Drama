@@ -1,13 +1,11 @@
 ﻿using Drama.Auth.Interfaces;
 using Drama.Core.Gateway.Networking;
+using Drama.Core.Interfaces.Networking;
 using Orleans;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Drama.Core.Interfaces.Networking;
 using System.IO;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Drama.Auth.Gateway
 {
@@ -58,6 +56,7 @@ namespace Drama.Auth.Gateway
 
     protected virtual async Task OnSessionDisconnectedAsync(object sender, ClientDisconnectedEventArgs e)
     {
+      // waiting for initialization proves self is non-null
       WaitForInitialization();
       await AuthSession.Disconnect(self);
 

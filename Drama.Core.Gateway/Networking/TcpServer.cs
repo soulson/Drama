@@ -108,18 +108,29 @@ namespace Drama.Core.Gateway.Networking
 
     private void FinishAccept(object sender, SocketAsyncEventArgs e)
     {
-      e.AcceptSocket.NoDelay = true;
+      // FinishAccept seems to fire when the socket shuts down if an accept was pending, but the acceptsocket is not connected when this happens
+      if (e.AcceptSocket != null && e.AcceptSocket.Connected)
+      {
+        e.AcceptSocket.NoDelay = true;
 
-      var session = new TcpSession(this, e.AcceptSocket);
-      Interlocked.Increment(ref activeSessions);
-      OnClientConnected(new ClientConnectedEventArgs(session));
+        var session = new TcpSession(this, e.AcceptSocket);
+        Interlocked.Increment(ref activeSessions);
+        OnClientConnected(new ClientConnectedEventArgs(session));
 
-      var args = socketEventPool.CheckOut();
-      args.UserToken = session;
-      args.Completed += FinishReceive;
-      StartReceive(args);
+        var args = socketEventPool.CheckOut();
+        args.UserToken = session;
+        args.Completed += FinishReceive;
+        StartReceive(args);
 
-      StartAccept(e);
+        StartAccept(e);
+      }
+      else
+      {
+        e.Completed -= FinishAccept;
+        socketEventPool.CheckIn(e);
+        // TODO: log
+      }
+
     }
 
     protected virtual void OnClientConnected(ClientConnectedEventArgs e)
@@ -129,9 +140,7 @@ namespace Drama.Core.Gateway.Networking
 
     private void StartReceive(SocketAsyncEventArgs e)
     {
-      var session = e.UserToken as TcpSession;
-
-      if (session != null)
+      if (e.UserToken is TcpSession session)
       {
         if (bufferPool.TryAssignBuffer(e))
         {
@@ -173,9 +182,7 @@ namespace Drama.Core.Gateway.Networking
 
     private void Disconnect(SocketAsyncEventArgs e)
     {
-      var session = e.UserToken as TcpSession;
-
-      if (session != null)
+      if (e.UserToken is TcpSession session)
       {
         try
         {
@@ -188,7 +195,7 @@ namespace Drama.Core.Gateway.Networking
           //  see links at the top of the file
           // TODO: log
         }
-        
+
         session.Socket.Dispose();
 
         var disconnectEventArgs = new ClientDisconnectedEventArgs(session);
