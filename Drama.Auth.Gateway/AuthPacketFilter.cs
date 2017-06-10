@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Drama.Auth.Gateway
 {
-  public class AuthPacketSerializer : PacketSerializer, IAuthSessionObserver
+  public class AuthPacketFilter : PacketFilter, IAuthSessionObserver
   {
     private IAuthSessionObserver self;
     
     protected IGrainFactory GrainFactory { get; }
     protected IAuthSession AuthSession { get; }
 
-    public AuthPacketSerializer(TcpSession session, IGrainFactory grainFactory) : base(session)
+    public AuthPacketFilter(TcpSession session, IGrainFactory grainFactory) : base(session)
     {
       GrainFactory = grainFactory;
       AuthSession = GrainFactory.GetGrain<IAuthSession>(Session.Id);
