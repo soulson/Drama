@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Auth.Grains", "Drama.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Auth.Interfaces", "Drama.Auth.Interfaces\Drama.Auth.Interfaces.csproj", "{47F65A61-7868-4D67-9431-589B18C5B05A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Core.Interfaces", "Drama.Core.Interfaces\Drama.Core.Interfaces.csproj", "{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{47F65A61-7868-4D67-9431-589B18C5B05A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47F65A61-7868-4D67-9431-589B18C5B05A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47F65A61-7868-4D67-9431-589B18C5B05A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

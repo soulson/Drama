@@ -150,7 +150,6 @@ namespace Drama.Core.Gateway.Networking
       if (e.BytesTransferred == 0 || e.SocketError != SocketError.Success || session == null)
       {
         bufferPool.FreeBuffer(e);
-        session?.OnDisconnected();
         Disconnect(e);
       }
       else
@@ -159,8 +158,9 @@ namespace Drama.Core.Gateway.Networking
         Buffer.BlockCopy(e.Buffer, e.Offset, receivedData, 0, receivedData.Length);
         bufferPool.FreeBuffer(e);
 
-        OnDataReceived(new DataReceivedEventArgs(session, new ArraySegment<byte>(receivedData)));
-        session.OnDataReceived(receivedData);
+        var receiveEventArgs = new DataReceivedEventArgs(session, new ArraySegment<byte>(receivedData));
+        OnDataReceived(receiveEventArgs);
+        session.OnDataReceived(receiveEventArgs);
 
         StartReceive(e);
       }
@@ -191,7 +191,10 @@ namespace Drama.Core.Gateway.Networking
         
         session.Socket.Dispose();
 
-        OnClientDisconnected(new ClientDisconnectedEventArgs(session));
+        var disconnectEventArgs = new ClientDisconnectedEventArgs(session);
+        OnClientDisconnected(disconnectEventArgs);
+        session.OnDisconnected(disconnectEventArgs);
+
         Interlocked.Decrement(ref activeSessions);
       }
 
@@ -247,8 +250,13 @@ namespace Drama.Core.Gateway.Networking
 
     private void FinishSend(object sender, SocketAsyncEventArgs e)
     {
+      var session = e.UserToken as TcpSession ?? throw new ArgumentNullException(nameof(e.UserToken));
+
+      var sentEventArgs = new DataSentEventArgs(session, new ArraySegment<byte>(e.Buffer, e.Offset, e.BytesTransferred));
+      OnDataSent(sentEventArgs);
+      session.OnDataSent(sentEventArgs);
+
       e.Completed -= FinishSend;
-      OnDataSent(new DataSentEventArgs((TcpSession)e.UserToken, new ArraySegment<byte>(e.Buffer, e.Offset, e.BytesTransferred)));
       e.SetBuffer(null, 0, 0);
       e.UserToken = null;
       socketEventPool.CheckIn(e);

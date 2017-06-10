@@ -5,6 +5,7 @@ using Orleans;
 using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using System;
+using System.Diagnostics;
 using System.Net;
 
 namespace Drama.Auth.Gateway
@@ -32,20 +33,32 @@ namespace Drama.Auth.Gateway
         server.DataReceived += (sender, e) => Console.WriteLine($"received {e.ReceivedData.Count} bytes from client {e.Session.Id}");
         server.DataSent += (sender, e) => Console.WriteLine($"sent {e.SentData.Count} bytes to client {e.Session.Id}");
 
-        Console.Write("initializing orleans...");
+        // since the debugger will start the silo and client at the same time, it's handy to put a pause here
+        if (Debugger.IsAttached)
+        {
+          Console.WriteLine("running with attached debugger; press enter to start");
+          Console.ReadLine();
+        }
+
+        Console.Write("starting orleans...");
         GrainClient.Initialize(GetOrleansConfiguration(config));
         Console.WriteLine("done!");
 
         try
         {
-          Console.Write("starting server...");
+          server.ClientConnected += async (sender, e) =>
+          {
+            // the packet serializer hooks events on the session, which keeps it alive as long as the session lives
+            var serializer = new PacketSerializer(e.Session, GrainClient.GrainFactory);
+            await serializer.InitializeAsync();
+          };
+
+          Console.Write("starting tcp server...");
           server.Start();
 
           try
           {
             Console.WriteLine("done!");
-            //var helloGrain = GrainClient.GrainFactory.GetGrain<IHello>(0);
-            //Console.WriteLine(helloGrain.SayHello("what's up").Result);
 
             Console.WriteLine("press enter to stop listening");
             Console.ReadLine();
