@@ -21,4 +21,9 @@
     <PackageReference Include="Microsoft.Orleans.Server" Version="2.0.0-preview2-201705140000" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Drama.Auth.Api\Drama.Auth.Api.csproj" />
+    <ProjectReference Include="..\Drama.Auth.Grains\Drama.Auth.Grains.csproj" />
+  </ItemGroup>
+
 </Project>
