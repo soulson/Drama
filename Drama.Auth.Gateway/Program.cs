@@ -2,6 +2,7 @@
 using Drama.Core.Gateway.Networking;
 using Microsoft.Extensions.Configuration;
 using Orleans;
+using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using System;
 using System.Net;
@@ -30,9 +31,6 @@ namespace Drama.Auth.Gateway
         server.ClientDisconnected += (sender, e) => Console.WriteLine($"client {e.Session.Id} disconnected");
         server.DataReceived += (sender, e) => Console.WriteLine($"received {e.ReceivedData.Count} bytes from client {e.Session.Id}");
         server.DataSent += (sender, e) => Console.WriteLine($"sent {e.SentData.Count} bytes to client {e.Session.Id}");
-
-        Console.WriteLine("press enter to start");
-        Console.ReadLine();
 
         Console.Write("initializing orleans...");
         GrainClient.Initialize(GetOrleansConfiguration(config));
@@ -79,7 +77,12 @@ namespace Drama.Auth.Gateway
 
     private static ClientConfiguration GetOrleansConfiguration(AuthGatewayConfiguration config)
     {
-      var orleansConfig = new ClientConfiguration();
+      var orleansConfig = new ClientConfiguration()
+      {
+        DefaultTraceLevel = Severity.Info,
+        TraceToConsole = true,
+        TraceFilePattern = "none",
+      };
 
       foreach (var silo in config.Orleans.Silos)
         orleansConfig.Gateways.Add(new IPEndPoint(IPAddress.Parse(silo.Address), silo.Port));
