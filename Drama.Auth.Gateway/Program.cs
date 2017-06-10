@@ -50,6 +50,8 @@ namespace Drama.Auth.Gateway
           {
             // the packet serializer hooks events on the session, which keeps it alive as long as the session lives
             var serializer = new PacketSerializer(e.Session, GrainClient.GrainFactory);
+
+            // the packet serializer must be created before any awaits in this block so it can listen for the logon challenge immediately
             await serializer.InitializeAsync();
           };
 
