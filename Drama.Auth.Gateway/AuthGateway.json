@@ -1,0 +1,11 @@
+﻿{
+    "AuthGatewayConfiguration": {
+        "Server": {
+            "BindAddress": "127.0.0.1",
+            "BindPort": "3724",
+            "AcceptQueue": "64",
+            "ReceiveBufferBlockSize": "2048",
+            "ReceiveBufferPoolSize": "128"
+        }
+    }
+}

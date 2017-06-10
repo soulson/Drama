@@ -1,4 +1,6 @@
-﻿using Drama.Core.Gateway.Networking;
+﻿using Drama.Auth.Gateway.Configuration;
+using Drama.Core.Gateway.Networking;
+using Microsoft.Extensions.Configuration;
 using Orleans;
 using System;
 using System.Net;
@@ -9,7 +11,19 @@ namespace Drama.Auth.Gateway
   {
     public static void Main(string[] args)
     {
-      using (var server = new TcpServer(IPAddress.Parse("127.0.0.1"), 3724, 64, 2048, 128))
+      var configFile = "AuthGateway.json";
+      if (args.Length >= 1)
+        configFile = args[0];
+      
+      var config = GetConfiguration(configFile);
+
+      if (config == null)
+      {
+        Console.WriteLine($"unable to find {nameof(AuthGatewayConfiguration)} element in json file {configFile}");
+        return;
+      }
+
+      using (var server = new TcpServer(IPAddress.Parse(config.Server.BindAddress), config.Server.BindPort, config.Server.AcceptQueue, config.Server.ReceiveBufferBlockSize, config.Server.ReceiveBufferPoolSize))
       {
         server.ClientConnected += (sender, e) => Console.WriteLine($"client {e.Session.Id} connected");
         server.ClientDisconnected += (sender, e) => Console.WriteLine($"client {e.Session.Id} disconnected");
@@ -52,6 +66,15 @@ namespace Drama.Auth.Gateway
           Console.WriteLine("done!");
         }
       }
+    }
+
+    private static AuthGatewayConfiguration GetConfiguration(string filename)
+    {
+      var config = new ConfigurationBuilder()
+        .AddJsonFile(filename)
+        .Build();
+
+      return config.GetSection(nameof(AuthGatewayConfiguration)).Get<AuthGatewayConfiguration>();
     }
   }
 }
