@@ -1,5 +1,5 @@
-﻿using Drama.Auth.Interfaces;
-using Drama.Auth.Interfaces.Packets;
+﻿using Drama.Auth.Interfaces.Packets;
+using Drama.Auth.Interfaces.Session;
 using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces.Networking;
 using Orleans;
@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 
 namespace Drama.Auth.Gateway
 {
-  public class AuthPacketRouter : PacketRouter, IAuthSessionObserver
+	// TODO: remove the Observer stuff from this class after using it as a reference implementation for ShardPacketRouter
+	//  the auth protocol is strictly call-and-response
+	public class AuthPacketRouter : PacketRouter, IAuthSessionObserver
   {
     private readonly AuthPacketReader packetReader;
 
@@ -43,7 +45,7 @@ namespace Drama.Auth.Gateway
         switch (packet)
         {
           case LogonChallengeRequest lc:
-            await AuthSession.SubmitLogonChallenge(lc);
+            ReceivePacket(await AuthSession.SubmitLogonChallenge(lc));
             break;
           case LogonProofRequest lp:
             await AuthSession.SubmitLogonProof(lp);

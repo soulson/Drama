@@ -2,7 +2,7 @@
 using Orleans;
 using System;
 
-namespace Drama.Auth.Interfaces
+namespace Drama.Auth.Interfaces.Session
 {
   public interface IAuthSessionObserver : IGrainObserver
   {

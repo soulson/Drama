@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Drama.Auth.Gateway
+namespace Drama.Auth.Interfaces.Protocol
 {
   public enum AuthRequestOpcode : byte
   {

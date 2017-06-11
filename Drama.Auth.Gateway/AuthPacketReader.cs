@@ -1,4 +1,5 @@
 ﻿using Drama.Auth.Interfaces.Packets;
+using Drama.Auth.Interfaces.Protocol;
 using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces.Networking;
 using System;
@@ -6,7 +7,7 @@ using System.IO;
 
 namespace Drama.Auth.Gateway
 {
-  public class AuthPacketReader : PacketReader
+	public class AuthPacketReader : PacketReader
   {
     protected override IInPacket CreatePacket(Stream stream)
     {

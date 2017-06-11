@@ -1,6 +1,7 @@
 ﻿using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using Orleans.Runtime.Host;
+using Orleans.Storage;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -18,6 +19,8 @@ namespace Drama.Auth.Host
       siloConfig.DefaultTraceLevel = Severity.Info;
       siloConfig.TraceToConsole = true;
       siloConfig.TraceFilePattern = "none";
+
+			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>("AccountStore");
 
       using (var siloHost = new SiloHost(Dns.GetHostName(), clusterConfig))
       {
