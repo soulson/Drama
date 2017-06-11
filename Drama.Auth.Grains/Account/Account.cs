@@ -14,7 +14,7 @@ namespace Drama.Auth.Grains.Account
 			throw new NotImplementedException();
 		}
 
-		public Task<bool> Exists() => Task.FromResult(State != null);
+		public Task<bool> Exists() => Task.FromResult(State.Enabled);
 
 		public Task<AccountEntity> GetEntity()
 		{
