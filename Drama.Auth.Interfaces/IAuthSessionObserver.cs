@@ -6,6 +6,6 @@ namespace Drama.Auth.Interfaces
 {
   public interface IAuthSessionObserver : IGrainObserver
   {
-    void ReceivePacket(IPacket packet);
+    void ReceivePacket(IOutPacket packet);
   }
 }

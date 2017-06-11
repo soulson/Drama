@@ -29,19 +29,19 @@ namespace Drama.Auth.Grains
       return Task.CompletedTask;
     }
 
-    public Task GetRealmList(RealmList packet)
+    public Task GetRealmList(RealmListRequest packet)
     {
       GetLogger().Info("got realm list request");
       return Task.CompletedTask;
     }
 
-    public Task SubmitLogonChallenge(LogonChallenge packet)
+    public Task SubmitLogonChallenge(LogonChallengeRequest packet)
     {
       GetLogger().Info($"got logon challenge request from {packet.Identity}");
       return Task.CompletedTask;
     }
 
-    public Task SubmitLogonProof(LogonProof packet)
+    public Task SubmitLogonProof(LogonProofRequest packet)
     {
       GetLogger().Info("got logon proof request");
       return Task.CompletedTask;

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Drama.Core.Gateway.Networking
 {
-  public sealed class UnimplementedPacket : IPacket
+  public sealed class UnimplementedPacket : IInPacket
   {
     public int Size { get; }
 

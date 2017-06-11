@@ -8,7 +8,7 @@ namespace Drama.Auth.Gateway
 {
   public class AuthPacketReader : PacketReader
   {
-    protected override IPacket CreatePacket(Stream stream)
+    protected override IInPacket CreatePacket(Stream stream)
     {
       var ordinal = stream.ReadByte();
 
@@ -20,11 +20,11 @@ namespace Drama.Auth.Gateway
       switch (opcode)
       {
         case AuthRequestOpcode.LogonChallenge:
-          return new LogonChallenge();
+          return new LogonChallengeRequest();
         case AuthRequestOpcode.LogonProof:
-          return new LogonProof();
+          return new LogonProofRequest();
         case AuthRequestOpcode.RealmList:
-          return new RealmList();
+          return new RealmListRequest();
         case AuthRequestOpcode.ReconnectChallenge:
           // 34 + [byte @ 33]
           stream.Seek(32, SeekOrigin.Current);

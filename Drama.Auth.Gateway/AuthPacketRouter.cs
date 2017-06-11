@@ -42,13 +42,13 @@ namespace Drama.Auth.Gateway
       {
         switch (packet)
         {
-          case LogonChallenge lc:
+          case LogonChallengeRequest lc:
             await AuthSession.SubmitLogonChallenge(lc);
             break;
-          case LogonProof lp:
+          case LogonProofRequest lp:
             await AuthSession.SubmitLogonProof(lp);
             break;
-          case RealmList rl:
+          case RealmListRequest rl:
             await AuthSession.GetRealmList(rl);
             break;
           default:
@@ -62,7 +62,7 @@ namespace Drama.Auth.Gateway
       await AuthSession.Disconnect(self);
     }
 
-    public void ReceivePacket(IPacket packet)
+    public void ReceivePacket(IOutPacket packet)
     {
       using (var stream = new MemoryStream())
       {

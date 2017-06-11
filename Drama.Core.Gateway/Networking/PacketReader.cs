@@ -16,7 +16,7 @@ namespace Drama.Core.Gateway.Networking
       buffer = new MemoryStream(InitialCapacity);
     }
 
-    public IEnumerable<IPacket> ProcessData(ArraySegment<byte> data)
+    public IEnumerable<IInPacket> ProcessData(ArraySegment<byte> data)
     {
       var initialPosition = buffer.Position;
       buffer.Write(data.Array, data.Offset, data.Count);
@@ -71,6 +71,6 @@ namespace Drama.Core.Gateway.Networking
     /// appropriate IPacket type to handle the packet, then an UnimplementedPacket object with the correct
     /// size is returned.
     /// </remarks>
-    protected abstract IPacket CreatePacket(Stream stream);
+    protected abstract IInPacket CreatePacket(Stream stream);
   }
 }

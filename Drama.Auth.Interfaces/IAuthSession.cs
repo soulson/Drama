@@ -10,8 +10,8 @@ namespace Drama.Auth.Interfaces
     Task Connect(IAuthSessionObserver observer);
     Task Disconnect(IAuthSessionObserver observer);
 
-    Task SubmitLogonChallenge(LogonChallenge packet);
-    Task SubmitLogonProof(LogonProof packet);
-    Task GetRealmList(RealmList packet);
+    Task SubmitLogonChallenge(LogonChallengeRequest packet);
+    Task SubmitLogonProof(LogonProofRequest packet);
+    Task GetRealmList(RealmListRequest packet);
   }
 }

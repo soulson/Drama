@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Drama.Auth.Interfaces.Packets
 {
-  public sealed class LogonChallenge : IPacket
+  public sealed class LogonChallengeRequest : IInPacket
   {
     public string Identity { get; set; }
 
@@ -26,7 +26,5 @@ namespace Drama.Auth.Interfaces.Packets
 
       return true;
     }
-
-    public void Write(Stream stream) => throw new NotImplementedException();
   }
 }

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Drama.Core.Interfaces.Networking
 {
-  public interface IPacket
+  public interface IInPacket
   {
     /// <remarks>
     /// Reads this packet from the current stream. If there is not enough data on the stream to read the
@@ -12,7 +12,5 @@ namespace Drama.Core.Interfaces.Networking
     /// <param name="stream">stream from which to read</param>
     /// <returns>true if entire packet was read; false if not</returns>
     bool Read(Stream stream);
-
-    void Write(Stream stream);
   }
 }
