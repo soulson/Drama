@@ -1,5 +1,6 @@
 ﻿using Orleans;
 using System;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace Drama.Auth.Interfaces.Account
@@ -12,5 +13,6 @@ namespace Drama.Auth.Interfaces.Account
 		Task<AccountEntity> Create(string name, string password, AccountSecurityLevel securityLevel);
 		Task<AccountEntity> GetEntity();
 		Task<SrpInitialParameters> GetSrpInitialParameters();
+		Task<SrpResult> SrpHandshake(BigInteger a, BigInteger m1);
 	}
 }

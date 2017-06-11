@@ -30,6 +30,7 @@ namespace Drama.Core.Gateway.Networking
 
         void OnIncompletePacket()
         {
+					buffer.Position = initialPosition;
           var remainder = new byte[buffer.Length - buffer.Position];
           buffer.Read(remainder, 0, remainder.Length);
 

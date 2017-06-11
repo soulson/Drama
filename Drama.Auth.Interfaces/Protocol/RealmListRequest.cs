@@ -8,7 +8,13 @@ namespace Drama.Auth.Interfaces.Protocol
   {
     public bool Read(Stream stream)
     {
-      throw new NotImplementedException();
+			if (stream.Length - stream.Position < 1)
+				return false;
+
+			// skip the opcode
+			stream.ReadByte();
+
+			return true;
     }
   }
 }

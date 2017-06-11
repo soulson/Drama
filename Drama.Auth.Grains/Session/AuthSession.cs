@@ -14,6 +14,9 @@ namespace Drama.Auth.Grains.Session
   {
 		private readonly ObserverSubscriptionManager<IAuthSessionObserver> sessionObservers;
 
+		// just because the account is associated does NOT mean it is authenticated!
+		private IAccount AssociatedAccount { get; set; }
+
     public AuthSession()
     {
       sessionObservers = new ObserverSubscriptionManager<IAuthSessionObserver>();
@@ -36,21 +39,21 @@ namespace Drama.Auth.Grains.Session
     public Task<RealmListResponse> GetRealmList(RealmListRequest packet)
     {
       GetLogger().Info("got realm list request");
-      return Task.FromException<RealmListResponse>(new NotImplementedException());
+			return Task.FromResult(new RealmListResponse());
     }
 
 		public async Task<LogonChallengeResponse> SubmitLogonChallenge(LogonChallengeRequest packet)
 		{
 			GetLogger().Info($"got logon challenge request from {packet.Identity}");
 
-			var account = GrainFactory.GetGrain<IAccount>(packet.Identity);
+			AssociatedAccount = GrainFactory.GetGrain<IAccount>(packet.Identity);
 
 			// there is no promise that the account will still exist after this call, but it's nice to check anyways
-			if (await account.Exists())
+			if (await AssociatedAccount.Exists())
 			{
 				try
 				{
-					var initialParams = await account.GetSrpInitialParameters();
+					var initialParams = await AssociatedAccount.GetSrpInitialParameters();
 
 					return new LogonChallengeResponse()
 					{
@@ -80,10 +83,26 @@ namespace Drama.Auth.Grains.Session
 			}
 		}
 
-    public Task<LogonProofResponse> SubmitLogonProof(LogonProofRequest packet)
+    public async Task<LogonProofResponse> SubmitLogonProof(LogonProofRequest packet)
     {
       GetLogger().Info("got logon proof request");
-      return Task.FromResult(new LogonProofResponse() { Result = AuthResponseOpcode.FailBadCredentials });
-    }
+			var result = await AssociatedAccount.SrpHandshake(packet.A, packet.M1);
+
+			if(result.Match)
+			{
+				return new LogonProofResponse()
+				{
+					Result = AuthResponseOpcode.Success,
+					M2 = result.M2,
+				};
+			}
+			else
+			{
+				return new LogonProofResponse()
+				{
+					Result = AuthResponseOpcode.FailBadCredentials,
+				};
+			}
+		}
   }
 }
