@@ -25,6 +25,7 @@ namespace Drama.Auth.Grains.Account
 		private BigInteger BPublic { get; set; }
 		private BigInteger BPrivate { get; set; }
 		private BigInteger SessionKey { get; set; }
+		private AccountAuthState AuthState { get; set; }
 
 		public async Task<AccountEntity> Create(string name, string password, AccountSecurityLevel securityLevel)
 		{
@@ -55,6 +56,16 @@ namespace Drama.Auth.Grains.Account
 			return State.Clone();
 		}
 
+		public Task Deauthenticate()
+		{
+			AuthState = AccountAuthState.Passivated;
+			BPublic = BigInteger.Zero;
+			BPrivate = BigInteger.Zero;
+			SessionKey = BigInteger.Zero;
+
+			return Task.CompletedTask;
+		}
+
 		public Task<bool> Exists() => Task.FromResult(IsExists);
 
 		public Task<AccountEntity> GetEntity()
@@ -72,10 +83,16 @@ namespace Drama.Auth.Grains.Account
 
 			var random = GrainFactory.GetGrain<IRandomService>(0);
 			var randomNumber = await random.GetRandomBigInteger(16);
+			var bPrivate = await random.GetRandomBigInteger(19);
 
-			BPrivate = await random.GetRandomBigInteger(19);
+			// put this after all awaits in case two requests' turns get interleaved
+			if (AuthState != AccountAuthState.Passivated)
+				throw new AccountStateException("cannot generate new SRP parameters while a handshake is in progress or while authenticated");
+
+			BPrivate = bPrivate;
 			BPublic = ((State.Verifier * K) + BigInteger.ModPow(G, BPrivate, N)) % N;
 
+			AuthState = AccountAuthState.ParametersGenerated;
 			return new SrpInitialParameters(BPublic, G, N, State.Salt, randomNumber);
 		}
 
@@ -83,6 +100,8 @@ namespace Drama.Auth.Grains.Account
 		{
 			if (!IsExists)
 				throw new AccountDoesNotExistException($"account {this.GetPrimaryKeyString()} does not exist");
+			if (AuthState != AccountAuthState.ParametersGenerated)
+				throw new AccountStateException("cannot handshake without first generating SRP initial parameters");
 			if (a.IsZero)
 				throw new SrpException("A cannot be zero");
 			if (BPublic.IsZero)
@@ -112,15 +131,15 @@ namespace Drama.Auth.Grains.Account
 
 				SessionKey = BigIntegers.FromUnsignedByteArray(vK);
 
-				var Nghash = sha1.CalculateDigest(N.ToByteArray(32));
+				var nghash = sha1.CalculateDigest(N.ToByteArray(32));
 				var ghash = sha1.CalculateDigest(new[] { G });
 
 				for (int i = 0; i < sha1.DigestSize; ++i)
-					Nghash[i] ^= ghash[i];
+					nghash[i] ^= ghash[i];
 
 				var serverM1Bytes = sha1.CalculateDigest(new byte[][]
 				{
-					Nghash,
+					nghash,
 					sha1.CalculateDigest(State.Name),
 					State.Salt.ToByteArray(32),
 					a.ToByteArray(32),
@@ -140,11 +159,15 @@ namespace Drama.Auth.Grains.Account
 						SessionKey.ToByteArray(40),
 					});
 
+					AuthState = AccountAuthState.Authenticated;
 					var m2 = BigIntegers.FromUnsignedByteArray(m2Bytes);
 					return Task.FromResult(new SrpResult(true, m2));
 				}
 				else
+				{
+					Deauthenticate().Wait();
 					return Task.FromResult(new SrpResult(false, BigInteger.Zero));
+				}
 			}
 		}
 	}

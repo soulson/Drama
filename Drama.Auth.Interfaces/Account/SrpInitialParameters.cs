@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Orleans.Concurrency;
+using System;
 using System.Numerics;
 
 namespace Drama.Auth.Interfaces.Account
 {
+	[Immutable]
 	public sealed class SrpInitialParameters
 	{
 		public BigInteger B { get; }

@@ -14,10 +14,10 @@ namespace Drama.Auth.Grains.Session
   {
 		private readonly ObserverSubscriptionManager<IAuthSessionObserver> sessionObservers;
 
-		// just because the account is associated does NOT mean it is authenticated!
-		private IAccount AssociatedAccount { get; set; }
+		private string AuthenticatingIdentity { get; set; }
+		private IAccount AuthenticatedAccount { get; set; }
 
-    public AuthSession()
+		public AuthSession()
     {
       sessionObservers = new ObserverSubscriptionManager<IAuthSessionObserver>();
     }
@@ -25,15 +25,24 @@ namespace Drama.Auth.Grains.Session
 		public Task Connect(IAuthSessionObserver observer)
     {
       sessionObservers.Subscribe(observer);
-      GetLogger().Info($"{this.GetPrimaryKey()} connected");
+      GetLogger().Info($"session {this.GetPrimaryKey()} connected");
       return Task.CompletedTask;
     }
 
-    public Task Disconnect(IAuthSessionObserver observer)
+    public async Task Disconnect(IAuthSessionObserver observer)
     {
       sessionObservers.Unsubscribe(observer);
-      GetLogger().Info($"{this.GetPrimaryKey()} disconnected");
-      return Task.CompletedTask;
+
+			if (AuthenticatedAccount == null)
+				GetLogger().Info($"session {this.GetPrimaryKey()} (unauthenticated) disconnected");
+			else
+			{
+				await AuthenticatedAccount.Deauthenticate();
+				GetLogger().Info($"session {this.GetPrimaryKey()} (authenticated as {AuthenticatingIdentity}) disconnected");
+				AuthenticatedAccount = null;
+			}
+
+			AuthenticatingIdentity = null;
     }
 
     public Task<RealmListResponse> GetRealmList(RealmListRequest packet)
@@ -46,14 +55,15 @@ namespace Drama.Auth.Grains.Session
 		{
 			GetLogger().Info($"got logon challenge request from {packet.Identity}");
 
-			AssociatedAccount = GrainFactory.GetGrain<IAccount>(packet.Identity);
+			var account = GrainFactory.GetGrain<IAccount>(packet.Identity);
+			AuthenticatingIdentity = packet.Identity;
 
 			// there is no promise that the account will still exist after this call, but it's nice to check anyways
-			if (await AssociatedAccount.Exists())
+			if (await account.Exists())
 			{
 				try
 				{
-					var initialParams = await AssociatedAccount.GetSrpInitialParameters();
+					var initialParams = await account.GetSrpInitialParameters();
 
 					return new LogonChallengeResponse()
 					{
@@ -85,22 +95,43 @@ namespace Drama.Auth.Grains.Session
 
     public async Task<LogonProofResponse> SubmitLogonProof(LogonProofRequest packet)
     {
-      GetLogger().Info("got logon proof request");
-			var result = await AssociatedAccount.SrpHandshake(packet.A, packet.M1);
-
-			if(result.Match)
+			if (AuthenticatingIdentity != null)
 			{
-				return new LogonProofResponse()
+				var account = GrainFactory.GetGrain<IAccount>(AuthenticatingIdentity);
+				var result = await account.SrpHandshake(packet.A, packet.M1);
+
+				if (result.Match)
 				{
-					Result = AuthResponseOpcode.Success,
-					M2 = result.M2,
-				};
+					GetLogger().Info($"account {AuthenticatingIdentity} has authenticated successfully");
+					AuthenticatedAccount = account;
+
+					return new LogonProofResponse()
+					{
+						Result = AuthResponseOpcode.Success,
+						M2 = result.M2,
+					};
+				}
+				else
+				{
+					GetLogger().Info($"account {AuthenticatingIdentity} has failed to authenticate");
+					await account.Deauthenticate();
+					AuthenticatingIdentity = null;
+
+					return new LogonProofResponse()
+					{
+						Result = AuthResponseOpcode.FailBadCredentials,
+					};
+				}
 			}
 			else
 			{
+				// this most likely means someone is using a modified client and trying to short-circuit SRP in some way.
+				//  or there's a bug in the server
+				GetLogger().Warn("got logon proof request with no authenticating identity - modified client?");
+
 				return new LogonProofResponse()
 				{
-					Result = AuthResponseOpcode.FailBadCredentials,
+					Result = AuthResponseOpcode.FailBusy,
 				};
 			}
 		}
