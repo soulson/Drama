@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Drama.Core.Gateway.Networking
 {
-  public abstract class PacketFilter
+  public abstract class PacketRouter
   {
     private readonly ManualResetEvent initialized;
 
@@ -13,7 +13,7 @@ namespace Drama.Core.Gateway.Networking
     private readonly EventHandler<DataReceivedEventArgs> sessionDataReceived;
     private readonly EventHandler<ClientDisconnectedEventArgs> sessionDisconnected;
 
-    public PacketFilter(TcpSession session)
+    public PacketRouter(TcpSession session)
     {
       Session = session;
       initialized = new ManualResetEvent(false);
@@ -61,7 +61,7 @@ namespace Drama.Core.Gateway.Networking
       // we need to wait until InitializeAsync finishes before sending any data to the host, or we may not
       //  be able to read the response
       if (!initialized.WaitOne(TimeSpan.FromSeconds(16)))
-        throw new InvalidOperationException($"{nameof(PacketFilter)} was not initialized");
+        throw new InvalidOperationException($"{nameof(PacketRouter)} was not initialized");
     }
   }
 }

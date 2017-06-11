@@ -49,7 +49,7 @@ namespace Drama.Auth.Gateway
           server.ClientConnected += async (sender, e) =>
           {
             // the packet filter hooks events on the session, which keeps it alive as long as the session lives
-            var filter = new AuthPacketFilter(e.Session, GrainClient.GrainFactory);
+            var filter = new AuthPacketRouter(e.Session, GrainClient.GrainFactory);
 
             // the packet filter must be created before any awaits in this block so it can listen for the logon challenge immediately
             await filter.InitializeAsync();
