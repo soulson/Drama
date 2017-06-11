@@ -1,5 +1,7 @@
 ﻿using Drama.Auth.Gateway.Configuration;
+using Drama.Auth.Interfaces.Account;
 using Drama.Core.Gateway.Networking;
+using Drama.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Orleans;
 using Orleans.Runtime;
@@ -28,11 +30,6 @@ namespace Drama.Auth.Gateway
 
       using (var server = new TcpServer(IPAddress.Parse(config.Server.BindAddress), config.Server.BindPort, config.Server.AcceptQueue, config.Server.ReceiveBufferBlockSize, config.Server.ReceiveBufferPoolSize))
       {
-        server.ClientConnected += (sender, e) => Console.WriteLine($"client {e.Session.Id} connected");
-        server.ClientDisconnected += (sender, e) => Console.WriteLine($"client {e.Session.Id} disconnected");
-        server.DataReceived += (sender, e) => Console.WriteLine($"received {e.ReceivedData.Count} bytes from client {e.Session.Id}");
-        server.DataSent += (sender, e) => Console.WriteLine($"sent {e.SentData.Count} bytes to client {e.Session.Id}");
-
         // since the debugger will start the host and gateway at the same time, it's handy to put a pause here
         if (Debugger.IsAttached)
         {
@@ -61,9 +58,12 @@ namespace Drama.Auth.Gateway
           try
           {
             Console.WriteLine("done!");
+            Console.WriteLine("use stop command to stop the gateway");
 
-            Console.WriteLine("press enter to stop listening");
-            Console.ReadLine();
+						do
+						{
+							Console.Write("auth> ");
+						} while (ProcessCommand(Console.ReadLine()));
           }
           finally
           {
@@ -111,5 +111,37 @@ namespace Drama.Auth.Gateway
 
       return orleansConfig;
     }
+
+		// returns false if command is to shutdown
+		private static bool ProcessCommand(string line)
+		{
+			string[] split = line?.Split(' ') ?? throw new ArgumentNullException(nameof(line));
+
+			if (split.Length == 0)
+				return true;
+
+			try
+			{
+				switch (split[0])
+				{
+					case "stop":
+						return false;
+					case "account.create":
+						var account = GrainClient.GrainFactory.GetGrain<IAccount>(split[1].ToUpperInvariant());
+						var result = account.Create(split[1], split[2], AccountSecurityLevel.Normal).Result;
+						Console.WriteLine($"### account {result.Name} created successfully");
+						break;
+					default:
+						Console.WriteLine($"### unrecognized command '{split[0]}'");
+						break;
+				}
+			}
+			catch (DramaException ex)
+			{
+				Console.WriteLine($"### command failed: {ex.Message}");
+			}
+
+			return true;
+		}
   }
 }
