@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Drama.Auth.Interfaces.Packets
+namespace Drama.Auth.Interfaces.Protocol
 {
   public sealed class LogonChallengeRequest : IInPacket
   {

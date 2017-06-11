@@ -2,7 +2,6 @@
 using Orleans;
 using System;
 using System.Threading.Tasks;
-using Drama.Auth.Interfaces.Packets;
 using Drama.Auth.Interfaces.Session;
 using Orleans.Runtime;
 using Drama.Auth.Interfaces.Account;
@@ -34,10 +33,10 @@ namespace Drama.Auth.Grains.Session
       return Task.CompletedTask;
     }
 
-    public Task GetRealmList(RealmListRequest packet)
+    public Task<RealmListResponse> GetRealmList(RealmListRequest packet)
     {
       GetLogger().Info("got realm list request");
-      return Task.CompletedTask;
+      return Task.FromException<RealmListResponse>(new NotImplementedException());
     }
 
 		public async Task<LogonChallengeResponse> SubmitLogonChallenge(LogonChallengeRequest packet)
@@ -46,13 +45,30 @@ namespace Drama.Auth.Grains.Session
 
 			var account = GrainFactory.GetGrain<IAccount>(packet.Identity);
 
+			// there is no promise that the account will still exist after this call, but it's nice to check anyways
 			if (await account.Exists())
 			{
-				// obvious todo
-				return new LogonChallengeResponse()
+				try
 				{
-					Result = AuthResponseOpcode.FailBusy,
-				};
+					var initialParams = await account.GetSrpInitialParameters();
+
+					return new LogonChallengeResponse()
+					{
+						Result = AuthResponseOpcode.Success,
+						B = initialParams.B,
+						G = initialParams.G,
+						N = initialParams.N,
+						RandomNumber = initialParams.RandomNumber,
+						Salt = initialParams.Salt,
+					};
+				}
+				catch (AccountDoesNotExistException)
+				{
+					return new LogonChallengeResponse()
+					{
+						Result = AuthResponseOpcode.FailBadCredentials,
+					};
+				}
 			}
 			else
 			{
@@ -64,10 +80,10 @@ namespace Drama.Auth.Grains.Session
 			}
 		}
 
-    public Task SubmitLogonProof(LogonProofRequest packet)
+    public Task<LogonProofResponse> SubmitLogonProof(LogonProofRequest packet)
     {
       GetLogger().Info("got logon proof request");
-      return Task.CompletedTask;
+      return Task.FromResult(new LogonProofResponse() { Result = AuthResponseOpcode.FailBadCredentials });
     }
   }
 }

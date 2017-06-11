@@ -11,5 +11,6 @@ namespace Drama.Auth.Interfaces.Account
 		Task<bool> Exists();
 		Task<AccountEntity> Create(string name, string password, AccountSecurityLevel securityLevel);
 		Task<AccountEntity> GetEntity();
+		Task<SrpInitialParameters> GetSrpInitialParameters();
 	}
 }

@@ -1,4 +1,4 @@
-﻿using Drama.Auth.Interfaces.Packets;
+﻿using Drama.Auth.Interfaces.Protocol;
 using Drama.Auth.Interfaces.Session;
 using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces.Networking;
@@ -48,10 +48,10 @@ namespace Drama.Auth.Gateway
             ReceivePacket(await AuthSession.SubmitLogonChallenge(lc));
             break;
           case LogonProofRequest lp:
-            await AuthSession.SubmitLogonProof(lp);
+            ReceivePacket(await AuthSession.SubmitLogonProof(lp));
             break;
           case RealmListRequest rl:
-            await AuthSession.GetRealmList(rl);
+            ReceivePacket(await AuthSession.GetRealmList(rl));
             break;
           default:
             throw new Exception($"received unknown packet {packet}");

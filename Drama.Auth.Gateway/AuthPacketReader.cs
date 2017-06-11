@@ -1,5 +1,4 @@
-﻿using Drama.Auth.Interfaces.Packets;
-using Drama.Auth.Interfaces.Protocol;
+﻿using Drama.Auth.Interfaces.Protocol;
 using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces.Networking;
 using System;

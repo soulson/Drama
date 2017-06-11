@@ -1,11 +1,12 @@
 ﻿using Drama.Auth.Interfaces.Protocol;
 using Drama.Core.Interfaces.Networking;
+using Drama.Core.Interfaces.Utilities;
 using System;
 using System.IO;
 using System.Numerics;
 using System.Text;
 
-namespace Drama.Auth.Interfaces.Packets
+namespace Drama.Auth.Interfaces.Protocol
 {
 	public sealed class LogonChallengeResponse : IOutPacket
 	{
@@ -30,7 +31,14 @@ namespace Drama.Auth.Interfaces.Packets
 
 				if(Result == AuthResponseOpcode.Success)
 				{
-					// obvious todo
+					writer.Write(B.ToByteArray(32));
+					writer.Write(GLength);
+					writer.Write(G);
+					writer.Write(NLength);
+					writer.Write(N.ToByteArray(NLength));
+					writer.Write(Salt.ToByteArray(32));
+					writer.Write(RandomNumber.ToByteArray(16));
+					writer.Write(SecurityFlags);
 				}
 			}
 		}

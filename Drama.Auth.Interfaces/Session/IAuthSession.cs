@@ -1,4 +1,4 @@
-﻿using Drama.Auth.Interfaces.Packets;
+﻿using Drama.Auth.Interfaces.Protocol;
 using Orleans;
 using System;
 using System.Threading.Tasks;
@@ -11,7 +11,7 @@ namespace Drama.Auth.Interfaces.Session
     Task Disconnect(IAuthSessionObserver observer);
 
     Task<LogonChallengeResponse> SubmitLogonChallenge(LogonChallengeRequest packet);
-    Task SubmitLogonProof(LogonProofRequest packet);
-    Task GetRealmList(RealmListRequest packet);
+    Task<LogonProofResponse> SubmitLogonProof(LogonProofRequest packet);
+    Task<RealmListResponse> GetRealmList(RealmListRequest packet);
   }
 }
