@@ -59,6 +59,9 @@ namespace Drama.Core.Gateway.Utilities
 
     public void CheckInPartition(ArraySegment<byte> partition)
     {
+      if (freeIndexPool.Contains(partition.Offset))
+        throw new InvalidOperationException($"the partition at 0x{partition.Offset:x} is already checked in");
+
       freeIndexPool.Push(partition.Offset);
       Interlocked.Increment(ref freeBlocks);
     }
