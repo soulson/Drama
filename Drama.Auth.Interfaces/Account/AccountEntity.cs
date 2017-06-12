@@ -10,7 +10,5 @@ namespace Drama.Auth.Interfaces.Account
 		public BigInteger Verifier { get; set; }
 		public BigInteger Salt { get; set; }
 		public AccountSecurityLevel SecurityLevel { get; set; }
-
-		public AccountEntity Clone() => (AccountEntity)MemberwiseClone();
 	}
 }

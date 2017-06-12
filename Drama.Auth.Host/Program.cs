@@ -21,8 +21,9 @@ namespace Drama.Auth.Host
       siloConfig.TraceFilePattern = "none";
 
 			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>("AccountStore");
+			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>("DeploymentStore");
 
-      using (var siloHost = new SiloHost(Dns.GetHostName(), clusterConfig))
+			using (var siloHost = new SiloHost(Dns.GetHostName(), clusterConfig))
       {
         siloHost.InitializeOrleansSilo();
         if (!siloHost.StartOrleansSilo())

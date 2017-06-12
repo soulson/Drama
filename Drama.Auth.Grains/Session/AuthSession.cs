@@ -6,6 +6,7 @@ using Drama.Auth.Interfaces.Session;
 using Orleans.Runtime;
 using Drama.Auth.Interfaces.Account;
 using Drama.Auth.Interfaces.Protocol;
+using Drama.Auth.Interfaces.Shard;
 
 namespace Drama.Auth.Grains.Session
 {
@@ -45,16 +46,31 @@ namespace Drama.Auth.Grains.Session
 			AuthenticatingIdentity = null;
     }
 
-    public Task<RealmListResponse> GetRealmList(RealmListRequest packet)
+    public async Task<RealmListResponse> GetRealmList(RealmListRequest packet)
     {
-      GetLogger().Info("got realm list request");
-			return Task.FromResult(new RealmListResponse());
+			var response = new RealmListResponse();
+			var shardList = GrainFactory.GetGrain<IShardList>(0);
+
+			foreach (var shardKey in await shardList.GetShardKeys())
+			{
+				var shard = GrainFactory.GetGrain<IShard>(shardKey);
+
+				try
+				{
+					var shardEntity = await shard.GetEntity();
+					response.ShardList.Add(shardEntity);
+				}
+				catch (ShardDoesNotExistException)
+				{
+					GetLogger().Warn($"shard key {shardKey} was returned by {nameof(IShardList)} but does not exist");
+				}
+			}
+
+			return response;
     }
 
 		public async Task<LogonChallengeResponse> SubmitLogonChallenge(LogonChallengeRequest packet)
 		{
-			GetLogger().Info($"got logon challenge request from {packet.Identity}");
-
 			var account = GrainFactory.GetGrain<IAccount>(packet.Identity);
 			AuthenticatingIdentity = packet.Identity;
 

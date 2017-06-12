@@ -1,5 +1,6 @@
 ﻿using Drama.Auth.Gateway.Configuration;
 using Drama.Auth.Interfaces.Account;
+using Drama.Auth.Interfaces.Shard;
 using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -127,9 +128,25 @@ namespace Drama.Auth.Gateway
 					case "stop":
 						return false;
 					case "account.create":
-						var account = GrainClient.GrainFactory.GetGrain<IAccount>(split[1].ToUpperInvariant());
-						var result = account.Create(split[1], split[2], AccountSecurityLevel.Normal).Result;
-						Console.WriteLine($"### account {result.Name} created successfully");
+						{
+							var account = GrainClient.GrainFactory.GetGrain<IAccount>(split[1].ToUpperInvariant());
+							var result = account.Create(split[2], AccountSecurityLevel.Normal).Result;
+
+							Console.WriteLine($"### account {result.Name} created successfully");
+						}
+						break;
+					case "shard.create":
+						if (Enum.TryParse<ShardType>(split[4], out var shardType))
+						{
+							var shard = GrainClient.GrainFactory.GetGrain<IShard>(split[1]);
+							var result = shard.Create(split[2], Convert.ToInt32(split[3]), shardType, ShardFlags.Recommended).Result;
+							var shardList = GrainClient.GrainFactory.GetGrain<IShardList>(0);
+							shardList.AddShardKey(shard.GetPrimaryKeyString()).Wait();
+
+							Console.WriteLine($"### shard {shard.GetPrimaryKeyString()} created and added to shard list");
+						}
+						else
+							Console.WriteLine($"### invalid shard type '{split[4]}'");
 						break;
 					default:
 						Console.WriteLine($"### unrecognized command '{split[0]}'");

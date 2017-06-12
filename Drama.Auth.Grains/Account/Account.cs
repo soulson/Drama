@@ -22,38 +22,39 @@ namespace Drama.Auth.Grains.Account
 
 		// synchronous private version of Exists()
 		private bool IsExists => State.Enabled;
+
 		private BigInteger BPublic { get; set; }
 		private BigInteger BPrivate { get; set; }
 		private BigInteger SessionKey { get; set; }
 		private AccountAuthState AuthState { get; set; }
 
-		public async Task<AccountEntity> Create(string name, string password, AccountSecurityLevel securityLevel)
+		public async Task<AccountEntity> Create(string password, AccountSecurityLevel securityLevel)
 		{
-			name = name?.ToUpperInvariant() ?? throw new ArgumentNullException(nameof(name));
 			password = password?.ToUpperInvariant() ?? throw new ArgumentNullException(nameof(password));
 
 			if (IsExists)
-				throw new AccountExistsException($"account {State.Name} already exists, cannot create account {name}");
+				throw new AccountExistsException($"account {State.Name} already exists; cannot create account");
 
 			var random = GrainFactory.GetGrain<IRandomService>(0);
 
 			using (var sha1 = new Digester(SHA1.Create()))
 			{
 				var salt = await random.GetRandomBigInteger(32);
-				var identityHash = sha1.CalculateDigest($"{name}:{password}");
+				var identityHash = sha1.CalculateDigest($"{this.GetPrimaryKeyString()}:{password}");
 				var secret = BigIntegers.FromUnsignedByteArray(sha1.CalculateDigest(new byte[][] { salt.ToByteArray(32), identityHash }));
 				var verifier = BigInteger.ModPow(G, secret, N);
 
 				State.Salt = salt;
 				State.Verifier = verifier;
-				State.Name = name;
+				State.Name = this.GetPrimaryKeyString();
 				State.Enabled = true;
 				State.SecurityLevel = securityLevel;
 			}
 
 			await WriteStateAsync();
 
-			return State.Clone();
+			// orleans will automatically make a safe copy of this
+			return State;
 		}
 
 		public Task Deauthenticate()
@@ -73,7 +74,8 @@ namespace Drama.Auth.Grains.Account
 			if (!IsExists)
 				throw new AccountDoesNotExistException($"account {this.GetPrimaryKeyString()} does not exist");
 
-			return Task.FromResult(State.Clone());
+			// orleans will safe copy this for us
+			return Task.FromResult(State);
 		}
 
 		public async Task<SrpInitialParameters> GetSrpInitialParameters()
