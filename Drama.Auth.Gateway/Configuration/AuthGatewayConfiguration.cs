@@ -1,4 +1,5 @@
 ﻿using System;
+using Drama.Core.Gateway.Configuration;
 
 namespace Drama.Auth.Gateway.Configuration
 {

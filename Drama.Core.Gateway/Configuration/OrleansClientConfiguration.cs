@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Drama.Auth.Gateway.Configuration
+namespace Drama.Core.Gateway.Configuration
 {
   public class OrleansClientConfiguration
   {
