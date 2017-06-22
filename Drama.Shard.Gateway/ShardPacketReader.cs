@@ -3,6 +3,10 @@ using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces.Networking;
 using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Immutable;
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace Drama.Shard.Gateway
 {
@@ -11,10 +15,18 @@ namespace Drama.Shard.Gateway
 		private const int ClientPacketHeaderSize = 6;
 
 		private readonly ShardPacketCipher packetCipher;
+		private readonly ImmutableDictionary<ShardClientOpcode, Type> packetMap;
 
-		public ShardPacketReader(ShardPacketCipher packetCipher)
+		public ShardPacketReader(ShardPacketCipher packetCipher, Assembly packetDefinitionAssembly)
 		{
 			this.packetCipher = packetCipher;
+
+			var annotatedTypes =
+			from type in packetDefinitionAssembly.GetExportedTypes()
+			where type.GetTypeInfo().GetCustomAttribute<ClientPacketAttribute>() != null
+			select new KeyValuePair<ShardClientOpcode, Type>(type.GetTypeInfo().GetCustomAttribute<ClientPacketAttribute>().Opcode, type);
+
+			packetMap = ImmutableDictionary.CreateRange(annotatedTypes);
 		}
 
     protected override IInPacket CreatePacket(Stream stream)
@@ -35,9 +47,23 @@ namespace Drama.Shard.Gateway
 			if (stream.Length - initialPosition < size)
 				return null;
 
-			Console.WriteLine($"received packet from client: type = {(ShardClientOpcode)ordinal}, total size = {size}");
+			var opcode = (ShardClientOpcode)ordinal;
 
-			return new UnimplementedPacket(size);
+			if (packetMap.ContainsKey(opcode))
+			{
+				Console.WriteLine($"received packet from client: type = {opcode}, total size = {size}");
+				var packet = (IInPacket)Activator.CreateInstance(packetMap[opcode]);
+
+				if (packet.Read(stream))
+					return packet;
+				else
+					return null;
+			}
+			else
+			{
+				Console.WriteLine($"received unimplemented packet from client: type = {opcode}, total size = {size}");
+				return new UnimplementedPacket(size);
+			}
     }
   }
 }

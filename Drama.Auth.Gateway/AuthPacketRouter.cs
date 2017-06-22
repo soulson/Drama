@@ -59,9 +59,9 @@ namespace Drama.Auth.Gateway
       }
     }
 
-    protected override async Task OnSessionDisconnected(ClientDisconnectedEventArgs e)
+    protected override Task OnSessionDisconnected(ClientDisconnectedEventArgs e)
     {
-      await AuthSession.Disconnect(self);
+      return AuthSession.Disconnect(self);
     }
 
     public void ReceivePacket(IOutPacket packet)
