@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 
 namespace Drama.Shard.Gateway
 {
-	// TODO: remove the Observer stuff from this class after using it as a reference implementation for ShardPacketRouter
-	//  the auth protocol is strictly call-and-response
 	public class ShardPacketRouter : PacketRouter, IShardSessionObserver
 	{
 		private const int InitialPacketCapacity = 32;
@@ -35,12 +33,12 @@ namespace Drama.Shard.Gateway
 			packetReader = new ShardPacketReader(packetCipher, typeof(ClientPacketAttribute).GetTypeInfo().Assembly);
     }
 
-    protected override async Task OnInitialize()
+    protected override Task OnInitialize()
     {
       if (self == null)
       {
-        self = await GrainFactory.CreateObjectReference<IShardSessionObserver>(this);
-        await ShardSession.Connect(self);
+        self = GrainFactory.CreateObjectReference<IShardSessionObserver>(this).Result;
+        return ShardSession.Connect(self);
       }
       else
         throw new InvalidOperationException("cannot initialize more than once");

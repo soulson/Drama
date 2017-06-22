@@ -9,13 +9,9 @@ using System.Threading.Tasks;
 
 namespace Drama.Auth.Gateway
 {
-	// TODO: remove the Observer stuff from this class after using it as a reference implementation for ShardPacketRouter
-	//  the auth protocol is strictly call-and-response
-	public class AuthPacketRouter : PacketRouter, IAuthSessionObserver
+	public class AuthPacketRouter : PacketRouter
   {
     private readonly AuthPacketReader packetReader;
-
-    private IAuthSessionObserver self;
     
     protected IGrainFactory GrainFactory { get; }
     protected IAuthSession AuthSession { get; }
@@ -27,15 +23,9 @@ namespace Drama.Auth.Gateway
       packetReader = new AuthPacketReader();
     }
 
-    protected override async Task OnInitialize()
+    protected override Task OnInitialize()
     {
-      if (self == null)
-      {
-        self = await GrainFactory.CreateObjectReference<IAuthSessionObserver>(this);
-        await AuthSession.Connect(self);
-      }
-      else
-        throw new InvalidOperationException("cannot initialize more than once");
+			return AuthSession.Connect();
     }
 
     protected override async Task OnSessionDataReceived(DataReceivedEventArgs e)
@@ -61,7 +51,7 @@ namespace Drama.Auth.Gateway
 
     protected override Task OnSessionDisconnected(ClientDisconnectedEventArgs e)
     {
-      return AuthSession.Disconnect(self);
+      return AuthSession.Disconnect();
     }
 
     public void ReceivePacket(IOutPacket packet)

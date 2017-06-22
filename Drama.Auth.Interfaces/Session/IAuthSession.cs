@@ -7,8 +7,8 @@ namespace Drama.Auth.Interfaces.Session
 {
   public interface IAuthSession : IGrainWithGuidKey
   {
-    Task Connect(IAuthSessionObserver observer);
-    Task Disconnect(IAuthSessionObserver observer);
+    Task Connect();
+    Task Disconnect();
 
     Task<LogonChallengeResponse> SubmitLogonChallenge(LogonChallengeRequest packet);
     Task<LogonProofResponse> SubmitLogonProof(LogonProofRequest packet);

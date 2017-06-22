@@ -13,27 +13,17 @@ namespace Drama.Auth.Grains.Session
 	// TODO: remove observer stuff once used as a reference implementation for ShardSession
   public class AuthSession : Grain, IAuthSession
   {
-		private readonly ObserverSubscriptionManager<IAuthSessionObserver> sessionObservers;
-
 		private string AuthenticatingIdentity { get; set; }
 		private IAccount AuthenticatedAccount { get; set; }
 
-		public AuthSession()
+		public Task Connect()
     {
-      sessionObservers = new ObserverSubscriptionManager<IAuthSessionObserver>();
-    }
-
-		public Task Connect(IAuthSessionObserver observer)
-    {
-      sessionObservers.Subscribe(observer);
       GetLogger().Info($"session {this.GetPrimaryKey()} connected");
       return Task.CompletedTask;
     }
 
-    public async Task Disconnect(IAuthSessionObserver observer)
+    public async Task Disconnect()
     {
-      sessionObservers.Unsubscribe(observer);
-
 			if (AuthenticatedAccount == null)
 				GetLogger().Info($"session {this.GetPrimaryKey()} (unauthenticated) disconnected");
 			else
