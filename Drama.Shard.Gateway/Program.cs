@@ -1,6 +1,7 @@
-﻿using Drama.Shard.Gateway.Configuration;
-using Drama.Core.Gateway.Networking;
+﻿using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces;
+using Drama.Shard.Gateway;
+using Drama.Shard.Gateway.Configuration;
 using Microsoft.Extensions.Configuration;
 using Orleans;
 using Orleans.Runtime;
@@ -42,13 +43,13 @@ namespace Drama.Auth.Gateway
 
 				try
 				{
-					server.ClientConnected += /*async*/ (sender, e) =>
+					server.ClientConnected += async (sender, e) =>
 					{
-						// the packet filter hooks events on the session, which keeps it alive as long as the session lives
-						//var filter = new AuthPacketRouter(e.Session, GrainClient.GrainFactory);
+						// the packet router hooks events on the session, which keeps it alive as long as the session lives
+						var router = new ShardPacketRouter(e.Session, GrainClient.GrainFactory);
 
-						// the packet filter must be created before any awaits in this block so it can listen for the logon challenge immediately
-						//await filter.InitializeAsync();
+						// the packet router must be created before any awaits in this block so it can listen immediately
+						await router.InitializeAsync();
 					};
 
 					Console.Write("starting tcp server...");

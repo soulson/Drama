@@ -9,4 +9,8 @@
     <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator.Build" Version="2.0.0-preview2-201705140000" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Drama.Core.Interfaces\Drama.Core.Interfaces.csproj" />
+  </ItemGroup>
+
 </Project>
