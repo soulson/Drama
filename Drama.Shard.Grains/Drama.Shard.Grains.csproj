@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Drama.Auth.Interfaces\Drama.Auth.Interfaces.csproj" />
     <ProjectReference Include="..\Drama.Core.Interfaces\Drama.Core.Interfaces.csproj" />
+    <ProjectReference Include="..\Drama.Shard.Interfaces\Drama.Shard.Interfaces.csproj" />
   </ItemGroup>
 
 </Project>

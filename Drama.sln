@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Auth.Gateway", "Drama.Auth.Gateway\Drama.Auth.Gateway.csproj", "{55644D30-3AD6-4303-BF0E-CE6C6F9BC5C4}"
 EndProject
@@ -14,6 +14,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Auth.Interfaces", "Drama.Auth.Interfaces\Drama.Auth.Interfaces.csproj", "{47F65A61-7868-4D67-9431-589B18C5B05A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Core.Interfaces", "Drama.Core.Interfaces\Drama.Core.Interfaces.csproj", "{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Interfaces", "Drama.Shard.Interfaces\Drama.Shard.Interfaces.csproj", "{E688F4F5-B729-4FB7-8494-D0DA2F33CD1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Grains", "Drama.Shard.Grains\Drama.Shard.Grains.csproj", "{D6F06AE5-D03D-496B-A257-269C60D8D56F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Gateway", "Drama.Shard.Gateway\Drama.Shard.Gateway.csproj", "{FD0EFA23-00D1-4DEB-B224-CC0168C8B13B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Host", "Drama.Shard.Host\Drama.Shard.Host.csproj", "{2518089D-2415-4F1A-87D7-C49C385F50C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +53,22 @@ Global
 		{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E688F4F5-B729-4FB7-8494-D0DA2F33CD1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E688F4F5-B729-4FB7-8494-D0DA2F33CD1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E688F4F5-B729-4FB7-8494-D0DA2F33CD1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E688F4F5-B729-4FB7-8494-D0DA2F33CD1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6F06AE5-D03D-496B-A257-269C60D8D56F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6F06AE5-D03D-496B-A257-269C60D8D56F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6F06AE5-D03D-496B-A257-269C60D8D56F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6F06AE5-D03D-496B-A257-269C60D8D56F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD0EFA23-00D1-4DEB-B224-CC0168C8B13B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD0EFA23-00D1-4DEB-B224-CC0168C8B13B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD0EFA23-00D1-4DEB-B224-CC0168C8B13B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD0EFA23-00D1-4DEB-B224-CC0168C8B13B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2518089D-2415-4F1A-87D7-C49C385F50C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2518089D-2415-4F1A-87D7-C49C385F50C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2518089D-2415-4F1A-87D7-C49C385F50C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2518089D-2415-4F1A-87D7-C49C385F50C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
