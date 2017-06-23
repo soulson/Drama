@@ -14,5 +14,6 @@ namespace Drama.Shard.Interfaces.Session
 		Task Send(IOutPacket packet);
 
 		Task<BigInteger> Authenticate(AuthSessionRequest authChallenge);
+		Task Handshake(AuthSessionRequest authRequest);
 	}
 }

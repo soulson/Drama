@@ -1,6 +1,7 @@
 ﻿using Drama.Core.Interfaces.Networking;
 using System;
 using System.IO;
+using System.Text;
 
 namespace Drama.Shard.Interfaces.Protocol
 {
@@ -12,12 +13,18 @@ namespace Drama.Shard.Interfaces.Protocol
 
 		public void Write(Stream stream)
 		{
-			stream.Write(BitConverter.GetBytes((ushort)Opcode), 0, sizeof(ushort));
+			using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+			{
+				writer.Write((ushort)Opcode);
+				writer.Write((byte)Response);
 
-			stream.WriteByte((byte)Response);
-
-			if (Response == AuthResponse.Success)
-				stream.Write(new byte[9], 0, 9);
+				if (Response == AuthResponse.Success)
+				{
+					writer.Write(0);
+					writer.Write((byte)0);
+					writer.Write(0);
+				}
+			}
 		}
 	}
 }

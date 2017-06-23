@@ -59,13 +59,17 @@ namespace Drama.Shard.Gateway
 							ForwardPacket(new PongResponse() { Cookie = ping.Cookie });
 							Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {ping.Latency} and cookie = 0x{ping.Cookie:x8}");
 							break;
-						case AuthSessionRequest authChallenge:
+						case AuthSessionRequest authRequest:
 							try
 							{
-								var sessionKey = await ShardSession.Authenticate(authChallenge);
+								// this handler is a little whacky. it can't just send its own response to the client, because the client
+								//  expects the response to be encrypted with the session key. so we have a bit of call-and-response here
+								//  to manage this
+								var sessionKey = await ShardSession.Authenticate(authRequest);
 								packetCipher.Initialize(sessionKey);
+								await ShardSession.Handshake(authRequest);
 							}
-							catch (AuthenticationFailedException ex)
+							catch (SessionException ex)
 							{
 								Console.WriteLine(ex.Message);
 								authenticationFailed = true;

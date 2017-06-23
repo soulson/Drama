@@ -21,6 +21,7 @@ namespace Drama.Shard.Grains.Session
 		private readonly ObserverSubscriptionManager<IShardSessionObserver> sessionObservers;
 
 		private int seed;
+		private string authenticatedIdentity;
 
 		public ShardSession()
 		{
@@ -102,8 +103,9 @@ namespace Drama.Shard.Grains.Session
 						if (serverDigest == authRequest.ClientDigest)
 						{
 							GetLogger().Info($"{authRequest.Identity} successfully authenticated to {nameof(ShardSession)} {this.GetPrimaryKey()}");
-							await Send(new AuthSessionResponse() { Response = AuthResponse.Success });
-							await SendAddonPacket(authRequest);
+
+							// we can't just Send the Success response here, since the client expects the packet cipher to be initialized at this point
+							authenticatedIdentity = authRequest.Identity;
 							return sessionKey;
 						}
 						else
@@ -130,6 +132,14 @@ namespace Drama.Shard.Grains.Session
 				await Send(new AuthSessionResponse() { Response = AuthResponse.UnknownAccount });
 				throw new AuthenticationFailedException($"account {authRequest.Identity} does not exist");
 			}
+		}
+
+		public Task Handshake(AuthSessionRequest authRequest)
+		{
+			if (authenticatedIdentity == authRequest.Identity)
+				return Task.WhenAll(Send(new AuthSessionResponse() { Response = AuthResponse.Success }), SendAddonPacket(authRequest));
+			else
+				throw new SessionStateException($"received {nameof(Handshake)} request for identity {authRequest.Identity} but {nameof(authenticatedIdentity)} is {authenticatedIdentity}");
 		}
 
 		private Task SendAddonPacket(AuthSessionRequest authRequest)
