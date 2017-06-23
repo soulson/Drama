@@ -7,7 +7,7 @@ using System.Text;
 namespace Drama.Shard.Interfaces.Protocol
 {
 	[ClientPacket(ShardClientOpcode.AuthSession)]
-	public sealed class AuthChallengeResponse : IInPacket
+	public sealed class AuthSessionRequest : IInPacket
 	{
 		public int ClientBuild { get; set; }
 		public string Identity { get; set; }

@@ -13,6 +13,6 @@ namespace Drama.Shard.Interfaces.Session
 		Task Disconnect(IShardSessionObserver observer);
 		Task Send(IOutPacket packet);
 
-		Task<BigInteger> Authenticate(AuthChallengeResponse authChallenge);
+		Task<BigInteger> Authenticate(AuthSessionRequest authChallenge);
 	}
 }

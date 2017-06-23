@@ -35,13 +35,13 @@ namespace Drama.Auth.Gateway
         switch (packet)
         {
           case LogonChallengeRequest lc:
-            ReceivePacket(await AuthSession.SubmitLogonChallenge(lc));
+            ForwardPacket(await AuthSession.SubmitLogonChallenge(lc));
             break;
           case LogonProofRequest lp:
-            ReceivePacket(await AuthSession.SubmitLogonProof(lp));
+            ForwardPacket(await AuthSession.SubmitLogonProof(lp));
             break;
           case RealmListRequest rl:
-            ReceivePacket(await AuthSession.GetRealmList(rl));
+            ForwardPacket(await AuthSession.GetRealmList(rl));
             break;
           default:
             throw new Exception($"received unknown packet {packet}");
@@ -54,7 +54,7 @@ namespace Drama.Auth.Gateway
       return AuthSession.Disconnect();
     }
 
-    public void ReceivePacket(IOutPacket packet)
+    public void ForwardPacket(IOutPacket packet)
     {
       using (var stream = new MemoryStream())
       {

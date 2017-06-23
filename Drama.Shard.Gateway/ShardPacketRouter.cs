@@ -56,10 +56,10 @@ namespace Drama.Shard.Gateway
 					switch (packet)
 					{
 						case PingRequest ping:
-							ReceivePacket(new PongResponse() { Cookie = ping.Cookie });
+							ForwardPacket(new PongResponse() { Cookie = ping.Cookie });
 							Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {ping.Latency} and cookie = 0x{ping.Cookie:x8}");
 							break;
-						case AuthChallengeResponse authChallenge:
+						case AuthSessionRequest authChallenge:
 							try
 							{
 								var sessionKey = await ShardSession.Authenticate(authChallenge);
@@ -84,7 +84,7 @@ namespace Drama.Shard.Gateway
       return ShardSession.Disconnect(self);
     }
 
-    public void ReceivePacket(IOutPacket packet)
+    public void ForwardPacket(IOutPacket packet)
     {
       using (var stream = new MemoryStream(InitialPacketCapacity))
       {

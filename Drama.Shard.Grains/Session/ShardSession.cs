@@ -63,11 +63,11 @@ namespace Drama.Shard.Grains.Session
 
 		public Task Send(IOutPacket packet)
 		{
-			sessionObservers.Notify(receiver => receiver.ReceivePacket(packet));
+			sessionObservers.Notify(receiver => receiver.ForwardPacket(packet));
 			return Task.CompletedTask;
 		}
 
-		public async Task<BigInteger> Authenticate(AuthChallengeResponse authChallenge)
+		public async Task<BigInteger> Authenticate(AuthSessionRequest authChallenge)
 		{
 			if (String.IsNullOrEmpty(authChallenge.Identity))
 				throw new ArgumentNullException(nameof(authChallenge.Identity));
@@ -101,7 +101,7 @@ namespace Drama.Shard.Grains.Session
 
 						if (serverDigest == authChallenge.ClientDigest)
 						{
-							GetLogger().Info($"{authChallenge} successfully authenticated to {nameof(ShardSession)} {this.GetPrimaryKey()}");
+							GetLogger().Info($"{authChallenge.Identity} successfully authenticated to {nameof(ShardSession)} {this.GetPrimaryKey()}");
 							await Send(new AuthSessionResponse() { Response = AuthResponse.Success });
 							return sessionKey;
 						}
@@ -119,7 +119,7 @@ namespace Drama.Shard.Grains.Session
 				}
 				catch (AccountStateException)
 				{
-					GetLogger().Warn($"received {nameof(AuthChallengeResponse)} with unauthenticated identity {authChallenge.Identity}");
+					GetLogger().Warn($"received {nameof(AuthSessionRequest)} with unauthenticated identity {authChallenge.Identity}");
 					await Send(new AuthSessionResponse() { Response = AuthResponse.Failed });
 					throw new AuthenticationFailedException($"account {authChallenge.Identity} is not authenticated");
 				}

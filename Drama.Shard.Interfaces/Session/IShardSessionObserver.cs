@@ -6,6 +6,6 @@ namespace Drama.Shard.Interfaces.Session
 {
 	public interface IShardSessionObserver : IGrainObserver
 	{
-		void ReceivePacket(IOutPacket packet);
+		void ForwardPacket(IOutPacket packet);
 	}
 }
