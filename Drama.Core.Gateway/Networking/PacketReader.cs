@@ -1,4 +1,5 @@
-﻿using Drama.Core.Interfaces.Networking;
+﻿using Drama.Core.Interfaces;
+using Drama.Core.Interfaces.Networking;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,54 +17,30 @@ namespace Drama.Core.Gateway.Networking
       buffer = new MemoryStream(InitialCapacity);
     }
 
+		// the reason this method yields is in case packets start showing up partially. they could be streamed
+		//  into the buffer and read when complete, which may result in 0, 1, or many packets being returned
+		//  by this method at a time. however, this is hard to do, and has not yet seemed necessary
     public IEnumerable<IInPacket> ProcessData(ArraySegment<byte> data)
     {
-      var initialPosition = buffer.Position;
-      buffer.Write(data.Array, data.Offset, data.Count);
-      buffer.Position = initialPosition;
+			ProcessOnce(data);
 
-			void OnIncompletePacket()
-			{
-				buffer.Position = initialPosition;
-				var remainder = new byte[buffer.Length - buffer.Position];
-				buffer.Read(remainder, 0, remainder.Length);
+			buffer.Position = 0;
+			buffer.Write(data.Array, 0, data.Count);
 
-				buffer.Position = 0;
-				buffer.Write(remainder, 0, remainder.Length);
-				buffer.SetLength(buffer.Position);
-			}
+			buffer.Position = 0;
+			var packet = CreatePacket(buffer);
 
-			while (true)
-      {
-        initialPosition = buffer.Position;
-        var packet = CreatePacket(buffer);
-        buffer.Position = initialPosition + ReadOffset;
+			if (packet is UnimplementedPacket)
+				yield break;
 
-        if (packet == null)
-        {
-          OnIncompletePacket();
-          yield break;
-        }
-        else if (packet is UnimplementedPacket)
-        {
-          // TODO: log
-          if(!packet.Read(buffer))
-          {
-            OnIncompletePacket();
-            yield break;
-          }
-        }
-        else
-        {
-          if (packet.Read(buffer))
-            yield return packet;
-          else
-          {
-            OnIncompletePacket();
-            yield break;
-          }
-        }
-      }
+			if (packet == null)
+				throw new DramaException("packet returned by CreatePacket was null! this may mean that the stream is corrupt or that we're receiving non-whole packets");
+
+			buffer.Position = ReadOffset;
+			if (!packet.Read(buffer))
+				throw new DramaException("packet.Read returned false! this may mean that the stream is corrupt or that we're receiving non-whole packets");
+
+			yield return packet;
     }
 
     /// <remarks>
@@ -75,5 +52,7 @@ namespace Drama.Core.Gateway.Networking
     protected abstract IInPacket CreatePacket(Stream stream);
 
 		protected abstract int ReadOffset { get; }
+
+		protected virtual void ProcessOnce(ArraySegment<byte> input) { }
   }
 }
