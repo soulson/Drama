@@ -67,10 +67,10 @@ namespace Drama.Shard.Grains.Session
 			return Task.CompletedTask;
 		}
 
-		public async Task<BigInteger> Authenticate(AuthSessionRequest authChallenge)
+		public async Task<BigInteger> Authenticate(AuthSessionRequest authRequest)
 		{
-			if (String.IsNullOrEmpty(authChallenge.Identity))
-				throw new ArgumentNullException(nameof(authChallenge.Identity));
+			if (String.IsNullOrEmpty(authRequest.Identity))
+				throw new ArgumentNullException(nameof(authRequest.Identity));
 
 			if (seed == 0)
 			{
@@ -78,7 +78,7 @@ namespace Drama.Shard.Grains.Session
 				throw new AuthenticationFailedException("cannot authenticate with a server seed of 0");
 			}
 
-			var account = GrainFactory.GetGrain<IAccount>(authChallenge.Identity);
+			var account = GrainFactory.GetGrain<IAccount>(authRequest.Identity);
 
 			if (await account.Exists())
 			{
@@ -91,44 +91,56 @@ namespace Drama.Shard.Grains.Session
 						var serverDigest = BigIntegers.FromUnsignedByteArray(
 							sha1.CalculateDigest(new byte[][]
 							{
-								Encoding.UTF8.GetBytes(authChallenge.Identity),
+								Encoding.UTF8.GetBytes(authRequest.Identity),
 								new byte[4],
-								BitConverter.GetBytes(authChallenge.ClientSeed),
+								BitConverter.GetBytes(authRequest.ClientSeed),
 								BitConverter.GetBytes(seed),
 								sessionKey.ToByteArray(40),
 							})
 						);
 
-						if (serverDigest == authChallenge.ClientDigest)
+						if (serverDigest == authRequest.ClientDigest)
 						{
-							GetLogger().Info($"{authChallenge.Identity} successfully authenticated to {nameof(ShardSession)} {this.GetPrimaryKey()}");
+							GetLogger().Info($"{authRequest.Identity} successfully authenticated to {nameof(ShardSession)} {this.GetPrimaryKey()}");
 							await Send(new AuthSessionResponse() { Response = AuthResponse.Success });
+							await SendAddonPacket(authRequest);
 							return sessionKey;
 						}
 						else
 						{
 							await Send(new AuthSessionResponse() { Response = AuthResponse.Failed });
-							throw new AuthenticationFailedException($"account {authChallenge.Identity} failed authentication proof");
+							throw new AuthenticationFailedException($"account {authRequest.Identity} failed authentication proof");
 						}
 					}
 				}
 				catch (AccountDoesNotExistException)
 				{
 					await Send(new AuthSessionResponse() { Response = AuthResponse.UnknownAccount });
-					throw new AuthenticationFailedException($"account {authChallenge.Identity} does not exist");
+					throw new AuthenticationFailedException($"account {authRequest.Identity} does not exist");
 				}
 				catch (AccountStateException)
 				{
-					GetLogger().Warn($"received {nameof(AuthSessionRequest)} with unauthenticated identity {authChallenge.Identity}");
+					GetLogger().Warn($"received {nameof(AuthSessionRequest)} with unauthenticated identity {authRequest.Identity}");
 					await Send(new AuthSessionResponse() { Response = AuthResponse.Failed });
-					throw new AuthenticationFailedException($"account {authChallenge.Identity} is not authenticated");
+					throw new AuthenticationFailedException($"account {authRequest.Identity} is not authenticated");
 				}
 			}
 			else
 			{
 				await Send(new AuthSessionResponse() { Response = AuthResponse.UnknownAccount });
-				throw new AuthenticationFailedException($"account {authChallenge.Identity} does not exist");
+				throw new AuthenticationFailedException($"account {authRequest.Identity} does not exist");
 			}
+		}
+
+		private Task SendAddonPacket(AuthSessionRequest authRequest)
+		{
+			const int StandardAddonCRC = 0x1c776d01;
+			var response = new AddonInfoResponse();
+
+			foreach (var block in authRequest.AddonBlocks)
+				response.IsAddonStandard.Add(block.Crc == StandardAddonCRC);
+
+			return Send(response);
 		}
 	}
 }

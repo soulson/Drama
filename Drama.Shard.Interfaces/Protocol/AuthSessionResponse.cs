@@ -1,4 +1,5 @@
 ﻿using Drama.Core.Interfaces.Networking;
+using System;
 using System.IO;
 
 namespace Drama.Shard.Interfaces.Protocol
@@ -11,6 +12,8 @@ namespace Drama.Shard.Interfaces.Protocol
 
 		public void Write(Stream stream)
 		{
+			stream.Write(BitConverter.GetBytes((ushort)Opcode), 0, sizeof(ushort));
+
 			stream.WriteByte((byte)Response);
 
 			if (Response == AuthResponse.Success)
