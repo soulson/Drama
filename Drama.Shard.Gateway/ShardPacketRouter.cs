@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Drama.Shard.Gateway
 {
-	public class ShardPacketRouter : PacketRouter, IShardSessionObserver
+	public partial class ShardPacketRouter : PacketRouter, IShardSessionObserver
 	{
 		private const int InitialPacketCapacity = 32;
 
@@ -46,8 +46,8 @@ namespace Drama.Shard.Gateway
         throw new InvalidOperationException("cannot initialize more than once");
     }
 
-    protected override async Task OnSessionDataReceived(DataReceivedEventArgs e)
-    {
+		protected override async Task OnSessionDataReceived(DataReceivedEventArgs e)
+		{
 			// if the session failed to authenticate, it cannot be recovered. just discard all incoming data
 			if (!authenticationFailed)
 			{
@@ -55,33 +55,22 @@ namespace Drama.Shard.Gateway
 				{
 					switch (packet)
 					{
-						case PingRequest ping:
-							ForwardPacket(new PongResponse() { Cookie = ping.Cookie });
-							Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {ping.Latency} and cookie = 0x{ping.Cookie:x8}");
-							break;
-						case AuthSessionRequest authRequest:
-							try
-							{
-								// this handler is a little whacky. it can't just send its own response to the client, because the client
-								//  expects the response to be encrypted with the session key. so we have a bit of call-and-response here
-								//  to manage this
-								var sessionKey = await ShardSession.Authenticate(authRequest);
-								packetCipher.Initialize(sessionKey);
-								await ShardSession.Handshake(authRequest);
-							}
-							catch (SessionException ex)
-							{
-								Console.WriteLine(ex.Message);
-								authenticationFailed = true;
-							}
-							break;
+						#region ImmediateHandlers
+						case PingRequest ping: await HandlePing(ping); break;
+						#endregion
+
+						#region AuthenticationHandlers
+						case AuthSessionRequest authSession: await HandleAuthSession(authSession); break;
+						#endregion
+
+						// unhandled packets will end up here
 						default:
 							Console.WriteLine($"received an unimplemented packet: {packet.GetType().Name}");
 							break;
 					}
 				}
 			}
-    }
+		}
 
     protected override Task OnSessionDisconnected(ClientDisconnectedEventArgs e)
     {
