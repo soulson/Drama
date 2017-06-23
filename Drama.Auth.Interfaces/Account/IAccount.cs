@@ -15,5 +15,6 @@ namespace Drama.Auth.Interfaces.Account
 		Task<SrpInitialParameters> GetSrpInitialParameters();
 		Task<SrpResult> SrpHandshake(BigInteger a, BigInteger m1);
 		Task Deauthenticate();
+		Task<BigInteger> GetSessionKey();
 	}
 }

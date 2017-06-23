@@ -21,23 +21,23 @@ namespace Drama.Core.Gateway.Networking
       var initialPosition = buffer.Position;
       buffer.Write(data.Array, data.Offset, data.Count);
       buffer.Position = initialPosition;
-      
-      while (true)
+
+			void OnIncompletePacket()
+			{
+				buffer.Position = initialPosition;
+				var remainder = new byte[buffer.Length - buffer.Position];
+				buffer.Read(remainder, 0, remainder.Length);
+
+				buffer.Position = 0;
+				buffer.Write(remainder, 0, remainder.Length);
+				buffer.SetLength(buffer.Position);
+			}
+
+			while (true)
       {
         initialPosition = buffer.Position;
         var packet = CreatePacket(buffer);
-        buffer.Position = initialPosition;
-
-        void OnIncompletePacket()
-        {
-					buffer.Position = initialPosition;
-          var remainder = new byte[buffer.Length - buffer.Position];
-          buffer.Read(remainder, 0, remainder.Length);
-
-          buffer.Position = 0;
-          buffer.Write(remainder, 0, remainder.Length);
-          buffer.SetLength(buffer.Position);
-        }
+        buffer.Position = initialPosition + ReadOffset;
 
         if (packet == null)
         {
@@ -73,5 +73,7 @@ namespace Drama.Core.Gateway.Networking
     /// size is returned.
     /// </remarks>
     protected abstract IInPacket CreatePacket(Stream stream);
+
+		protected abstract int ReadOffset { get; }
   }
 }

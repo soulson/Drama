@@ -20,6 +20,7 @@ namespace Drama.Shard.Gateway
 		private readonly ShardPacketCipher packetCipher;
 
     private IShardSessionObserver self;
+		private bool authenticationFailed;
     
     protected IGrainFactory GrainFactory { get; }
     protected IShardSession ShardSession { get; }
@@ -31,6 +32,7 @@ namespace Drama.Shard.Gateway
 			twoZeroBytes = new byte[] { 0, 0 };
 			packetCipher = new ShardPacketCipher();
 			packetReader = new ShardPacketReader(packetCipher, typeof(ClientPacketAttribute).GetTypeInfo().Assembly);
+			authenticationFailed = false;
     }
 
     protected override Task OnInitialize()
@@ -44,23 +46,37 @@ namespace Drama.Shard.Gateway
         throw new InvalidOperationException("cannot initialize more than once");
     }
 
-    protected override Task OnSessionDataReceived(DataReceivedEventArgs e)
+    protected override async Task OnSessionDataReceived(DataReceivedEventArgs e)
     {
-      foreach(var packet in packetReader.ProcessData(e.ReceivedData))
-      {
-        switch (packet)
-        {
-					case PingRequest ping:
-						ReceivePacket(new PongResponse() { Cookie = ping.Cookie });
-						Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {ping.Latency} and cookie = 0x{ping.Cookie:x8}");
-						break;
-          default:
-						Console.WriteLine($"received an unimplemented packet: {packet.GetType().Name}");
-						break;
-        }
-      }
-
-			return Task.CompletedTask;
+			// if the session failed to authenticate, it cannot be recovered. just discard all incoming data
+			if (!authenticationFailed)
+			{
+				foreach (var packet in packetReader.ProcessData(e.ReceivedData))
+				{
+					switch (packet)
+					{
+						case PingRequest ping:
+							ReceivePacket(new PongResponse() { Cookie = ping.Cookie });
+							Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {ping.Latency} and cookie = 0x{ping.Cookie:x8}");
+							break;
+						case AuthChallengeResponse authChallenge:
+							try
+							{
+								var sessionKey = await ShardSession.Authenticate(authChallenge);
+								packetCipher.Initialize(sessionKey);
+							}
+							catch (AuthenticationFailedException ex)
+							{
+								Console.WriteLine(ex.Message);
+								authenticationFailed = true;
+							}
+							break;
+						default:
+							Console.WriteLine($"received an unimplemented packet: {packet.GetType().Name}");
+							break;
+					}
+				}
+			}
     }
 
     protected override Task OnSessionDisconnected(ClientDisconnectedEventArgs e)

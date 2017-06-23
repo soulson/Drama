@@ -11,7 +11,7 @@ namespace Drama.Auth.Interfaces.Protocol
 
     public bool Read(Stream stream)
     {
-      stream.Seek(33, SeekOrigin.Current);
+      stream.Seek(32, SeekOrigin.Current);
       var identityLength = stream.ReadByte();
 
       if (identityLength < 0)
@@ -20,7 +20,10 @@ namespace Drama.Auth.Interfaces.Protocol
         return false;
 
       var identityBytes = new byte[identityLength];
-      stream.Read(identityBytes, 0, identityBytes.Length);
+      var bytesRead = stream.Read(identityBytes, 0, identityBytes.Length);
+
+			if (bytesRead < identityLength)
+				return false;
 
       Identity = Encoding.UTF8.GetString(identityBytes);
 

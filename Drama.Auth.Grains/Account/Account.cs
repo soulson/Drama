@@ -78,6 +78,16 @@ namespace Drama.Auth.Grains.Account
 			return Task.FromResult(State);
 		}
 
+		public Task<BigInteger> GetSessionKey()
+		{
+			if(!IsExists)
+				throw new AccountDoesNotExistException($"account {this.GetPrimaryKeyString()} does not exist");
+			if (AuthState != AccountAuthState.Authenticated)
+				throw new AccountStateException("must be authenticated to get session key");
+
+			return Task.FromResult(SessionKey);
+		}
+
 		public async Task<SrpInitialParameters> GetSrpInitialParameters()
 		{
 			if (!IsExists)

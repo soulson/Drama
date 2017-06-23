@@ -17,6 +17,8 @@ namespace Drama.Shard.Gateway
 		private readonly ShardPacketCipher packetCipher;
 		private readonly ImmutableDictionary<ShardClientOpcode, Type> packetMap;
 
+		protected override int ReadOffset => 6;
+
 		public ShardPacketReader(ShardPacketCipher packetCipher, Assembly packetDefinitionAssembly)
 		{
 			this.packetCipher = packetCipher;

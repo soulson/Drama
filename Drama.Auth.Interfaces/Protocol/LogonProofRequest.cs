@@ -13,12 +13,9 @@ namespace Drama.Auth.Interfaces.Protocol
 
     public bool Read(Stream stream)
     {
-			if (stream.Length - stream.Position < 75)
+			if (stream.Length - stream.Position < 74)
 				return false;
-
-			// skip the opcode
-			stream.Seek(1, SeekOrigin.Current);
-
+			
 			var aBytes = new byte[32];
 			var m1Bytes = new byte[20];
 

@@ -7,8 +7,10 @@ using System.IO;
 namespace Drama.Auth.Gateway
 {
 	public class AuthPacketReader : PacketReader
-  {
-    protected override IInPacket CreatePacket(Stream stream)
+	{
+		protected override int ReadOffset => 1;
+
+		protected override IInPacket CreatePacket(Stream stream)
     {
       var ordinal = stream.ReadByte();
 
@@ -33,9 +35,9 @@ namespace Drama.Auth.Gateway
           if (identitySize < 0)
             return null;
           else
-            return new UnimplementedPacket(34 + identitySize);
+            return new UnimplementedPacket(33 + identitySize);
         case AuthRequestOpcode.ReconnectProof:
-          return new UnimplementedPacket(58);
+          return new UnimplementedPacket(57);
         default:
           throw new Exception($"unrecognized auth opcode value {ordinal}");
       }

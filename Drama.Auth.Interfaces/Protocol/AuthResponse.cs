@@ -2,7 +2,7 @@
 
 namespace Drama.Auth.Interfaces.Protocol
 {
-	public enum AuthResponseOpcode : byte
+	public enum AuthResponse : byte
 	{
 		Success = 0x00,
 		FailBanned = 0x03,

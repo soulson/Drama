@@ -14,7 +14,7 @@ namespace Drama.Auth.Interfaces.Protocol
 		private const byte NLength = 32;
 		private const byte SecurityFlags = 0;
 
-		public AuthResponseOpcode Result { get; set; }
+		public AuthResponse Result { get; set; }
 		public BigInteger B { get; set; }
 		public BigInteger N { get; set; }
 		public byte G { get; set; }
@@ -29,7 +29,7 @@ namespace Drama.Auth.Interfaces.Protocol
 				writer.Write((byte)0);
 				writer.Write((byte)Result);
 
-				if(Result == AuthResponseOpcode.Success)
+				if(Result == AuthResponse.Success)
 				{
 					writer.Write(B.ToByteArray(32));
 					writer.Write(GLength);

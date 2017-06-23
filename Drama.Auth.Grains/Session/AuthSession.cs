@@ -73,7 +73,7 @@ namespace Drama.Auth.Grains.Session
 
 					return new LogonChallengeResponse()
 					{
-						Result = AuthResponseOpcode.Success,
+						Result = AuthResponse.Success,
 						B = initialParams.B,
 						G = initialParams.G,
 						N = initialParams.N,
@@ -85,7 +85,7 @@ namespace Drama.Auth.Grains.Session
 				{
 					return new LogonChallengeResponse()
 					{
-						Result = AuthResponseOpcode.FailBadCredentials,
+						Result = AuthResponse.FailBadCredentials,
 					};
 				}
 			}
@@ -94,7 +94,7 @@ namespace Drama.Auth.Grains.Session
 				// account does not exist
 				return new LogonChallengeResponse()
 				{
-					Result = AuthResponseOpcode.FailBadCredentials,
+					Result = AuthResponse.FailBadCredentials,
 				};
 			}
 		}
@@ -113,7 +113,7 @@ namespace Drama.Auth.Grains.Session
 
 					return new LogonProofResponse()
 					{
-						Result = AuthResponseOpcode.Success,
+						Result = AuthResponse.Success,
 						M2 = result.M2,
 					};
 				}
@@ -125,7 +125,7 @@ namespace Drama.Auth.Grains.Session
 
 					return new LogonProofResponse()
 					{
-						Result = AuthResponseOpcode.FailBadCredentials,
+						Result = AuthResponse.FailBadCredentials,
 					};
 				}
 			}
@@ -137,7 +137,7 @@ namespace Drama.Auth.Grains.Session
 
 				return new LogonProofResponse()
 				{
-					Result = AuthResponseOpcode.FailBusy,
+					Result = AuthResponse.FailBusy,
 				};
 			}
 		}
