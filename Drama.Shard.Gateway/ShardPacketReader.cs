@@ -22,9 +22,9 @@ namespace Drama.Shard.Gateway
 			this.packetCipher = packetCipher;
 
 			var annotatedTypes =
-			from type in packetDefinitionAssembly.GetExportedTypes()
-			where type.GetTypeInfo().GetCustomAttribute<ClientPacketAttribute>() != null
-			select new KeyValuePair<ShardClientOpcode, Type>(type.GetTypeInfo().GetCustomAttribute<ClientPacketAttribute>().Opcode, type);
+				from type in packetDefinitionAssembly.GetExportedTypes()
+				where type.GetTypeInfo().GetCustomAttribute<ClientPacketAttribute>() != null
+				select new KeyValuePair<ShardClientOpcode, Type>(type.GetTypeInfo().GetCustomAttribute<ClientPacketAttribute>().Opcode, type);
 
 			packetMap = ImmutableDictionary.CreateRange(annotatedTypes);
 		}
@@ -52,12 +52,7 @@ namespace Drama.Shard.Gateway
 			if (packetMap.ContainsKey(opcode))
 			{
 				Console.WriteLine($"received packet from client: type = {opcode}, total size = {size}");
-				var packet = (IInPacket)Activator.CreateInstance(packetMap[opcode]);
-
-				if (packet.Read(stream))
-					return packet;
-				else
-					return null;
+				return (IInPacket)Activator.CreateInstance(packetMap[opcode]);
 			}
 			else
 			{

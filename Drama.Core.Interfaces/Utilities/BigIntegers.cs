@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
 
 namespace Drama.Core.Interfaces.Utilities
@@ -19,6 +20,10 @@ namespace Drama.Core.Interfaces.Utilities
 				return new BigInteger(input);
 		}
 
-		public static byte[] ToByteArray(this BigInteger value, int length) => Arrays.Left(value.ToByteArray(), length);
+		public static byte[] ToByteArray(this BigInteger value, int length)
+			=> Arrays.Left(value.ToByteArray(), length);
+
+		public static BigInteger ReadBigInteger(this BinaryReader reader, int sizeInBytes)
+			=> FromUnsignedByteArray(reader.ReadBytes(sizeInBytes));
 	}
 }
