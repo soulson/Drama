@@ -6,6 +6,7 @@ namespace Drama.Shard.Gateway
 {
 	public partial class ShardPacketRouter
 	{
+		[Handler(typeof(PingRequest))]
 		private Task HandlePing(PingRequest request)
 		{
 			ForwardPacket(new PongResponse() { Cookie = request.Cookie });

@@ -7,6 +7,7 @@ namespace Drama.Shard.Gateway
 {
 	public partial class ShardPacketRouter
 	{
+		[Handler(typeof(AuthSessionRequest))]
 		private async Task HandleAuthSession(AuthSessionRequest request)
 		{
 			try

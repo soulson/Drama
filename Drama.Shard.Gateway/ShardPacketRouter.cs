@@ -1,10 +1,12 @@
 ﻿using Drama.Core.Gateway.Networking;
+using Drama.Core.Interfaces;
 using Drama.Core.Interfaces.Networking;
 using Drama.Core.Interfaces.Utilities;
 using Drama.Shard.Interfaces.Protocol;
 using Drama.Shard.Interfaces.Session;
 using Orleans;
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -24,6 +26,16 @@ namespace Drama.Shard.Gateway
     
     protected IGrainFactory GrainFactory { get; }
     protected IShardSession ShardSession { get; }
+		protected IImmutableDictionary<Type, MethodInfo> PacketHandlers { get; }
+
+		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+		protected sealed class HandlerAttribute : Attribute
+		{
+			public Type PacketType { get; }
+
+			public HandlerAttribute(Type packetType)
+				=> PacketType = packetType;
+		}
 
     public ShardPacketRouter(TcpSession session, IGrainFactory grainFactory) : base(session)
     {
@@ -33,6 +45,22 @@ namespace Drama.Shard.Gateway
 			packetCipher = new ShardPacketCipher();
 			packetReader = new ShardPacketReader(packetCipher, typeof(ClientPacketAttribute).GetTypeInfo().Assembly);
 			authenticationFailed = false;
+
+			var handlerMapBuilder = ImmutableDictionary.CreateBuilder<Type, MethodInfo>();
+			var typeInfo = GetType().GetTypeInfo();
+
+			foreach (var method in typeInfo.DeclaredMethods)
+			{
+				foreach (var handlerAttribute in method.GetCustomAttributes<HandlerAttribute>(true))
+				{
+					if (method.ReturnType != typeof(Task))
+						throw new DramaException($"packet handler method {method.Name} must return {nameof(Task)}");
+
+					handlerMapBuilder.Add(handlerAttribute.PacketType, method);
+				}
+			}
+
+			PacketHandlers = handlerMapBuilder.ToImmutable();
     }
 
     protected override Task OnInitialize()
@@ -53,21 +81,15 @@ namespace Drama.Shard.Gateway
 			{
 				foreach (var packet in packetReader.ProcessData(e.ReceivedData))
 				{
-					switch (packet)
+					var packetType = packet.GetType();
+
+					if (PacketHandlers.ContainsKey(packetType))
 					{
-						#region ImmediateHandlers
-						case PingRequest ping: await HandlePing(ping); break;
-						#endregion
-
-						#region AuthenticationHandlers
-						case AuthSessionRequest authSession: await HandleAuthSession(authSession); break;
-						#endregion
-
-						// unhandled packets will end up here
-						default:
-							Console.WriteLine($"received an unimplemented packet: {packet.GetType().Name}");
-							break;
+						var handlerMethod = PacketHandlers[packetType];
+						await (Task)handlerMethod.Invoke(this, new object[] { packet });
 					}
+					else
+						Console.WriteLine($"received an unimplemented packet: {packet.GetType().Name}");
 				}
 			}
 		}
