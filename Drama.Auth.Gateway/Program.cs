@@ -34,7 +34,7 @@ namespace Drama.Auth.Gateway
         // since the debugger will start the host and gateway at the same time, it's handy to put a pause here
         if (Debugger.IsAttached)
         {
-          Console.WriteLine("running with attached debugger; press enter to start");
+          Console.WriteLine("auth gateway running with attached debugger; press enter to start");
           Console.ReadLine();
         }
 

@@ -1,5 +1,6 @@
 ﻿using Drama.Auth.Interfaces.Account;
 using Drama.Auth.Interfaces.Utilities;
+using Drama.Core.Interfaces;
 using Drama.Core.Interfaces.Security;
 using Drama.Core.Interfaces.Utilities;
 using Orleans;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Drama.Auth.Grains.Account
 {
-	[StorageProvider(ProviderName = "AccountStore")]
+	[StorageProvider(ProviderName = StorageProviders.Account)]
 	public class Account : Grain<AccountEntity>, IAccount
 	{
 		// SRP6 constants

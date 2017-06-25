@@ -14,18 +14,21 @@ namespace Drama.Shard.Grains.Session
 		private readonly ObserverSubscriptionManager<IShardSessionObserver> sessionObservers;
 
 		private int seed;
-		private string authenticatedIdentity;
+
+		private string AuthenticatedIdentity { get; set; }
+		private string ShardName { get; set; }
 
 		public ShardSession()
 		{
 			sessionObservers = new ObserverSubscriptionManager<IShardSessionObserver>();
 		}
 
-		public async Task Connect(IShardSessionObserver observer)
+		public async Task Connect(IShardSessionObserver observer, string shardName)
 		{
 			if (sessionObservers.Count != 0)
 				GetLogger().Warn($"session {this.GetPrimaryKey()} has {sessionObservers.Count} observers at the start of {nameof(Connect)}; expected 0");
 
+			ShardName = shardName;
 			sessionObservers.Subscribe(observer);
 			GetLogger().Info($"session {this.GetPrimaryKey()} connected");
 

@@ -52,7 +52,7 @@ namespace Drama.Shard.Grains.Session
 							GetLogger().Info($"{authRequest.Identity} successfully authenticated to {nameof(ShardSession)} {this.GetPrimaryKey()}");
 
 							// we can't just Send the Success response here, since the client expects the packet cipher to be initialized at this point
-							authenticatedIdentity = authRequest.Identity;
+							AuthenticatedIdentity = authRequest.Identity;
 							return sessionKey;
 						}
 						else
@@ -83,10 +83,10 @@ namespace Drama.Shard.Grains.Session
 
 		public Task Handshake(AuthSessionRequest authRequest)
 		{
-			if (authenticatedIdentity == authRequest.Identity)
+			if (AuthenticatedIdentity == authRequest.Identity)
 				return Task.WhenAll(Send(new AuthSessionResponse() { Response = AuthResponse.Success }), SendAddonPacket(authRequest));
 			else
-				throw new SessionStateException($"received {nameof(Handshake)} request for identity {authRequest.Identity} but {nameof(authenticatedIdentity)} is {authenticatedIdentity}");
+				throw new SessionStateException($"received {nameof(Handshake)} request for identity {authRequest.Identity} but {nameof(AuthenticatedIdentity)} is {AuthenticatedIdentity}");
 		}
 
 		private Task SendAddonPacket(AuthSessionRequest authRequest)

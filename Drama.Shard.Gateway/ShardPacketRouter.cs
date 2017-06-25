@@ -18,6 +18,7 @@ namespace Drama.Shard.Gateway
 		private const int InitialPacketCapacity = 32;
 
 		private readonly byte[] twoZeroBytes;
+		private readonly string shardName;
     private readonly ShardPacketReader packetReader;
 		private readonly ShardPacketCipher packetCipher;
 
@@ -37,7 +38,7 @@ namespace Drama.Shard.Gateway
 				=> PacketType = packetType;
 		}
 
-    public ShardPacketRouter(TcpSession session, IGrainFactory grainFactory) : base(session)
+    public ShardPacketRouter(TcpSession session, IGrainFactory grainFactory, string shardName) : base(session)
     {
       GrainFactory = grainFactory;
 			ShardSession = GrainFactory.GetGrain<IShardSession>(Session.Id);
@@ -45,7 +46,9 @@ namespace Drama.Shard.Gateway
 			packetCipher = new ShardPacketCipher();
 			packetReader = new ShardPacketReader(packetCipher, typeof(ClientPacketAttribute).GetTypeInfo().Assembly);
 			authenticationFailed = false;
+			this.shardName = shardName;
 
+			// populate the packet handler map
 			var handlerMapBuilder = ImmutableDictionary.CreateBuilder<Type, MethodInfo>();
 			var typeInfo = GetType().GetTypeInfo();
 
@@ -68,7 +71,7 @@ namespace Drama.Shard.Gateway
       if (self == null)
       {
         self = GrainFactory.CreateObjectReference<IShardSessionObserver>(this).Result;
-        return ShardSession.Connect(self);
+        return ShardSession.Connect(self, shardName);
       }
       else
         throw new InvalidOperationException("cannot initialize more than once");

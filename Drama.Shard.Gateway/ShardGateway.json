@@ -1,5 +1,7 @@
 ﻿{
     "ShardGatewayConfiguration": {
+        "ShardName": "Drama",
+
         "Server": {
             "BindAddress": "127.0.0.1",
             "BindPort": "8085",
@@ -7,6 +9,7 @@
             "ReceiveBufferBlockSize": "2048",
             "ReceiveBufferPoolSize": "128"
         },
+
         "Orleans": {
             "Silos": [
                 {

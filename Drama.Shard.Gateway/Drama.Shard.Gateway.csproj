@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Drama.Auth.Interfaces\Drama.Auth.Interfaces.csproj" />
     <ProjectReference Include="..\Drama.Core.Gateway\Drama.Core.Gateway.csproj" />
     <ProjectReference Include="..\Drama.Core.Interfaces\Drama.Core.Interfaces.csproj" />
     <ProjectReference Include="..\Drama.Shard.Interfaces\Drama.Shard.Interfaces.csproj" />

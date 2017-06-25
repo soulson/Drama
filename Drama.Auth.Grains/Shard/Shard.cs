@@ -1,4 +1,5 @@
 ﻿using Drama.Auth.Interfaces.Shard;
+using Drama.Core.Interfaces;
 using Orleans;
 using Orleans.Providers;
 using System;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Drama.Auth.Grains.Shard
 {
-	[StorageProvider(ProviderName = "DeploymentStore")]
+	[StorageProvider(ProviderName = StorageProviders.Infrastructure)]
 	public class Shard : Grain<ShardEntity>, IShard
 	{
 		// private synchronous version of Exists()

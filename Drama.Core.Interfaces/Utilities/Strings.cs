@@ -47,5 +47,18 @@ namespace Drama.Core.Interfaces.Utilities
 
 			return encoding.GetString(bytes.ToArray());
 		}
+
+		public static void WriteNullTerminatedString(this BinaryWriter writer, string value, Encoding encoding)
+		{
+			if (writer == null)
+				throw new ArgumentNullException(nameof(writer));
+			if (value == null)
+				throw new ArgumentNullException(nameof(value));
+			if (encoding == null)
+				throw new ArgumentNullException(nameof(encoding));
+			
+			writer.Write(encoding.GetBytes(value));
+			writer.Write((byte)0);
+		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Drama.Core.Gateway.Networking;
+﻿using Drama.Auth.Interfaces.Shard;
+using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces;
 using Drama.Shard.Gateway;
 using Drama.Shard.Gateway.Configuration;
@@ -33,7 +34,7 @@ namespace Drama.Auth.Gateway
 				// since the debugger will start the host and gateway at the same time, it's handy to put a pause here
 				if (Debugger.IsAttached)
 				{
-					Console.WriteLine("running with attached debugger; press enter to start");
+					Console.WriteLine("shard gateway running with attached debugger; press enter to start");
 					Console.ReadLine();
 				}
 
@@ -43,10 +44,11 @@ namespace Drama.Auth.Gateway
 
 				try
 				{
+					// start a packet router for each client that connects
 					server.ClientConnected += async (sender, e) =>
 					{
 						// the packet router hooks events on the session, which keeps it alive as long as the session lives
-						var router = new ShardPacketRouter(e.Session, GrainClient.GrainFactory);
+						var router = new ShardPacketRouter(e.Session, GrainClient.GrainFactory, config.ShardName);
 
 						// the packet router must be created before any awaits in this block so it can listen immediately
 						await router.InitializeAsync();

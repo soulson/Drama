@@ -1,4 +1,5 @@
-﻿using Orleans.Runtime;
+﻿using Drama.Core.Interfaces;
+using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using Orleans.Runtime.Host;
 using Orleans.Storage;
@@ -20,8 +21,10 @@ namespace Drama.Shard.Host
 			siloConfig.TraceToConsole = true;
 			siloConfig.TraceFilePattern = "none";
 
-			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>("AccountStore");
-			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>("DeploymentStore");
+			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.Account);
+			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.DynamicWorld);
+			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.Infrastructure);
+			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.StaticWorld);
 
 			using (var siloHost = new SiloHost(Dns.GetHostName(), clusterConfig))
 			{
