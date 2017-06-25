@@ -1,14 +1,7 @@
-﻿using Drama.Auth.Interfaces;
-using Drama.Auth.Interfaces.Account;
-using Drama.Core.Interfaces.Security;
-using Drama.Core.Interfaces.Utilities;
-using Drama.Shard.Interfaces.Characters;
+﻿using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Protocol;
 using Drama.Shard.Interfaces.Session;
-using Orleans;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Session
@@ -31,6 +24,14 @@ namespace Drama.Shard.Grains.Session
 			}
 
 			return result;
+		}
+
+		public async Task CreateCharacter(CharacterCreateRequest request)
+		{
+			var characterList = GrainFactory.GetGrain<ICharacterList>(ShardName);
+			var id = await characterList.AddCharacter(request.Name, AuthenticatedIdentity);
+			var character = GrainFactory.GetGrain<ICharacter>(id);
+			var entity = await character.Create(request.Name, AuthenticatedIdentity, ShardName, request.Race, request.Class, request.Sex, request.Skin, request.Face, request.HairStyle, request.HairColor, request.FacialHair);
 		}
 	}
 }

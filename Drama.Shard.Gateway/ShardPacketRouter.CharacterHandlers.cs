@@ -26,5 +26,19 @@ namespace Drama.Shard.Gateway
 
 			ForwardPacket(response);
 		}
+
+		[Handler(typeof(CharacterCreateRequest))]
+		private async Task HandleCharacterCreate(CharacterCreateRequest request)
+		{
+			try
+			{
+				await ShardSession.CreateCharacter(request);
+				ForwardPacket(new CharacterCreateResponse() { Response = CharacterCreateResponseCode.Success });
+			}
+			catch (CharacterAlreadyExistsException)
+			{
+				ForwardPacket(new CharacterCreateResponse() { Response = CharacterCreateResponseCode.NameTaken });
+			}
+		}
 	}
 }

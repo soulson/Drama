@@ -22,6 +22,7 @@ namespace Drama.Shard.Interfaces.Session
 
 		#region Characters
 		Task<IList<CharacterEntity>> GetCharacterList();
+		Task CreateCharacter(CharacterCreateRequest request);
 		#endregion
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace Drama.Shard.Interfaces.Protocol
 {
-	public enum AuthResponse : byte
+	public enum AuthResponseCode : byte
 	{
 		Success = 0x0C,
 		Failed = 0x0D,

@@ -1,6 +1,7 @@
 ﻿using Drama.Core.Interfaces;
 using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
 using Orleans;
 using Orleans.Providers;
@@ -18,18 +19,14 @@ namespace Drama.Shard.Grains.Characters
 			if (IsExists)
 				throw new CharacterAlreadyExistsException($"character with objectid {State.Id} already exists");
 
-			var characterList = GrainFactory.GetGrain<ICharacterList>(shard);
-
-			// this will also throw CharacterAlreadyExistsException if there is a name collision
-			var objectId = await characterList.AddCharacter(name, account);
-
+			State.Account = account;
 			State.Class = @class;
 			State.Enabled = true;
 			State.Face = face;
 			State.FacialHair = facialHair;
 			State.HairColor = hairColor;
 			State.HairStyle = hairStyle;
-			State.Id = objectId;
+			State.Id = new ObjectID(this.GetPrimaryKeyLong());
 			State.Level = 1;
 			State.MapId = 0; // TODO
 			State.Name = name;

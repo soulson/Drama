@@ -9,7 +9,7 @@ namespace Drama.Shard.Interfaces.Protocol
 	{
 		public ShardServerOpcode Opcode { get; } = ShardServerOpcode.AuthResponse;
 
-		public AuthResponse Response { get; set; }
+		public AuthResponseCode Response { get; set; }
 
 		public void Write(Stream stream)
 		{
@@ -18,7 +18,7 @@ namespace Drama.Shard.Interfaces.Protocol
 				writer.Write((ushort)Opcode);
 				writer.Write((byte)Response);
 
-				if (Response == AuthResponse.Success)
+				if (Response == AuthResponseCode.Success)
 				{
 					writer.Write(0);
 					writer.Write((byte)0);

@@ -22,7 +22,7 @@ namespace Drama.Shard.Grains.Session
 
 			if (seed == 0)
 			{
-				await Send(new AuthSessionResponse() { Response = AuthResponse.Failed });
+				await Send(new AuthSessionResponse() { Response = AuthResponseCode.Failed });
 				throw new AuthenticationFailedException("cannot authenticate with a server seed of 0");
 			}
 
@@ -57,26 +57,26 @@ namespace Drama.Shard.Grains.Session
 						}
 						else
 						{
-							await Send(new AuthSessionResponse() { Response = AuthResponse.Failed });
+							await Send(new AuthSessionResponse() { Response = AuthResponseCode.Failed });
 							throw new AuthenticationFailedException($"account {authRequest.Identity} failed authentication proof");
 						}
 					}
 				}
 				catch (AccountDoesNotExistException)
 				{
-					await Send(new AuthSessionResponse() { Response = AuthResponse.UnknownAccount });
+					await Send(new AuthSessionResponse() { Response = AuthResponseCode.UnknownAccount });
 					throw new AuthenticationFailedException($"account {authRequest.Identity} does not exist");
 				}
 				catch (AccountStateException)
 				{
 					GetLogger().Warn($"received {nameof(AuthSessionRequest)} with unauthenticated identity {authRequest.Identity}");
-					await Send(new AuthSessionResponse() { Response = AuthResponse.Failed });
+					await Send(new AuthSessionResponse() { Response = AuthResponseCode.Failed });
 					throw new AuthenticationFailedException($"account {authRequest.Identity} is not authenticated");
 				}
 			}
 			else
 			{
-				await Send(new AuthSessionResponse() { Response = AuthResponse.UnknownAccount });
+				await Send(new AuthSessionResponse() { Response = AuthResponseCode.UnknownAccount });
 				throw new AuthenticationFailedException($"account {authRequest.Identity} does not exist");
 			}
 		}
@@ -84,7 +84,7 @@ namespace Drama.Shard.Grains.Session
 		public Task Handshake(AuthSessionRequest authRequest)
 		{
 			if (AuthenticatedIdentity == authRequest.Identity)
-				return Task.WhenAll(Send(new AuthSessionResponse() { Response = AuthResponse.Success }), SendAddonPacket(authRequest));
+				return Task.WhenAll(Send(new AuthSessionResponse() { Response = AuthResponseCode.Success }), SendAddonPacket(authRequest));
 			else
 				throw new SessionStateException($"received {nameof(Handshake)} request for identity {authRequest.Identity} but {nameof(AuthenticatedIdentity)} is {AuthenticatedIdentity}");
 		}
