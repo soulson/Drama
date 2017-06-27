@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Grains", "Drama
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Gateway", "Drama.Shard.Gateway\Drama.Shard.Gateway.csproj", "{FD0EFA23-00D1-4DEB-B224-CC0168C8B13B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Host", "Drama.Shard.Host\Drama.Host.csproj", "{2518089D-2415-4F1A-87D7-C49C385F50C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Host", "Drama.Host\Drama.Host.csproj", "{2518089D-2415-4F1A-87D7-C49C385F50C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
