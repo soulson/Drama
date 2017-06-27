@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<OrleansConfiguration xmlns="urn:orleans">
+  <Globals>
+    <SeedNode Address="127.0.0.1" Port="11111" />
+
+    <StorageProviders>
+      <Provider Type="Drama.Shard.Host.Providers.FileStorage" Name="DeploymentStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\infrastructure" IndentJSON="true" />
+      <Provider Type="Drama.Shard.Host.Providers.FileStorage" Name="AccountStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\account" IndentJSON="true" />
+      <Provider Type="Drama.Shard.Host.Providers.FileStorage" Name="StaticWorldStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\staticworld" IndentJSON="true" />
+      <Provider Type="Drama.Shard.Host.Providers.FileStorage" Name="DynamicWorldStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\dynamicworld" IndentJSON="true" />
+    </StorageProviders>
+  </Globals>
+
+  <Defaults>
+    <Networking Address="127.0.0.1" Port="11111" />
+    <ProxyingGateway Address="127.0.0.1" Port="30000" />
+  </Defaults>
+</OrleansConfiguration>

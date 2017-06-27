@@ -1,12 +1,7 @@
-﻿using Drama.Core.Interfaces;
-using Drama.Shard.Host.Providers;
-using Orleans.Runtime;
+﻿using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using Orleans.Runtime.Host;
-using Orleans.Storage;
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Net;
 
@@ -16,38 +11,17 @@ namespace Drama.Shard.Host
 	{
 		public static void Main(string[] args)
 		{
+			var configFile = "DramaHost.xml";
+			if (args.Length >= 1)
+				configFile = args[0];
+
 			var clusterConfig = new ClusterConfiguration();
-			clusterConfig.LoadFromFile("ShardHost.Orleans.xml");
+			clusterConfig.LoadFromFile(configFile);
 
 			var siloConfig = clusterConfig.Defaults;
 			siloConfig.DefaultTraceLevel = Severity.Info;
 			siloConfig.TraceToConsole = true;
 			siloConfig.TraceFilePattern = "none";
-
-			//clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.Account);
-			//clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.DynamicWorld);
-			//clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.StaticWorld);
-			//clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.Infrastructure);
-			clusterConfig.Globals.RegisterStorageProvider<FileStorage>(StorageProviders.Infrastructure, ImmutableDictionary.CreateRange(new[]
-			{
-				new KeyValuePair<string, string>("RootDirectory", @"C:\Users\foxic\Desktop\dramastore\infrastructure"),
-				new KeyValuePair<string, string>("IndentJSON", "true"),
-			}));
-			clusterConfig.Globals.RegisterStorageProvider<FileStorage>(StorageProviders.Account, ImmutableDictionary.CreateRange(new[]
-			{
-				new KeyValuePair<string, string>("RootDirectory", @"C:\Users\foxic\Desktop\dramastore\account"),
-				new KeyValuePair<string, string>("IndentJSON", "true"),
-			}));
-			clusterConfig.Globals.RegisterStorageProvider<FileStorage>(StorageProviders.StaticWorld, ImmutableDictionary.CreateRange(new[]
-			{
-				new KeyValuePair<string, string>("RootDirectory", @"C:\Users\foxic\Desktop\dramastore\staticworld"),
-				new KeyValuePair<string, string>("IndentJSON", "true"),
-			}));
-			clusterConfig.Globals.RegisterStorageProvider<FileStorage>(StorageProviders.DynamicWorld, ImmutableDictionary.CreateRange(new[]
-			{
-				new KeyValuePair<string, string>("RootDirectory", @"C:\Users\foxic\Desktop\dramastore\dynamicworld"),
-				new KeyValuePair<string, string>("IndentJSON", "true"),
-			}));
 
 			using (var siloHost = new SiloHost(Dns.GetHostName(), clusterConfig))
 			{
