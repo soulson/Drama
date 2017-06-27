@@ -231,9 +231,6 @@ namespace Drama.Core.Gateway.Networking
       if (length < 0 || length > data.Length)
         throw new ArgumentOutOfRangeException(nameof(length));
 
-      if (!session.Socket.Connected)
-        throw new InvalidOperationException("socket is not connected");
-
       var e = socketEventPool.CheckOut();
       e.UserToken = session;
       e.Completed += FinishSend;

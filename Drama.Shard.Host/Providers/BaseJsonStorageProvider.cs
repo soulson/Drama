@@ -62,6 +62,8 @@ namespace Drama.Shard.Host.Providers
 			serializerSettings = OrleansJsonSerializer.GetDefaultSerializerSettings(serializationManager, providerRuntime.GrainFactory);
 			serializerSettings.Formatting = config.GetBoolProperty(OrleansJsonSerializer.IndentJsonProperty, false) ? Formatting.Indented : Formatting.None;
 			serializerSettings.TypeNameHandling = TypeNameHandling.None;
+			serializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
+			serializerSettings.NullValueHandling = NullValueHandling.Include;
 			return Task.CompletedTask;
 		}
 
