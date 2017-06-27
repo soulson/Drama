@@ -5,7 +5,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Host.Providers
+namespace Drama.Host.Providers
 {
 	/// <summary>
 	/// Defines the interface for the lower level of JSON storage providers, i.e.

@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Host.Providers
+namespace Drama.Host.Providers
 {
 	/// <summary>
 	/// Orleans storage provider implementation for file-backed stores.

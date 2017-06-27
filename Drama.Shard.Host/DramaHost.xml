@@ -4,10 +4,10 @@
     <SeedNode Address="127.0.0.1" Port="11111" />
 
     <StorageProviders>
-      <Provider Type="Drama.Shard.Host.Providers.FileStorage" Name="DeploymentStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\infrastructure" IndentJSON="true" />
-      <Provider Type="Drama.Shard.Host.Providers.FileStorage" Name="AccountStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\account" IndentJSON="true" />
-      <Provider Type="Drama.Shard.Host.Providers.FileStorage" Name="StaticWorldStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\staticworld" IndentJSON="true" />
-      <Provider Type="Drama.Shard.Host.Providers.FileStorage" Name="DynamicWorldStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\dynamicworld" IndentJSON="true" />
+      <Provider Type="Drama.Host.Providers.FileStorage" Name="DeploymentStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\infrastructure" IndentJSON="true" />
+      <Provider Type="Drama.Host.Providers.FileStorage" Name="AccountStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\account" IndentJSON="true" />
+      <Provider Type="Drama.Host.Providers.FileStorage" Name="StaticWorldStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\staticworld" IndentJSON="true" />
+      <Provider Type="Drama.Host.Providers.FileStorage" Name="DynamicWorldStore" RootDirectory="C:\Users\foxic\Desktop\dramastore\dynamicworld" IndentJSON="true" />
     </StorageProviders>
   </Globals>
 

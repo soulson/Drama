@@ -6,14 +6,13 @@ using Newtonsoft.Json;
 using Orleans;
 using Orleans.Providers;
 using Orleans.Runtime;
-using Orleans.Runtime.Configuration;
 using Orleans.Serialization;
 using Orleans.Storage;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Host.Providers
+namespace Drama.Host.Providers
 {
 	/// <summary>
 	/// Base class for JSON-based grain storage providers.

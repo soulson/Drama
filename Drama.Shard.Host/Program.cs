@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Net;
 
-namespace Drama.Shard.Host
+namespace Drama.Host
 {
 	public static class Program
 	{
