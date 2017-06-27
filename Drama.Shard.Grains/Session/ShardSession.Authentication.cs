@@ -49,7 +49,7 @@ namespace Drama.Shard.Grains.Session
 
 						if (serverDigest == authRequest.ClientDigest)
 						{
-							GetLogger().Info($"{authRequest.Identity} successfully authenticated to {nameof(ShardSession)} {this.GetPrimaryKey()}");
+							GetLogger().Info($"{authRequest.Identity} successfully authenticated to {ShardName} {nameof(ShardSession)} {this.GetPrimaryKey()}");
 
 							// we can't just Send the Success response here, since the client expects the packet cipher to be initialized at this point
 							AuthenticatedIdentity = authRequest.Identity;
