@@ -25,8 +25,8 @@ namespace Drama.Shard.Host
 			siloConfig.TraceFilePattern = "none";
 
 			//clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.Account);
-			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.DynamicWorld);
-			clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.StaticWorld);
+			//clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.DynamicWorld);
+			//clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.StaticWorld);
 			//clusterConfig.Globals.RegisterStorageProvider<MemoryStorage>(StorageProviders.Infrastructure);
 			clusterConfig.Globals.RegisterStorageProvider<FileStorage>(StorageProviders.Infrastructure, ImmutableDictionary.CreateRange(new[]
 			{
@@ -36,6 +36,16 @@ namespace Drama.Shard.Host
 			clusterConfig.Globals.RegisterStorageProvider<FileStorage>(StorageProviders.Account, ImmutableDictionary.CreateRange(new[]
 			{
 				new KeyValuePair<string, string>("RootDirectory", @"C:\Users\foxic\Desktop\dramastore\account"),
+				new KeyValuePair<string, string>("IndentJSON", "true"),
+			}));
+			clusterConfig.Globals.RegisterStorageProvider<FileStorage>(StorageProviders.StaticWorld, ImmutableDictionary.CreateRange(new[]
+			{
+				new KeyValuePair<string, string>("RootDirectory", @"C:\Users\foxic\Desktop\dramastore\staticworld"),
+				new KeyValuePair<string, string>("IndentJSON", "true"),
+			}));
+			clusterConfig.Globals.RegisterStorageProvider<FileStorage>(StorageProviders.DynamicWorld, ImmutableDictionary.CreateRange(new[]
+			{
+				new KeyValuePair<string, string>("RootDirectory", @"C:\Users\foxic\Desktop\dramastore\dynamicworld"),
 				new KeyValuePair<string, string>("IndentJSON", "true"),
 			}));
 

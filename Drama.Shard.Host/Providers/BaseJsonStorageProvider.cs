@@ -61,8 +61,7 @@ namespace Drama.Shard.Host.Providers
 			var serializationManager = (SerializationManager)providerRuntime.ServiceProvider.GetService(typeof(SerializationManager));
 			serializerSettings = OrleansJsonSerializer.GetDefaultSerializerSettings(serializationManager, providerRuntime.GrainFactory);
 			serializerSettings.Formatting = config.GetBoolProperty(OrleansJsonSerializer.IndentJsonProperty, false) ? Formatting.Indented : Formatting.None;
-			serializerSettings.TypeNameHandling = TypeNameHandling.All;
-			serializerSettings.TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple;
+			serializerSettings.TypeNameHandling = TypeNameHandling.None;
 			return Task.CompletedTask;
 		}
 
@@ -146,7 +145,7 @@ namespace Drama.Shard.Host.Providers
 		/// </remarks>
 		protected string ConvertToStorageFormat(IGrainState grainState)
 		{
-			return JsonConvert.SerializeObject(grainState.State/*, serializerSettings*/);
+			return JsonConvert.SerializeObject(grainState.State, serializerSettings);
 		}
 
 		/// <summary>
@@ -156,7 +155,7 @@ namespace Drama.Shard.Host.Providers
 		/// <param name="entityData">JSON storage format representaiton of the grain state.</param>
 		protected void ConvertFromStorageFormat(IGrainState grainState, string entityData)
 		{
-			JsonConvert.PopulateObject(entityData, grainState.State/*, serializerSettings*/);
+			JsonConvert.PopulateObject(entityData, grainState.State, serializerSettings);
 		}
 	}
 }
