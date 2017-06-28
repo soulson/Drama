@@ -1,5 +1,6 @@
 ﻿using Drama.Core.Interfaces;
 using Drama.Core.Interfaces.Numerics;
+using Drama.Shard.Grains.Units;
 using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
@@ -10,14 +11,18 @@ using System.Threading.Tasks;
 namespace Drama.Shard.Grains.Characters
 {
 	[StorageProvider(ProviderName = StorageProviders.DynamicWorld)]
-	public class Character : Grain<CharacterEntity>, ICharacter
+	public sealed class Character : AbstractCharacter<CharacterEntity>, ICharacter
 	{
-		private bool IsExists => State.Enabled;
 
-		public async Task<CharacterEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
+	}
+
+	public abstract class AbstractCharacter<TEntity> : AbstractUnit<TEntity>, ICharacter<TEntity>
+		where TEntity : CharacterEntity, new()
+	{
+		public async Task<TEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
 		{
 			if (IsExists)
-				throw new CharacterAlreadyExistsException($"character with objectid {State.Id} already exists");
+				throw new CharacterAlreadyExistsException($"{GetType().Name} with objectid {State.Id} already exists");
 
 			State.Account = account;
 			State.Class = @class;
@@ -41,17 +46,6 @@ namespace Drama.Shard.Grains.Characters
 			await WriteStateAsync();
 
 			return State;
-		}
-
-		public Task<bool> Exists()
-			=> Task.FromResult(IsExists);
-
-		public Task<CharacterEntity> GetEntity()
-		{
-			if (!IsExists)
-				throw new CharacterDoesNotExistException($"character {this.GetPrimaryKeyString()} does not exist");
-
-			return Task.FromResult(State);
 		}
 	}
 }

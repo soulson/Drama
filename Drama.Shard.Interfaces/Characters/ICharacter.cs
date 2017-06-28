@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Characters
 {
-	public interface ICharacter : IGrainWithIntegerKey
+	public interface ICharacter : ICharacter<CharacterEntity>, IGrainWithIntegerKey
 	{
-		Task<bool> Exists();
-		Task<CharacterEntity> GetEntity();
 
-		Task<CharacterEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair);
+	}
+
+	public interface ICharacter<TEntity> : IUnit<TEntity>, IGrainWithIntegerKey
+		where TEntity : CharacterEntity, new()
+	{
+		Task<TEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair);
 	}
 }
