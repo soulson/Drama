@@ -1,8 +1,10 @@
 ﻿using Drama.Core.Interfaces.Utilities;
+using Newtonsoft.Json;
 using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	[JsonObject(MemberSerialization.Fields)]
 	public struct ObjectID : IEquatable<ObjectID>
 	{
 		private const ulong TypeMask = 0xffff000000000000;
@@ -21,7 +23,7 @@ namespace Drama.Shard.Interfaces.Objects
 		public ObjectID(int id, Type type)
 			=> this.id = unchecked((uint)id) | (ulong)type;
 
-		public int ID
+		public int Id
 		{
 			get => checked((int)(id & ~TypeMask));
 			set => id = (id & TypeMask) | (checked((ulong)value) & ~TypeMask);
@@ -37,7 +39,8 @@ namespace Drama.Shard.Interfaces.Objects
 			}
 		}
 
-		public uint MaskID => (uint)((id & TypeMask) >> 48);
+		[JsonIgnore]
+		public uint MaskId => (uint)((id & TypeMask) >> 48);
 
 		public byte[] GetPacked()
 		{
@@ -75,7 +78,7 @@ namespace Drama.Shard.Interfaces.Objects
 		}
 
 		public override int GetHashCode()
-			=> ID ^ ((int)ObjectType >> 32);
+			=> Id ^ ((int)ObjectType >> 32);
 
 		public bool Equals(ObjectID other)
 			=> id == other.id;
