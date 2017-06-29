@@ -1,10 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Drama.Shard.Interfaces.Objects
 {
-    public class ObjectUpdate
-    {
-    }
+	public abstract class ObjectUpdate
+	{
+		public ObjectUpdateType UpdateType { get; }
+
+		public ObjectUpdate(ObjectUpdateType type)
+		{
+			UpdateType = type;
+		}
+	}
 }
