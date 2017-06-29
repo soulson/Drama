@@ -40,6 +40,7 @@ namespace Drama.Shard.Interfaces.Objects
 		public float Orientation { get; set; }
 		public int MapId { get; set; }
 
+		#region Client-visible State
 		public ObjectID Id
 		{
 			get => new ObjectID(GetFieldLong(ObjectFields.Id));
@@ -91,7 +92,9 @@ namespace Drama.Shard.Interfaces.Objects
 			get => GetFieldFloat(ObjectFields.Scale);
 			set => SetField(ObjectFields.Scale, value);
 		}
+		#endregion
 
+		#region Field Management
 		protected uint GetFieldUnsigned(short index)
 			=> unchecked((uint)Fields[index]);
 
@@ -183,5 +186,6 @@ namespace Drama.Shard.Interfaces.Objects
 
 		public void SetField(ObjectFields field, float value)
 			=> SetField((short)field, value);
+		#endregion
 	}
 }
