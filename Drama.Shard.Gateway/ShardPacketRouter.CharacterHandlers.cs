@@ -40,5 +40,11 @@ namespace Drama.Shard.Gateway
 				ForwardPacket(new CharacterCreateResponse() { Response = CharacterCreateResponseCode.NameTaken });
 			}
 		}
+
+		[Handler(typeof(PlayerLoginRequest))]
+		private Task HandlePlayerLogin(PlayerLoginRequest request)
+		{
+			return ShardSession.Login(request.CharacterId);
+		}
 	}
 }

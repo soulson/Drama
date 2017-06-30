@@ -1,5 +1,6 @@
 ﻿using Drama.Core.Interfaces.Networking;
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
 using Orleans;
 using System;
@@ -23,6 +24,7 @@ namespace Drama.Shard.Interfaces.Session
 		#region Characters
 		Task<IList<CharacterEntity>> GetCharacterList();
 		Task CreateCharacter(CharacterCreateRequest request);
+		Task Login(ObjectID characterId);
 		#endregion
 	}
 }

@@ -52,7 +52,7 @@ namespace Drama.Shard.Grains.Objects
 
 		public override Task OnActivateAsync()
 		{
-			RegisterTimer(UpdateObservers, null, TimeSpan.FromSeconds(UpdatePeriodSeconds), TimeSpan.FromSeconds(UpdatePeriodSeconds));
+			updateTimerHandle = RegisterTimer(UpdateObservers, null, TimeSpan.FromSeconds(UpdatePeriodSeconds), TimeSpan.FromSeconds(UpdatePeriodSeconds));
 			return base.OnActivateAsync();
 		}
 
@@ -84,7 +84,7 @@ namespace Drama.Shard.Grains.Objects
 					IsMovementUpdated = false;
 				}
 
-				var objectUpdate = new ObjectUpdate(movementUpdate, valuesUpdate);
+				var objectUpdate = new ObjectUpdate(State.Id, State.TypeId, UpdateFlags, movementUpdate, valuesUpdate);
 				observerManager.Notify(observer => observer.HandleObjectUpdate(State.Id, objectUpdate));
 			}
 			return Task.CompletedTask;
@@ -128,14 +128,14 @@ namespace Drama.Shard.Grains.Objects
 		{
 			VerifyExists();
 
-			return Task.FromResult(new CreationUpdate(State.Id, BuildMovementUpdate(), BuildValuesUpdate(true)));
+			return Task.FromResult(new CreationUpdate(State.Id, State.TypeId, UpdateFlags, BuildMovementUpdate(), BuildValuesUpdate(true)));
 		}
 
 		protected virtual ValuesUpdate BuildValuesUpdate(bool creating)
 			=> new ValuesUpdate(State, creating);
 
 		protected virtual MovementUpdate BuildMovementUpdate()
-			=> new MovementUpdate(State, UpdateFlags);
+			=> new MovementUpdate(State);
 
 		protected void VerifyExists()
 		{

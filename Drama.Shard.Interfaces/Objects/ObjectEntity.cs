@@ -26,7 +26,7 @@ namespace Drama.Shard.Interfaces.Objects
 		/// This array should not be written into directly; use the Set methods or properties to do so.
 		/// </summary>
 		[JsonIgnore]
-		public int[] Fields { get; }
+		private int[] Fields { get; }
 
 		/// <summary>
 		/// This mask keeps track of the fields that have been updated on this Object.
@@ -120,7 +120,7 @@ namespace Drama.Shard.Interfaces.Objects
 		protected uint GetFieldUnsigned(short index)
 			=> unchecked((uint)Fields[index]);
 
-		protected int GetFieldSigned(short index)
+		public int GetFieldSigned(short index)
 			=> Fields[index];
 
 		protected long GetFieldLong(short index)

@@ -18,6 +18,6 @@ namespace Drama.Shard.Grains.Units
 		protected override ObjectUpdateFlags UpdateFlags => base.UpdateFlags | ObjectUpdateFlags.Living;
 
 		protected override MovementUpdate BuildMovementUpdate()
-			=> new MovementUpdate(State, UpdateFlags);
+			=> new MovementUpdate(State);
 	}
 }

@@ -8,8 +8,6 @@ namespace Drama.Shard.Interfaces.Objects
 	[Immutable]
 	public class MovementUpdate
 	{
-		public ObjectUpdateFlags UpdateFlags { get; }
-
 		// fields from ObjectEntity
 		public Vector3 Position { get; }
 		public float Orientation { get; }
@@ -31,17 +29,16 @@ namespace Drama.Shard.Interfaces.Objects
 		public float JumpXYSpeed { get; }
 		public float UnknownSplineThingy { get; }
 
-		public MovementUpdate(ObjectEntity entity, ObjectUpdateFlags updateFlags)
+		public MovementUpdate(ObjectEntity entity)
 		{
 			if (entity == null)
 				throw new ArgumentNullException(nameof(entity));
-
-			UpdateFlags = updateFlags;
+			
 			Position = entity.Position;
 			Orientation = entity.Orientation;
 		}
 
-		public MovementUpdate(UnitEntity entity, ObjectUpdateFlags updateFlags) : this(entity as ObjectEntity, updateFlags)
+		public MovementUpdate(UnitEntity entity) : this(entity as ObjectEntity)
 		{
 			MoveTime = entity.MoveTime;
 			FallTime = entity.FallTime;

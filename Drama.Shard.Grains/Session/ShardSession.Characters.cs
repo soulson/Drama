@@ -1,4 +1,5 @@
 ﻿using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
 using Drama.Shard.Interfaces.Session;
 using System.Collections.Generic;
@@ -32,6 +33,11 @@ namespace Drama.Shard.Grains.Session
 			var id = await characterList.AddCharacter(request.Name, AuthenticatedIdentity);
 			var character = GrainFactory.GetGrain<ICharacter>(id);
 			var entity = await character.Create(request.Name, AuthenticatedIdentity, ShardName, request.Race, request.Class, request.Sex, request.Skin, request.Face, request.HairStyle, request.HairColor, request.FacialHair);
+		}
+
+		public Task Login(ObjectID characterId)
+		{
+			return Task.CompletedTask;
 		}
 	}
 }
