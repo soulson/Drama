@@ -1,10 +1,9 @@
 ﻿using Drama.Core.Interfaces.Networking;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
+using System;
+using System.IO;
+using System.Text;
 
 namespace Drama.Shard.Interfaces.Protocol
 {
@@ -22,6 +21,8 @@ namespace Drama.Shard.Interfaces.Protocol
 
 			using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
 			{
+				writer.Write((ushort)Opcode);
+
 				// "create" updates look different than "update" updates
 				if(ObjectUpdate.UpdateType == ObjectUpdateType.CreateObject || ObjectUpdate.UpdateType == ObjectUpdateType.CreateObject2)
 				{

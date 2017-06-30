@@ -1,10 +1,12 @@
 ﻿using Drama.Auth.Interfaces;
 using Drama.Auth.Interfaces.Utilities;
 using Drama.Core.Interfaces.Networking;
+using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Protocol;
 using Drama.Shard.Interfaces.Session;
 using Orleans;
 using Orleans.Runtime;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Session
@@ -17,6 +19,7 @@ namespace Drama.Shard.Grains.Session
 
 		private string AuthenticatedIdentity { get; set; }
 		private string ShardName { get; set; }
+		private ICharacter ActiveCharacter { get; set; }
 
 		public ShardSession()
 		{
@@ -62,6 +65,20 @@ namespace Drama.Shard.Grains.Session
 		{
 			sessionObservers.Notify(receiver => receiver.ForwardPacket(packet));
 			return Task.CompletedTask;
+		}
+
+		protected void VerifyAuthenticated([CallerMemberName] string callerName = "<noname>")
+		{
+			if (AuthenticatedIdentity == null)
+				throw new SessionStateException($"{callerName} can only be called while authenticated");
+		}
+
+		protected void VerifyIngame([CallerMemberName] string callerName = "<noname>")
+		{
+			VerifyAuthenticated(callerName);
+
+			if (ActiveCharacter == null)
+				throw new SessionStateException($"{callerName} can only be called while ingame");
 		}
 	}
 }

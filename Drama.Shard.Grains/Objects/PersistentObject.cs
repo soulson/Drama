@@ -58,6 +58,10 @@ namespace Drama.Shard.Grains.Objects
 
 		public override Task OnDeactivateAsync()
 		{
+			if (observerManager.Count > 0)
+				GetLogger().Warn($"observer manager for {GetType().Name} {this.GetPrimaryKeyLong()} still has {observerManager.Count} subscriptions at deactivation");
+
+			observerManager.Clear();
 			updateTimerHandle?.Dispose();
 			return base.OnDeactivateAsync();
 		}

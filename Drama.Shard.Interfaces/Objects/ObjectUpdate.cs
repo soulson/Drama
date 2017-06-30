@@ -17,6 +17,7 @@ namespace Drama.Shard.Interfaces.Objects
 		{
 			ObjectId = objectId;
 			TypeId = typeId;
+			UpdateFlags = updateFlags;
 			UpdateType = type;
 			MovementUpdate = movementUpdate;
 			ValuesUpdate = valuesUpdate;
