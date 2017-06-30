@@ -1,7 +1,9 @@
 ﻿using Drama.Shard.Grains.Objects;
-using Drama.Shard.Interfaces.Units;
-using System;
 using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.Units;
+using Orleans;
+using System;
+using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Units
 {
@@ -14,5 +16,8 @@ namespace Drama.Shard.Grains.Units
 		where TEntity : UnitEntity, new()
 	{
 		protected override ObjectUpdateFlags UpdateFlags => base.UpdateFlags | ObjectUpdateFlags.Living;
+
+		protected override MovementUpdate BuildMovementUpdate()
+			=> new MovementUpdate(State, UpdateFlags);
 	}
 }

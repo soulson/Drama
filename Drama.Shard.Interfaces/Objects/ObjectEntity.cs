@@ -23,9 +23,10 @@ namespace Drama.Shard.Interfaces.Objects
 		/// <summary>
 		/// This array stores the client-visible state of an Object.
 		/// Values in the ObjectFields enum are indexes into this array.
+		/// This array should not be written into directly; use the Set methods or properties to do so.
 		/// </summary>
 		[JsonIgnore]
-		private int[] Fields { get; }
+		public int[] Fields { get; }
 
 		/// <summary>
 		/// This mask keeps track of the fields that have been updated on this Object.
@@ -33,6 +34,27 @@ namespace Drama.Shard.Interfaces.Objects
 		/// </summary>
 		[JsonIgnore]
 		public UpdateMask UpdateMask { get; }
+
+		/// <summary>
+		/// This mask keeps track of all non-zero fields on this Object.
+		/// It allows us to not send packets full of zeroes when creating a new object client-side.
+		/// </summary>
+		[JsonIgnore]
+		public UpdateMask CreateMask
+		{
+			get
+			{
+				var mask = new UpdateMask(Fields.Length);
+
+				for(int i = 0; i < Fields.Length; ++i)
+				{
+					if (Fields[i] != 0)
+						mask.SetBit(i);
+				}
+
+				return mask;
+			}
+		}
 
 		public bool Enabled { get; set; }
 		public string Shard { get; set; }

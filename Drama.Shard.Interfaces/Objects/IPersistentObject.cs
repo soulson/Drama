@@ -17,5 +17,6 @@ namespace Drama.Shard.Interfaces.Objects
 
 		Task<bool> Exists();
 		Task<TEntity> GetEntity();
+		Task<CreationUpdate> GetCreationUpdate();
 	}
 }

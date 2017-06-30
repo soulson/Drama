@@ -1,14 +1,24 @@
-﻿using System;
+﻿using Orleans.Concurrency;
+using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
-	public abstract class ObjectUpdate
+	[Immutable]
+	public class ObjectUpdate
 	{
-		public ObjectUpdateType UpdateType { get; }
+		public ObjectUpdateType? UpdateType { get; }
+		public MovementUpdate MovementUpdate { get; }
+		public ValuesUpdate ValuesUpdate { get; }
 
-		public ObjectUpdate(ObjectUpdateType type)
+		public ObjectUpdate(ObjectUpdateType? type, MovementUpdate movementUpdate, ValuesUpdate valuesUpdate)
 		{
 			UpdateType = type;
+			MovementUpdate = movementUpdate;
+			ValuesUpdate = valuesUpdate;
+		}
+
+		public ObjectUpdate(MovementUpdate movementUpdate, ValuesUpdate valuesUpdate) : this(null, movementUpdate, valuesUpdate)
+		{
 		}
 	}
 }

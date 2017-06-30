@@ -1,8 +1,8 @@
-﻿using Drama.Shard.Interfaces.Objects;
+﻿using Drama.Auth.Interfaces;
+using Drama.Shard.Interfaces.Objects;
 using Orleans;
-using System.Threading.Tasks;
 using System;
-using Drama.Auth.Interfaces;
+using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Objects
 {
@@ -15,7 +15,7 @@ namespace Drama.Shard.Grains.Objects
 		where TEntity : ObjectEntity, new()
 	{
 		// TODO: make this a configuration item
-		private const double UpdatePeriodSeconds = 1.0 / 60.0;
+		private const double UpdatePeriodSeconds = 1.0 / 20.0;
 
 		/// <summary>
 		/// True if this object has been created.
@@ -28,7 +28,14 @@ namespace Drama.Shard.Grains.Objects
 		/// Inheriting classes may either set this value directly or override its behavior based on other properties.
 		/// UpdateObservers will set the value to false after notifying observers of all updates.
 		/// </summary>
-		protected virtual bool IsUpdated { get; set; } = false;
+		protected virtual bool IsValuesUpdated { get; set; } = false;
+
+		/// <summary>
+		/// True if this object's position or (unit's) movement state has been modified since the last UpdateObservers tick.
+		/// Inheriting classes may either set this value directly or override its behavior based on other properties.
+		/// UpdateObservers will set the value to false after notifying observers of all updates.
+		/// </summary>
+		protected virtual bool IsMovementUpdated { get; set; } = false;
 
 		/// <summary>
 		/// Specifies which ObjectUpdate blocks will be included when notifying observers of updates.
@@ -61,9 +68,24 @@ namespace Drama.Shard.Grains.Objects
 		/// </remarks>
 		private Task UpdateObservers(object arg)
 		{
-			if (IsUpdated)
+			if (IsValuesUpdated || IsMovementUpdated)
 			{
-				IsUpdated = false;
+				MovementUpdate movementUpdate = null;
+				ValuesUpdate valuesUpdate = null;
+
+				if (IsValuesUpdated)
+				{
+					valuesUpdate = BuildValuesUpdate(false);
+					IsValuesUpdated = false;
+				}
+				if (IsMovementUpdated)
+				{
+					movementUpdate = BuildMovementUpdate();
+					IsMovementUpdated = false;
+				}
+
+				var objectUpdate = new ObjectUpdate(movementUpdate, valuesUpdate);
+				observerManager.Notify(observer => observer.HandleObjectUpdate(State.Id, objectUpdate));
 			}
 			return Task.CompletedTask;
 		}
@@ -73,14 +95,15 @@ namespace Drama.Shard.Grains.Objects
 
 		public Task<TEntity> GetEntity()
 		{
-			if (!IsExists)
-				throw new ObjectDoesNotExistException($"{GetType().Name} {this.GetPrimaryKeyLong()} does not exist");
+			VerifyExists();
 
 			return Task.FromResult(State);
 		}
 
 		public Task Subscribe(IObjectObserver observer)
 		{
+			VerifyExists();
+
 			if (observerManager.IsSubscribed(observer))
 				GetLogger().Warn($"observer {observer} tried to subscribe to {GetType().Name} {this.GetPrimaryKeyLong()} more than once");
 			else
@@ -91,12 +114,33 @@ namespace Drama.Shard.Grains.Objects
 
 		public Task Unsubscribe(IObjectObserver observer)
 		{
+			VerifyExists();
+
 			if (!observerManager.IsSubscribed(observer))
 				GetLogger().Warn($"observer {observer} tried to unsubscribe from {GetType().Name} {this.GetPrimaryKeyLong()} but was not subscribed");
 			else
 				observerManager.Unsubscribe(observer);
 
 			return Task.CompletedTask;
+		}
+
+		public Task<CreationUpdate> GetCreationUpdate()
+		{
+			VerifyExists();
+
+			return Task.FromResult(new CreationUpdate(State.Id, BuildMovementUpdate(), BuildValuesUpdate(true)));
+		}
+
+		protected virtual ValuesUpdate BuildValuesUpdate(bool creating)
+			=> new ValuesUpdate(State, creating);
+
+		protected virtual MovementUpdate BuildMovementUpdate()
+			=> new MovementUpdate(State, UpdateFlags);
+
+		protected void VerifyExists()
+		{
+			if (!IsExists)
+				throw new ObjectDoesNotExistException($"{GetType().Name} {this.GetPrimaryKeyLong()} does not exist");
 		}
 	}
 }

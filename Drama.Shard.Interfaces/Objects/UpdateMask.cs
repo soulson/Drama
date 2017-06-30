@@ -29,6 +29,22 @@ namespace Drama.Shard.Interfaces.Objects
 			}
 		}
 
+		public int ActiveBitCount
+		{
+			get
+			{
+				int count = 0;
+
+				foreach(byte b in Data)
+				{
+					for (int x = b; x != 0; count++)
+						x &= x - 1;
+				}
+
+				return count;
+			}
+		}
+
 		public void Clear()
 		{
 			for (int i = 0; i < Data.Length; ++i)

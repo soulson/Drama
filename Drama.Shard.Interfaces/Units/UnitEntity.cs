@@ -1,6 +1,5 @@
 ﻿using Drama.Shard.Interfaces.Objects;
 using System;
-using System.Collections.Generic;
 
 namespace Drama.Shard.Interfaces.Units
 {
@@ -13,6 +12,11 @@ namespace Drama.Shard.Interfaces.Units
 
 		protected UnitEntity(int fieldCount) : base(fieldCount)
 		{
+			MoveTime = 0;
+			MoveFlags = MovementFlags.None;
+			MoveSpeed = new MovementSpeed();
+			Jump = new Jump();
+
 			TypeId = ObjectTypeID.Unit;
 			CastSpeed = 1.0f;
 			Energy = 100;
@@ -22,6 +26,14 @@ namespace Drama.Shard.Interfaces.Units
 			AttackTimeOffhandMilliseconds = 2000;
 			AttackTimeRangedMilliseconds = 2000;
 		}
+		
+		public int MoveTime { get; set; }
+		public int FallTime { get; set; }
+		public float MovePitch { get; set; }
+		public MovementFlags MoveFlags { get; set; }
+		public MovementSpeed MoveSpeed { get; }
+		public Jump Jump { get; }
+		public float UnknownSplineThingy { get; set; }
 
 		#region Client-visible State
 		public int Health
