@@ -1,4 +1,5 @@
 ﻿using Drama.Core.Gateway.Networking;
+using Drama.Core.Interfaces;
 using Drama.Core.Interfaces.Networking;
 using Drama.Shard.Interfaces.Protocol;
 using System;
@@ -31,8 +32,9 @@ namespace Drama.Shard.Gateway
 			packetMap = ImmutableDictionary.CreateRange(annotatedTypes);
 		}
 
-    protected override IInPacket CreatePacket(Stream stream)
+    protected override IInPacket CreatePacket(Stream stream, out int packetSize)
     {
+			packetSize = 0;
 			if (stream.Length - stream.Position < ClientPacketHeaderSize)
 				return null;
 
@@ -43,6 +45,8 @@ namespace Drama.Shard.Gateway
 			// the size is encoded in big endian and doesn't include the size of the size itself
 			var size = sizeof(ushort) + BitConverter.ToUInt16(new[] { header[1], header[0] }, 0);
 			var ordinal = BitConverter.ToUInt32(header, sizeof(ushort));
+
+			packetSize = size;
 
 			if (stream.Length - initialPosition < size)
 				return null;
@@ -56,15 +60,24 @@ namespace Drama.Shard.Gateway
 			}
 			else
 			{
-				Console.WriteLine($"received unimplemented packet from client: type = {opcode}, total size = {size}");
-				return new UnimplementedPacket(size);
+				Console.WriteLine($"received unimplemented packet from client: type = {opcode} (0x{(ushort)opcode:x4}), total size = {size}");
+				return new UnimplementedPacket(size - ClientPacketHeaderSize);
 			}
     }
 
-		protected override void ProcessOnce(ArraySegment<byte> input)
+		protected override void ProcessBeforeRead(Stream stream)
 		{
-			packetCipher.DecryptHeader(input);
-			base.ProcessOnce(input);
+			var startingPosition = stream.Position;
+			if (stream.Length - stream.Position < ClientPacketHeaderSize)
+				throw new DramaException("packet size is too small to decrypt");
+
+			var header = new byte[ClientPacketHeaderSize];
+			stream.Read(header, 0, header.Length);
+
+			packetCipher.DecryptHeader(new ArraySegment<byte>(header));
+
+			stream.Position = startingPosition;
+			stream.Write(header, 0, header.Length);
 		}
 	}
 }
