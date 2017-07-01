@@ -1,4 +1,22 @@
-﻿using Drama.Core.Gateway.Utilities;
+﻿/* 
+ * The Drama project: what you get when a bunch of actors try to host a game.
+ * Copyright (C) 2017 Soulson
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using Drama.Core.Gateway.Utilities;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -6,9 +24,6 @@ using System.Threading;
 
 namespace Drama.Core.Gateway.Networking
 {
-	// https://stackoverflow.com/questions/869744/how-to-write-a-scalable-tcp-ip-based-server/908766#908766
-	// https://msdn.microsoft.com/en-us/library/system.net.sockets.socketasynceventargs.aspx
-	// https://msdn.microsoft.com/en-us/library/bb517542.aspx
 	public class TcpServer : IDisposable
   {
     private readonly DisposablePool<SocketAsyncEventArgs> socketEventPool;

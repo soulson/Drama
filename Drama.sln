@@ -3,23 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Auth.Gateway", "Drama.Auth.Gateway\Drama.Auth.Gateway.csproj", "{55644D30-3AD6-4303-BF0E-CE6C6F9BC5C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Auth.Gateway", "Drama.Auth.Gateway\Drama.Auth.Gateway.csproj", "{55644D30-3AD6-4303-BF0E-CE6C6F9BC5C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Core.Gateway", "Drama.Core.Gateway\Drama.Core.Gateway.csproj", "{DD3346C7-43BA-4783-9BC6-E5A91210FBA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Core.Gateway", "Drama.Core.Gateway\Drama.Core.Gateway.csproj", "{DD3346C7-43BA-4783-9BC6-E5A91210FBA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Auth.Grains", "Drama.Auth.Grains\Drama.Auth.Grains.csproj", "{68ED9553-020A-407E-B0E4-897C920E9B71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Auth.Grains", "Drama.Auth.Grains\Drama.Auth.Grains.csproj", "{68ED9553-020A-407E-B0E4-897C920E9B71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Auth.Interfaces", "Drama.Auth.Interfaces\Drama.Auth.Interfaces.csproj", "{47F65A61-7868-4D67-9431-589B18C5B05A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Auth.Interfaces", "Drama.Auth.Interfaces\Drama.Auth.Interfaces.csproj", "{47F65A61-7868-4D67-9431-589B18C5B05A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Core.Interfaces", "Drama.Core.Interfaces\Drama.Core.Interfaces.csproj", "{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Core.Interfaces", "Drama.Core.Interfaces\Drama.Core.Interfaces.csproj", "{658CEB9D-A2B6-4728-B575-A1C1CF9AC501}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Interfaces", "Drama.Shard.Interfaces\Drama.Shard.Interfaces.csproj", "{E688F4F5-B729-4FB7-8494-D0DA2F33CD1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Shard.Interfaces", "Drama.Shard.Interfaces\Drama.Shard.Interfaces.csproj", "{E688F4F5-B729-4FB7-8494-D0DA2F33CD1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Grains", "Drama.Shard.Grains\Drama.Shard.Grains.csproj", "{D6F06AE5-D03D-496B-A257-269C60D8D56F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Shard.Grains", "Drama.Shard.Grains\Drama.Shard.Grains.csproj", "{D6F06AE5-D03D-496B-A257-269C60D8D56F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Shard.Gateway", "Drama.Shard.Gateway\Drama.Shard.Gateway.csproj", "{FD0EFA23-00D1-4DEB-B224-CC0168C8B13B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Shard.Gateway", "Drama.Shard.Gateway\Drama.Shard.Gateway.csproj", "{FD0EFA23-00D1-4DEB-B224-CC0168C8B13B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drama.Host", "Drama.Host\Drama.Host.csproj", "{2518089D-2415-4F1A-87D7-C49C385F50C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drama.Host", "Drama.Host\Drama.Host.csproj", "{2518089D-2415-4F1A-87D7-C49C385F50C2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{191EF9D7-2491-4C74-96CC-20B43D335BD0}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
