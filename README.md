@@ -9,6 +9,7 @@ Lots of reasons!
 - To learn how to write a scalable sockets application.
 - To learn how to work with the actor system programming paradigm.
 - To learn what goes into the development of an online game server.
+
 So yeah, mostly lots of learning.
 
 ### Who wrote it?
@@ -38,13 +39,6 @@ sense. IRandomService and ITimeService are good examples of that.
 
 ##### License?
 Most of Drama is licensed under the GNU Affero General Public License v3.
-
-This license is a copyleft license that allows you to use, modify, study, and
-redistribute the code (among other things) but requires you to provide the full
-source code with any distribution. It also requires you to provide the full
-source code whenever you host all or part of the project on a network server.
-That way, if anyone improves the server capability of Drama, as many people as
-possible can learn from the improvements.
 
 ###### You said "most" of Drama is AGPLv3. What isn't?
 There are a few files that have been used from other open source projects, and
@@ -105,8 +99,28 @@ Hosts. Each Auth Gateway must be able to connect to at least one Host.
 #### Shard Gateway
 Drama.Shard.Gateway is a TCP server that accepts the "world server" protocol.
 While the virtual realms live inside the Hosts, the Shard Gateway provides an
-endpoint for the client to connect to when communicating with a realm.
+endpoint for the client to connect to when communicating with a realm. Shard
+Gateways are also many-to-many with Hosts.
 
 > These gateways are handy for mitigating threats such as DDOS. Gateways are
 > relatively lightweight applications, and nonsense packets will not be
 > forwarded by Gateways to Hosts.
+
+## Getting Started
+Getting started with Drama is easy!
+
+1. Grab a copy of Visual Studio Community 2017 if you don't already have it.
+This software is available gratis from Microsoft for development of open-source
+projects.
+2. When installing Visual Studio, enable the "Cross-Platform Development with
+.NET Core" workload.
+3. Clone the repository from GitHub.
+4. Open Drama.sln in Visual Studio. In Solution Properties, indicate that Drama
+has multiple startup projects, and configure Drama.Host, Drama.Auth.Gateway,
+and Drama.Shard.Gateway to all start when debugging.
+5. Start. When the Host finishes loading, press enter on both Gateway apps to
+start them.
+6. In the Auth Gateway window, create yourself an account and shard, like this:
+> account.create AccountName Password
+> shard.create Drama 127.0.0.1 8085 PvP
+7. Open a client and log in!
