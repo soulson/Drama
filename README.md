@@ -44,8 +44,9 @@ Most of Drama is licensed under the GNU Affero General Public License v3.
 There are a few files that have been used from other open source projects, and
 I have chosen to maintain the original licenses of these files. Currently, the
 following come to mind:
-- The Drama.Host.Providers namespace is adapted from OrleansContrib.MongoDB
-and is licensed under the X11 MIT license.
+- The Drama.Host.Providers namespace is adapted from
+[Orleans.Providers.MongoDB](https://github.com/OrleansContrib/Orleans.Providers.MongoDB)
+and is licensed under the MIT license.
 
 Whenever a different license is in use, it will be included in the folder of
 files to which it applies.
