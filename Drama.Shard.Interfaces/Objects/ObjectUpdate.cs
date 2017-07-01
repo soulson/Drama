@@ -20,6 +20,9 @@ using Orleans.Concurrency;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// ObjectUpdates inform the client about changes in persistent object state.
+	/// </summary>
 	[Immutable]
 	public class ObjectUpdate
 	{
@@ -30,7 +33,7 @@ namespace Drama.Shard.Interfaces.Objects
 		public MovementUpdate MovementUpdate { get; }
 		public ValuesUpdate ValuesUpdate { get; }
 
-		public ObjectUpdate(ObjectID objectId, ObjectTypeID typeId, ObjectUpdateFlags updateFlags, MovementUpdate movementUpdate, ValuesUpdate valuesUpdate, ObjectUpdateType? type)
+		protected ObjectUpdate(ObjectID objectId, ObjectTypeID typeId, ObjectUpdateFlags updateFlags, MovementUpdate movementUpdate, ValuesUpdate valuesUpdate, ObjectUpdateType? type)
 		{
 			ObjectId = objectId;
 			TypeId = typeId;
@@ -40,6 +43,10 @@ namespace Drama.Shard.Interfaces.Objects
 			ValuesUpdate = valuesUpdate;
 		}
 
+		/// <summary>
+		/// Creates a new ObjectUpdate. If this is not a CreationUpdate, then only
+		/// one of movementUpdate or valuesUpdate may be non-null.
+		/// </summary>
 		public ObjectUpdate(ObjectID objectId, ObjectTypeID typeId, ObjectUpdateFlags updateFlags, MovementUpdate movementUpdate, ValuesUpdate valuesUpdate)
 			: this(objectId, typeId, updateFlags, movementUpdate, valuesUpdate, null)
 		{

@@ -21,11 +21,17 @@ using Drama.Shard.Interfaces.Units;
 
 namespace Drama.Shard.Interfaces.Characters
 {
+	/// <summary>
+	/// Persisted storage for Character grains.
+	/// </summary>
 	public class CharacterEntity : UnitEntity
 	{
+		/// <summary>
+		/// Creates a new instance of the CharacterEntity class.
+		/// </summary>
 		public CharacterEntity() : this((short)CharacterFields.END)
 		{
-
+			// persistent object entity public default constructors defer to a protected constructor
 		}
 
 		protected CharacterEntity(short fieldCount) : base(fieldCount)
@@ -64,8 +70,19 @@ namespace Drama.Shard.Interfaces.Characters
 			Spirit = 1;
 		}
 
+		/// <summary>
+		/// The name of this Character.
+		/// </summary>
 		public string Name { get; set; }
+
+		/// <summary>
+		/// The name of the Account that owns this Character.
+		/// </summary>
 		public string Account { get; set; }
+
+		/// <summary>
+		/// The id of the zone in which this character is currently located.
+		/// </summary>
 		public int ZoneId { get; set; }
 
 		#region Client-visible State

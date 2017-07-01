@@ -20,11 +20,17 @@ using Drama.Shard.Interfaces.Objects;
 
 namespace Drama.Shard.Interfaces.Units
 {
+	/// <summary>
+	/// Persisted storage for Unit grains.
+	/// </summary>
 	public class UnitEntity : ObjectEntity
 	{
+		/// <summary>
+		/// Creates a new instance of the UnitEntity class.
+		/// </summary>
 		public UnitEntity() : this((short)UnitFields.END)
 		{
-
+			// persistent object entity public default constructors defer to a protected constructor
 		}
 
 		protected UnitEntity(int fieldCount) : base(fieldCount)

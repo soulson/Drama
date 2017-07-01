@@ -21,9 +21,19 @@ using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// A CreationUpdate is a special type of ObjectUpdate that combines a
+	/// MovementUpdate and a ValuesUpdate into one. It is used to tell the client
+	/// to start displaying an object.
+	/// </summary>
 	[Immutable]
 	public class CreationUpdate : ObjectUpdate
 	{
+		/// <summary>
+		/// Creates a new CreationUpdate instance.
+		/// </summary>
+		/// <param name="movementUpdate">Cannot be null</param>
+		/// <param name="valuesUpdate">Cannot be null</param>
 		public CreationUpdate(ObjectID id, ObjectTypeID typeId, ObjectUpdateFlags updateFlags, MovementUpdate movementUpdate, ValuesUpdate valuesUpdate) : base(
 			id,
 			typeId,

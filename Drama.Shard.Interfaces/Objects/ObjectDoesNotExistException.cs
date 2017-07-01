@@ -20,6 +20,10 @@ using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// The exception that is thrown when a PersistentObject is referenced but
+	/// has not yet been created.
+	/// </summary>
 	public class ObjectDoesNotExistException : ObjectException
 	{
 		public ObjectDoesNotExistException(string message) : base(message) { }

@@ -20,10 +20,15 @@ using Orleans;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// ObjectObservers are classes that can be notified when the state of a
+	/// PersistentObject is changed.
+	/// </summary>
 	public interface IObjectObserver : IGrainObserver
 	{
 		/// <summary>
-		/// This method is called when an IPersistentObject's client-visible state has changed.
+		/// This method is called when a PersistentObject's client-visible state
+		/// has changed.
 		/// </summary>
 		/// <param name="objectId">the ID of the object that has updated</param>
 		/// <param name="update">an ObjectUpdate describing what has changed</param>

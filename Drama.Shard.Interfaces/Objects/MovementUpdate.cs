@@ -23,6 +23,10 @@ using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// MovementUpdate objects are a type of ObjectUpdate block that represents
+	/// position, velocity, and delta information for persistent object motion.
+	/// </summary>
 	[Immutable]
 	public class MovementUpdate
 	{
@@ -47,6 +51,10 @@ namespace Drama.Shard.Interfaces.Objects
 		public float JumpXYSpeed { get; }
 		public float UnknownSplineThingy { get; }
 
+		/// <summary>
+		/// Creates a MovementUpdate for a PersistentObject.
+		/// </summary>
+		/// <param name="entity">Cannot be null</param>
 		public MovementUpdate(ObjectEntity entity)
 		{
 			if (entity == null)
@@ -56,6 +64,10 @@ namespace Drama.Shard.Interfaces.Objects
 			Orientation = entity.Orientation;
 		}
 
+		/// <summary>
+		/// Creates a MovementUpdate for a Unit.
+		/// </summary>
+		/// <param name="entity">Cannot be null</param>
 		public MovementUpdate(UnitEntity entity) : this(entity as ObjectEntity)
 		{
 			MoveTime = entity.MoveTime;

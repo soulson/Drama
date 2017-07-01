@@ -21,6 +21,12 @@ using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// PersistentObjects are the root grain for server-side objects that can be
+	/// displayed in the game world.
+	/// 
+	/// The key for this grain is the ObjectID of the persistent object.
+	/// </summary>
 	public interface IPersistentObject : IPersistentObject<ObjectEntity>, IGrainWithIntegerKey
 	{
 

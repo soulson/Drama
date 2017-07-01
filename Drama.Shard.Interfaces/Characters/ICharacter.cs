@@ -22,6 +22,11 @@ using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Characters
 {
+	/// <summary>
+	/// The Character grain represents a player character.
+	/// 
+	/// The key for this grain is the ObjectID of the Character.
+	/// </summary>
 	public interface ICharacter : ICharacter<CharacterEntity>, IGrainWithIntegerKey
 	{
 
@@ -30,6 +35,10 @@ namespace Drama.Shard.Interfaces.Characters
 	public interface ICharacter<TEntity> : IUnit<TEntity>, IGrainWithIntegerKey
 		where TEntity : CharacterEntity, new()
 	{
+		/// <summary>
+		/// Creates a new Character.
+		/// </summary>
+		/// <returns>The Entity of the new Character</returns>
 		Task<TEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair);
 	}
 }

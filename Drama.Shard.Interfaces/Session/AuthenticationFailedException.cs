@@ -20,6 +20,10 @@ using System;
 
 namespace Drama.Shard.Interfaces.Session
 {
+	/// <summary>
+	/// This exception is thrown when a client fails to authenticate to a
+	/// ShardSession.
+	/// </summary>
 	public class AuthenticationFailedException : SessionException
 	{
 		public AuthenticationFailedException(string message) : base(message) { }

@@ -20,6 +20,9 @@ using System;
 
 namespace Drama.Shard.Interfaces.Units
 {
+	/// <summary>
+	/// Collects the Unit movement speed fields.
+	/// </summary>
 	public class MovementSpeed
 	{
 		public MovementSpeed()

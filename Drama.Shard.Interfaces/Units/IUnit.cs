@@ -21,6 +21,11 @@ using Orleans;
 
 namespace Drama.Shard.Interfaces.Units
 {
+	/// <summary>
+	/// A Unit grain represents a persistent object that can move.
+	/// 
+	/// The key for this grain is the ObjectID of the Unit.
+	/// </summary>
 	public interface IUnit : IUnit<UnitEntity>, IGrainWithIntegerKey
 	{
 

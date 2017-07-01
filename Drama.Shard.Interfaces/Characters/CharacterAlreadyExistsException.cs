@@ -20,6 +20,10 @@ using System;
 
 namespace Drama.Shard.Interfaces.Characters
 {
+	/// <summary>
+	/// This exception is thrown when an attempt is made to create a character
+	/// that already exists.
+	/// </summary>
 	public class CharacterAlreadyExistsException : CharacterException
 	{
 		public CharacterAlreadyExistsException(string message) : base(message) { }

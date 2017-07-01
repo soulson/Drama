@@ -21,8 +21,17 @@ using Orleans;
 
 namespace Drama.Shard.Interfaces.Session
 {
+	/// <summary>
+	/// ShardSessionObservers are objects capable of forwarding notifications
+	/// from a ShardSession to the network session responsible for getting them
+	/// to the session client.
+	/// </summary>
 	public interface IShardSessionObserver : IGrainObserver
 	{
+		/// <summary>
+		/// Sends a notification to the network session.
+		/// </summary>
+		/// <param name="packet">Cannot be null</param>
 		void ForwardPacket(IOutPacket packet);
 	}
 }

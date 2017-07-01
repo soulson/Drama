@@ -20,6 +20,13 @@ using System;
 
 namespace Drama.Shard.Interfaces.Session
 {
+	/// <summary>
+	/// The exception that is thrown when a request is made to a session that is
+	/// in the incorrect authentication state.
+	/// 
+	/// An example of this would be if you tried to login to the world before
+	/// authenticating.
+	/// </summary>
 	public class SessionStateException : SessionException
 	{
 		public SessionStateException(string message) : base(message) { }

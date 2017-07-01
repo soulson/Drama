@@ -20,6 +20,11 @@ using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// UpdateMasks keep track of which fields on a PersistentObject have
+	/// changed, so that only the set of changed fields needs to be seent to the
+	/// client on each update.
+	/// </summary>
 	public class UpdateMask
 	{
 		public UpdateMask(int valueCount)
@@ -29,10 +34,25 @@ namespace Drama.Shard.Interfaces.Objects
 			Data = new byte[BlockCount * 4];
 		}
 
+		/// <summary>
+		/// The number of fields that this UpdateMask is tracking.
+		/// </summary>
 		public int ValueCount { get; }
+
+		/// <summary>
+		/// The number of 4-byte blocks that make up this UpdateMask's Data field.
+		/// </summary>
 		public byte BlockCount { get; }
+
+		/// <summary>
+		/// A bit vector representing which fields have been updated.
+		/// </summary>
 		public byte[] Data { get; }
 
+		/// <summary>
+		/// True if there are no set bits in this UpdateMask; that is, if
+		/// ActiveBitCount is zero.
+		/// </summary>
 		public bool IsEmpty
 		{
 			get
@@ -47,6 +67,9 @@ namespace Drama.Shard.Interfaces.Objects
 			}
 		}
 
+		/// <summary>
+		/// The number of set bits in this UpdateMask.
+		/// </summary>
 		public int ActiveBitCount
 		{
 			get
@@ -63,18 +86,30 @@ namespace Drama.Shard.Interfaces.Objects
 			}
 		}
 
+		/// <summary>
+		/// Sets all bits in this UpdateMask to zero.
+		/// </summary>
 		public void Clear()
 		{
 			for (int i = 0; i < Data.Length; ++i)
 				Data[i] = 0;
 		}
 
+		/// <summary>
+		/// Sets the bit representing the field at index to one.
+		/// </summary>
 		public void SetBit(int index)
 			=> Data[index >> 3] |= (byte)(1 << (index & 0x7));
 
+		/// <summary>
+		/// Sets the bit representing the field at index to zero.
+		/// </summary>
 		public void UnsetBit(int index)
 			=> Data[index >> 3] &= (byte)~(1 << (index & 0x7));
 
+		/// <summary>
+		/// Gets the value of the bit at index.
+		/// </summary>
 		public bool GetBit(int index)
 			=> (Data[index >> 3] & (1 << (index & 0x7))) != 0;
 	}

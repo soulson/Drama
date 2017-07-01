@@ -20,6 +20,9 @@ using System;
 
 namespace Drama.Shard.Interfaces.Characters
 {
+	/// <summary>
+	/// A list of the available character equipment slots.
+	/// </summary>
 	public enum EquipmentSlot
 	{
 		Head = 0,

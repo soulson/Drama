@@ -23,11 +23,17 @@ using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// Persisted storage for PersistentObject grains.
+	/// </summary>
 	public class ObjectEntity
 	{
+		/// <summary>
+		/// Creates a new instance of the ObjectEntity class.
+		/// </summary>
 		public ObjectEntity() : this((int)ObjectFields.END)
 		{
-
+			// persistent object entity public default constructors defer to a protected constructor
 		}
 
 		protected ObjectEntity(int fieldCount)
@@ -74,10 +80,29 @@ namespace Drama.Shard.Interfaces.Objects
 			}
 		}
 
+		/// <summary>
+		/// True if this object has been created, false otherwise.
+		/// </summary>
 		public bool Enabled { get; set; }
+
+		/// <summary>
+		/// The name of the shard on which this object exists.
+		/// </summary>
 		public string Shard { get; set; }
+
+		/// <summary>
+		/// The location of this object within its map.
+		/// </summary>
 		public Vector3 Position { get; set; }
+
+		/// <summary>
+		/// The direction that this object is facing, in radians.
+		/// </summary>
 		public float Orientation { get; set; }
+
+		/// <summary>
+		/// The id of the map in which this object exists.
+		/// </summary>
 		public int MapId { get; set; }
 
 		#region Client-visible State

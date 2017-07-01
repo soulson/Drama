@@ -23,12 +23,29 @@ using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Characters
 {
-	// key is the shard name
+	/// <summary>
+	/// The CharacterList grain maintains a list of all Characters on a shard.
+	/// 
+	/// The key for this grain is the name of the shard for which it is listing.
+	/// </summary>
 	public interface ICharacterList : IGrainWithStringKey
 	{
+		/// <summary>
+		/// Gets a list of ObjectIDs that represent the Characters owneed by accountName.
+		/// </summary>
 		Task<IList<ObjectID>> GetCharactersByAccount(string accountName);
+
+		/// <summary>
+		/// Gets the ObjectID of the Character whose name is characterName, if it
+		/// exists. Returns null if it does not.
+		/// </summary>
 		Task<ObjectID?> GetCharacterByName(string characterName);
 
+		/// <summary>
+		/// Acquires a new ObjectID for a Character and relates it with the given
+		/// characterName and accountName.
+		/// </summary>
+		/// <returns>An ObjectID that can be used to create a new Character</returns>
 		Task<ObjectID> AddCharacter(string characterName, string accountName);
 	}
 }

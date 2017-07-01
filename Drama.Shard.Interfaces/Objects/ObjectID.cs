@@ -22,6 +22,9 @@ using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// An ObjectID is used to uniquely identify 
+	/// </summary>
 	[JsonObject(MemberSerialization.Fields)]
 	public struct ObjectID : IEquatable<ObjectID>
 	{

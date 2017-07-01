@@ -22,13 +22,35 @@ using System.Collections.Immutable;
 
 namespace Drama.Shard.Interfaces.Objects
 {
+	/// <summary>
+	/// ValuesUpdate is a type of ObjectUpdate block that updates the Fields
+	/// array of a PersistentObject.
+	/// </summary>
 	[Immutable]
 	public class ValuesUpdate
 	{
+		/// <summary>
+		/// The number of 4-byte blocks in the UpdateMask of this ValuesUpdate.
+		/// </summary>
 		public byte BlockCount { get; }
+
+		/// <summary>
+		/// The bit vector representing which PersistentObject fields have changed.
+		/// </summary>
 		public ImmutableArray<byte> UpdateMask { get; }
+
+		/// <summary>
+		/// The values of all fields whose values are being changed by this update.
+		/// </summary>
 		public ImmutableArray<int> Fields { get; }
 
+		/// <summary>
+		/// Creates a new ValuesUpdate.
+		/// </summary>
+		/// <param name="entity">Cannot be null</param>
+		/// <param name="isCreating">
+		/// True if this object is being created by this update, false otherwise
+		/// </param>
 		public ValuesUpdate(ObjectEntity entity, bool isCreating)
 		{
 			if (entity == null)
