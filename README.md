@@ -121,6 +121,7 @@ and Drama.Shard.Gateway to all start when debugging.
 5. Start. When the Host finishes loading, press enter on both Gateway apps to
 start them.
 6. In the Auth Gateway window, create yourself an account and shard, like this:
-> account.create AccountName Password
-> shard.create Drama 127.0.0.1 8085 PvP
+> `account.create AccountName Password`
+>
+> `shard.create Drama 127.0.0.1 8085 PvP`
 7. Open a client and log in!
