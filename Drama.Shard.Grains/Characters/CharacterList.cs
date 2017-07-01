@@ -37,7 +37,9 @@ namespace Drama.Shard.Grains.Characters
 			if (!State.CharactersByAccount.ContainsKey(accountName))
 				State.CharactersByAccount.Add(accountName, new List<ObjectID>());
 
-			var newCharacterId = new ObjectID(State.NextId++, ObjectID.Type.Player);
+			var idGenerator = GrainFactory.GetGrain<IObjectIDGenerator>(0);
+			var newCharacterId = await idGenerator.GenerateObjectId(ObjectID.Type.Player);
+
 			State.CharactersByAccount[accountName].Add(newCharacterId);
 			State.CharacterByName[characterName] = newCharacterId;
 

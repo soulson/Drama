@@ -16,14 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Objects;
-using System.Collections.Generic;
+using System;
 
-namespace Drama.Shard.Grains.Characters
+namespace Drama.Shard.Grains.Objects
 {
-	public class CharacterListEntity
-	{
-		public SortedDictionary<string, ObjectID> CharacterByName { get; } = new SortedDictionary<string, ObjectID>();
-		public SortedDictionary<string, IList<ObjectID>> CharactersByAccount { get; } = new SortedDictionary<string, IList<ObjectID>>();
-	}
+    public class ObjectIDGeneratorEntity
+    {
+		/// <summary>
+		/// The next available object ID, without type information.
+		/// </summary>
+		/// <remarks>
+		/// This cannot start at zero. The client will crash if it tries to load an
+		/// object with ID zero.
+		/// </remarks>
+		public long NextId { get; set; } = 1;
+    }
 }

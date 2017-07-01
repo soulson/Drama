@@ -256,6 +256,8 @@ namespace Drama.Core.Gateway.Networking
         if (!session.Socket.SendAsync(e))
           FinishSend(this, e);
       }
+			// this happens on a regular basis when logging into a shard where you do
+			//  not have any characters, but it doesn't seem to cause any problems
       catch (ObjectDisposedException)
       {
         e.Completed -= FinishSend;

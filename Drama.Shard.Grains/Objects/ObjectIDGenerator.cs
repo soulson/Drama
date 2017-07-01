@@ -16,14 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Core.Interfaces;
 using Drama.Shard.Interfaces.Objects;
-using System.Collections.Generic;
+using Orleans;
+using Orleans.Providers;
+using System.Threading.Tasks;
 
-namespace Drama.Shard.Grains.Characters
+namespace Drama.Shard.Grains.Objects
 {
-	public class CharacterListEntity
+	[StorageProvider(ProviderName = StorageProviders.DynamicWorld)]
+	public class ObjectIDGenerator : Grain<ObjectIDGeneratorEntity>, IObjectIDGenerator
 	{
-		public SortedDictionary<string, ObjectID> CharacterByName { get; } = new SortedDictionary<string, ObjectID>();
-		public SortedDictionary<string, IList<ObjectID>> CharactersByAccount { get; } = new SortedDictionary<string, IList<ObjectID>>();
+		public async Task<ObjectID> GenerateObjectId(ObjectID.Type objectIdType)
+		{
+			if (this.GetPrimaryKeyLong() != 0)
+				throw new ObjectException($"the only valid key for {nameof(ObjectIDGenerator)} is 0, but this activation is {this.GetPrimaryKeyLong()}");
+
+			var idLowPart = State.NextId++;
+			await WriteStateAsync();
+
+			return new ObjectID(idLowPart, objectIdType);
+		}
 	}
 }

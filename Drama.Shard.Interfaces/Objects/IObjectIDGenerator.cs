@@ -16,14 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Objects;
-using System.Collections.Generic;
+using Orleans;
+using System.Threading.Tasks;
 
-namespace Drama.Shard.Grains.Characters
+namespace Drama.Shard.Interfaces.Objects
 {
-	public class CharacterListEntity
+	/// <summary>
+	/// The ObjectIDGenerator grain generates ObjectIDs for PersistentObjects.
+	/// 
+	/// The only valid key for this grain is 0.
+	/// </summary>
+	public interface IObjectIDGenerator : IGrainWithIntegerKey
 	{
-		public SortedDictionary<string, ObjectID> CharacterByName { get; } = new SortedDictionary<string, ObjectID>();
-		public SortedDictionary<string, IList<ObjectID>> CharactersByAccount { get; } = new SortedDictionary<string, IList<ObjectID>>();
+		/// <summary>
+		/// Generates and returns an unused ObjectID with the specified type.
+		/// </summary>
+		Task<ObjectID> GenerateObjectId(ObjectID.Type objectIdType);
 	}
 }
