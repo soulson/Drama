@@ -120,9 +120,9 @@ namespace Drama.Shard.Grains.Session
 				var createUpdate = await ActiveCharacter.GetCreationUpdate();
 				var objectUpdateRequest = new ObjectUpdateRequest()
 				{
-					IsSelf = true,
-					ObjectUpdate = createUpdate,
+					TargetObjectId = entity.Id,
 				};
+				objectUpdateRequest.ObjectUpdates.Add(createUpdate);
 				var sendObjectUpdate = Send(objectUpdateRequest);
 
 				await Task.WhenAll(sendLoginVerifyWorld, sendAccountDataTimes, sendLoginSetRestStart, sendUpdateBindPoint, sendLoginInitializeTutorial, sendLoginInitializeSpells, sendLoginInitializeActionButtons, sendLoginSetTimeAndSpeed, sendFriendList, sendIgnoreList, sendInitializeWorldState, sendObjectUpdate);

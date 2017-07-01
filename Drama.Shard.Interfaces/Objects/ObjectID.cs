@@ -20,6 +20,9 @@ namespace Drama.Shard.Interfaces.Objects
 		public ObjectID(ulong id, Type type)
 			=> this.id = (id & ~TypeMask) | ((ulong)type & TypeMask);
 
+		public ObjectID(long id, Type type)
+			=> this.id = (checked((ulong)id) & ~TypeMask) | ((ulong)type & TypeMask);
+
 		public ObjectID(int id, Type type)
 			=> this.id = unchecked((uint)id) | (ulong)type;
 

@@ -23,7 +23,7 @@ namespace Drama.Shard.Grains.Characters
 		{
 			if (IsExists)
 				throw new CharacterAlreadyExistsException($"{GetType().Name} with objectid {State.Id} already exists");
-
+			
 			State.Account = account;
 			State.Class = @class;
 			State.Enabled = true;
@@ -36,12 +36,14 @@ namespace Drama.Shard.Grains.Characters
 			State.MapId = 0; // TODO
 			State.Name = name;
 			State.Orientation = 0.0f; // TODO
-			State.Position = new Vector3(); // TODO
+			State.Position = new Vector3(-8949.95f, -132.493f, 83.5312f); // TODO
 			State.Race = race;
 			State.Sex = sex;
 			State.Shard = shard;
 			State.Skin = skin;
-			State.ZoneId = 0; // TODO
+			State.ZoneId = 12; // TODO
+			State.FactionTemplate = 1; // TODO
+			State.DisplayID = State.NativeDisplayID = 50; // TODO
 
 			await WriteStateAsync();
 

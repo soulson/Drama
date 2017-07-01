@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Drama.Core.Gateway.Networking
 {
-  public abstract class PacketReader
+	public abstract class PacketReader
   {
     private const int InitialCapacity = 2048;
 
@@ -16,29 +16,36 @@ namespace Drama.Core.Gateway.Networking
     {
       buffer = new MemoryStream(InitialCapacity);
     }
-
-		// the reason this method yields is in case packets start showing up partially. they could be streamed
-		//  into the buffer and read when complete, which may result in 0, 1, or many packets being returned
-		//  by this method at a time. however, this is hard to do, and has not yet seemed necessary
-    public IEnumerable<IInPacket> ProcessData(ArraySegment<byte> data)
+		
+		/// <remarks>
+		/// The reason this method yields is in case packets start showing up partially. They could be streamed
+		/// into the buffer and read when complete, which may result in 0, 1, or many packets being returned
+		/// by this method at a time. However, this is hard to do, and has not yet seemed necessary.
+		/// </remarks>
+		public IEnumerable<IInPacket> ProcessData(ArraySegment<byte> data)
     {
 			ProcessOnce(data);
 
-			buffer.Position = 0;
-			buffer.Write(data.Array, 0, data.Count);
+			IInPacket packet;
 
-			buffer.Position = 0;
-			var packet = CreatePacket(buffer);
+			lock (buffer)
+			{
+				buffer.Position = 0;
+				buffer.Write(data.Array, 0, data.Count);
 
-			if (packet is UnimplementedPacket)
-				yield break;
+				buffer.Position = 0;
+				packet = CreatePacket(buffer);
 
-			if (packet == null)
-				throw new DramaException("packet returned by CreatePacket was null! this may mean that the stream is corrupt or that we're receiving non-whole packets");
+				if (packet is UnimplementedPacket)
+					yield break;
 
-			buffer.Position = ReadOffset;
-			if (!packet.Read(buffer))
-				throw new DramaException("packet.Read returned false! this may mean that the stream is corrupt or that we're receiving non-whole packets");
+				if (packet == null)
+					throw new DramaException("packet returned by CreatePacket was null! this may mean that the stream is corrupt or that we're receiving non-whole packets");
+
+				buffer.Position = ReadOffset;
+				if (!packet.Read(buffer))
+					throw new DramaException("packet.Read returned false! this may mean that the stream is corrupt or that we're receiving non-whole packets");
+			}
 
 			yield return packet;
     }

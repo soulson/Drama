@@ -4,7 +4,6 @@ using Drama.Shard.Interfaces.Objects;
 using Orleans;
 using Orleans.Providers;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Characters

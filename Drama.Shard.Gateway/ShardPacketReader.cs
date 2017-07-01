@@ -1,12 +1,12 @@
-﻿using Drama.Shard.Interfaces.Protocol;
-using Drama.Core.Gateway.Networking;
+﻿using Drama.Core.Gateway.Networking;
 using Drama.Core.Interfaces.Networking;
+using Drama.Shard.Interfaces.Protocol;
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Collections.Immutable;
 using System.Reflection;
-using System.Collections.Generic;
 
 namespace Drama.Shard.Gateway
 {

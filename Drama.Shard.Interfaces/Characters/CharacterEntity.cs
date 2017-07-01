@@ -1,6 +1,5 @@
 ﻿using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
-using System;
 
 namespace Drama.Shard.Interfaces.Characters
 {
@@ -35,9 +34,11 @@ namespace Drama.Shard.Interfaces.Characters
 			// TODO: placeholder values
 			BoundingRadius = 1.0f * Scale;
 			CombatReach = 1.0f * Scale;
-			
+
+			XPNextLevel = 400;
 			HealthMax = Health = HealthBase = 100;
 			ManaMax = Mana = ManaBase = 100;
+			Armor = 100;
 			Strength = 1;
 			Agility = 1;
 			Stamina = 1;

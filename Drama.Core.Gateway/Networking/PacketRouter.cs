@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Drama.Core.Gateway.Networking
 {
-  public abstract class PacketRouter
+	public abstract class PacketRouter
   {
     private readonly ManualResetEvent initialized;
 
@@ -33,10 +33,10 @@ namespace Drama.Core.Gateway.Networking
 
     protected abstract Task OnInitialize();
 
-    private async Task SessionDataReceivedAsync(object sender, DataReceivedEventArgs e)
+    private Task SessionDataReceivedAsync(object sender, DataReceivedEventArgs e)
     {
       WaitForInitialization();
-      await OnSessionDataReceived(e);
+      return OnSessionDataReceived(e);
     }
 
     protected abstract Task OnSessionDataReceived(DataReceivedEventArgs e);

@@ -2,6 +2,7 @@
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -11,112 +12,120 @@ namespace Drama.Shard.Interfaces.Protocol
 	{
 		public ShardServerOpcode Opcode { get; } = ShardServerOpcode.ObjectUpdate;
 
-		public bool IsSelf { get; set; }
-		public ObjectUpdate ObjectUpdate { get; set; }
+		/// <summary>
+		/// The ObjectID of the character that the session this request is being sent to is logged in as.
+		/// This is used to apply the Self update flag when necessary.
+		/// </summary>
+		public ObjectID TargetObjectId { get; set; }
+		public IList<ObjectUpdate> ObjectUpdates { get; } = new List<ObjectUpdate>();
+		public bool HasTransport { get; set; }
 
 		public void Write(Stream stream)
 		{
-			if (ObjectUpdate == null)
-				throw new ArgumentNullException(nameof(ObjectUpdate));
-
 			using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
 			{
 				writer.Write((ushort)Opcode);
 
-				// "create" updates look different than "update" updates
-				if(ObjectUpdate.UpdateType == ObjectUpdateType.CreateObject || ObjectUpdate.UpdateType == ObjectUpdateType.CreateObject2)
-				{
-					// neither of these can be null if this is a create update
-					if (ObjectUpdate.ValuesUpdate == null)
-						throw new ArgumentNullException(nameof(ObjectUpdate.ValuesUpdate));
-					if (ObjectUpdate.MovementUpdate == null)
-						throw new ArgumentNullException(nameof(ObjectUpdate.MovementUpdate));
+				writer.Write(ObjectUpdates.Count);
+				writer.Write(HasTransport ? (byte)1 : (byte)0);
 
-					writer.Write((byte)ObjectUpdate.UpdateType);
-					writer.Write(ObjectUpdate.ObjectId.GetPacked());
-					writer.Write((byte)ObjectUpdate.TypeId);
-
-					WriteMovementBlock(writer);
-					WriteValuesBlock(writer);
-				}
-				else
+				foreach (var update in ObjectUpdates)
 				{
-					// when not in a creation block, movement and values updates are independent
-					if(ObjectUpdate.MovementUpdate != null)
+					// "create" updates look different than "update" updates
+					if (update.UpdateType == ObjectUpdateType.CreateObject || update.UpdateType == ObjectUpdateType.CreateObject2)
 					{
-						writer.Write((byte)ObjectUpdateType.Movement);
-						writer.Write(ObjectUpdate.ObjectId);
-						WriteMovementBlock(writer);
+						// neither of these can be null if this is a create update
+						if (update.ValuesUpdate == null)
+							throw new ArgumentNullException(nameof(ObjectUpdate.ValuesUpdate));
+						if (update.MovementUpdate == null)
+							throw new ArgumentNullException(nameof(ObjectUpdate.MovementUpdate));
+
+						writer.Write((byte)update.UpdateType);
+						writer.Write(update.ObjectId.GetPacked());
+						writer.Write((byte)update.TypeId);
+
+						WriteMovementBlock(writer, update);
+						WriteValuesBlock(writer, update);
 					}
-
-					if(ObjectUpdate.ValuesUpdate != null)
+					else
 					{
-						writer.Write((byte)ObjectUpdateType.Values);
-						writer.Write(ObjectUpdate.ObjectId.GetPacked());
-						WriteValuesBlock(writer);
+						// when not in a creation block, movement and values updates are independent
+						if (update.MovementUpdate != null)
+						{
+							writer.Write((byte)ObjectUpdateType.Movement);
+							writer.Write(update.ObjectId);
+							WriteMovementBlock(writer, update);
+						}
+
+						if (update.ValuesUpdate != null)
+						{
+							writer.Write((byte)ObjectUpdateType.Values);
+							writer.Write(update.ObjectId.GetPacked());
+							WriteValuesBlock(writer, update);
+						}
 					}
 				}
 			}
 		}
 
-		private void WriteMovementBlock(BinaryWriter writer)
+		private void WriteMovementBlock(BinaryWriter writer, ObjectUpdate update)
 		{
-			if(ObjectUpdate.MovementUpdate != null)
+			if(update.MovementUpdate != null)
 			{
-				var updateFlags = ObjectUpdate.UpdateFlags;
-				if (IsSelf)
+				var updateFlags = update.UpdateFlags;
+				if (update.ObjectId == TargetObjectId)
 					updateFlags |= ObjectUpdateFlags.Self;
 
 				writer.Write((byte)updateFlags);
 
 				if(updateFlags.HasFlag(ObjectUpdateFlags.Living))
 				{
-					var moveFlags = ObjectUpdate.MovementUpdate.MoveFlags;
+					var moveFlags = update.MovementUpdate.MoveFlags;
 
 					writer.Write((int)moveFlags);
-					writer.Write(ObjectUpdate.MovementUpdate.MoveTime);
-					writer.Write(ObjectUpdate.MovementUpdate.Position.X);
-					writer.Write(ObjectUpdate.MovementUpdate.Position.Y);
-					writer.Write(ObjectUpdate.MovementUpdate.Position.Z);
-					writer.Write(ObjectUpdate.MovementUpdate.Orientation);
+					writer.Write(update.MovementUpdate.MoveTime);
+					writer.Write(update.MovementUpdate.Position.X);
+					writer.Write(update.MovementUpdate.Position.Y);
+					writer.Write(update.MovementUpdate.Position.Z);
+					writer.Write(update.MovementUpdate.Orientation);
 
 					// TODO: support transports
 
 					if (moveFlags.HasFlag(MovementFlags.ModeSwimming))
-						writer.Write(ObjectUpdate.MovementUpdate.MovePitch);
+						writer.Write(update.MovementUpdate.MovePitch);
 
-					writer.Write(ObjectUpdate.MovementUpdate.FallTime);
+					writer.Write(update.MovementUpdate.FallTime);
 
 					if(moveFlags.HasFlag(MovementFlags.ModeFalling))
 					{
-						writer.Write(ObjectUpdate.MovementUpdate.JumpVelocity);
-						writer.Write(ObjectUpdate.MovementUpdate.JumpSineAngle);
-						writer.Write(ObjectUpdate.MovementUpdate.JumpCosineAngle);
-						writer.Write(ObjectUpdate.MovementUpdate.JumpXYSpeed);
+						writer.Write(update.MovementUpdate.JumpVelocity);
+						writer.Write(update.MovementUpdate.JumpSineAngle);
+						writer.Write(update.MovementUpdate.JumpCosineAngle);
+						writer.Write(update.MovementUpdate.JumpXYSpeed);
 					}
 
 					if (moveFlags.HasFlag(MovementFlags.SplineElevation))
-						writer.Write(ObjectUpdate.MovementUpdate.UnknownSplineThingy);
+						writer.Write(update.MovementUpdate.UnknownSplineThingy);
 
-					writer.Write(ObjectUpdate.MovementUpdate.SpeedWalking);
-					writer.Write(ObjectUpdate.MovementUpdate.SpeedRunning);
-					writer.Write(ObjectUpdate.MovementUpdate.SpeedRunningBack);
-					writer.Write(ObjectUpdate.MovementUpdate.SpeedSwimming);
-					writer.Write(ObjectUpdate.MovementUpdate.SpeedSwimmingBack);
-					writer.Write(ObjectUpdate.MovementUpdate.SpeedTurning);
+					writer.Write(update.MovementUpdate.SpeedWalking);
+					writer.Write(update.MovementUpdate.SpeedRunning);
+					writer.Write(update.MovementUpdate.SpeedRunningBack);
+					writer.Write(update.MovementUpdate.SpeedSwimming);
+					writer.Write(update.MovementUpdate.SpeedSwimmingBack);
+					writer.Write(update.MovementUpdate.SpeedTurning);
 
 					// TODO: support spline motion
 				}
 				else if(updateFlags.HasFlag(ObjectUpdateFlags.HasPosition))
 				{
-					writer.Write(ObjectUpdate.MovementUpdate.Position.X);
-					writer.Write(ObjectUpdate.MovementUpdate.Position.Y);
-					writer.Write(ObjectUpdate.MovementUpdate.Position.Z);
-					writer.Write(ObjectUpdate.MovementUpdate.Orientation);
+					writer.Write(update.MovementUpdate.Position.X);
+					writer.Write(update.MovementUpdate.Position.Y);
+					writer.Write(update.MovementUpdate.Position.Z);
+					writer.Write(update.MovementUpdate.Orientation);
 				}
 
 				if (updateFlags.HasFlag(ObjectUpdateFlags.MaskId))
-					writer.Write(ObjectUpdate.ObjectId.MaskId);
+					writer.Write(update.ObjectId.MaskId);
 
 				if (updateFlags.HasFlag(ObjectUpdateFlags.All))
 					writer.Write(1);
@@ -125,16 +134,16 @@ namespace Drama.Shard.Interfaces.Protocol
 			}
 		}
 
-		private void WriteValuesBlock(BinaryWriter writer)
+		private void WriteValuesBlock(BinaryWriter writer, ObjectUpdate update)
 		{
-			if(ObjectUpdate.ValuesUpdate != null)
+			if(update.ValuesUpdate != null)
 			{
-				writer.Write(ObjectUpdate.ValuesUpdate.BlockCount);
+				writer.Write(update.ValuesUpdate.BlockCount);
 
 				// inefficient?
-				foreach (byte b in ObjectUpdate.ValuesUpdate.UpdateMask)
+				foreach (byte b in update.ValuesUpdate.UpdateMask)
 					writer.Write(b);
-				foreach (int i in ObjectUpdate.ValuesUpdate.Fields)
+				foreach (int i in update.ValuesUpdate.Fields)
 					writer.Write(i);
 			}
 		}

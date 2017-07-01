@@ -22,6 +22,13 @@ namespace Drama.Core.Interfaces.Numerics
 		public float Y { get; set; }
 		public float Z { get; set; }
 
+		public Vector3(float x, float y, float z)
+		{
+			X = x;
+			Y = y;
+			Z = z;
+		}
+
 		public System.Numerics.Vector3 AsNativeVector()
 			=> new System.Numerics.Vector3(X, Y, Z);
 

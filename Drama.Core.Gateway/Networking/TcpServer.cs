@@ -6,10 +6,10 @@ using System.Threading;
 
 namespace Drama.Core.Gateway.Networking
 {
-  // https://stackoverflow.com/questions/869744/how-to-write-a-scalable-tcp-ip-based-server/908766#908766
-  // https://msdn.microsoft.com/en-us/library/system.net.sockets.socketasynceventargs.aspx
-  // https://msdn.microsoft.com/en-us/library/bb517542.aspx
-  public class TcpServer : IDisposable
+	// https://stackoverflow.com/questions/869744/how-to-write-a-scalable-tcp-ip-based-server/908766#908766
+	// https://msdn.microsoft.com/en-us/library/system.net.sockets.socketasynceventargs.aspx
+	// https://msdn.microsoft.com/en-us/library/bb517542.aspx
+	public class TcpServer : IDisposable
   {
     private readonly DisposablePool<SocketAsyncEventArgs> socketEventPool;
     private readonly BufferPool bufferPool;
