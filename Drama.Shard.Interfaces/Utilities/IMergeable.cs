@@ -16,28 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Utilities;
-using Orleans;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Maps
+namespace Drama.Shard.Interfaces.Utilities
 {
 	/// <summary>
-	/// MapDefinitions define static properties of map instances.
-	/// 
-	/// The key for this grain is the MapId.
+	/// Defines methods for merging static data from different sources into a
+	/// single object.
 	/// </summary>
-	public interface IMapDefinition : IGrainWithIntegerKey, IMergeable<MapDefinitionEntity>
+	public interface IMergeable<T>
 	{
 		/// <summary>
-		/// Returns true if this MapDefinition is defined.
+		/// Merges all non-default values of input into this IMergeable.
 		/// </summary>
-		Task<bool> Exists();
+		Task Merge(T input);
 
 		/// <summary>
-		/// Gets a MapDefinitionEntity describing this map.
+		/// Clears all fields from this IMergeable, resetting it to its default
+		/// state.
 		/// </summary>
-		/// <returns></returns>
-		Task<MapDefinitionEntity> GetEntity();
+		Task Clear();
 	}
 }

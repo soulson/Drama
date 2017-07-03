@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Formats.Dbc;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Tools.Load.Configuration;
 using Drama.Tools.Load.Formats.Dbc;
@@ -26,9 +25,7 @@ using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
-using System.Reflection;
 
 namespace Drama.Tools.Load
 {
@@ -52,19 +49,7 @@ namespace Drama.Tools.Load
 
 			try
 			{
-				Console.Write("loading map definitions...");
-				var fileName = typeof(MapDefinitionEntity).GetTypeInfo().GetCustomAttribute<DbcEntityAttribute>().DbcFileName;
-				using (var dbc = new Dbc<MapDefinitionEntity>(new FileStream(Path.Combine(config.Dbc.Path, fileName), FileMode.Open, FileAccess.Read, FileShare.Read)))
-				{
-					foreach (var row in dbc)
-					{
-						var mapDefinition = GrainClient.GrainFactory.GetGrain<IMapDefinition>(row.Id);
-
-						mapDefinition.Clear().Wait();
-						mapDefinition.Merge(row).Wait();
-					}
-				}
-				Console.WriteLine("done!");
+				new DbcLoader<IMapDefinition, MapDefinitionEntity>(config.Dbc.Path).LoadEntities(GrainClient.GrainFactory);
 			}
 			finally
 			{
