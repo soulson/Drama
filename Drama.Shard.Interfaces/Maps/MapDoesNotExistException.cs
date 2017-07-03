@@ -15,33 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-using Drama.Shard.Interfaces.Formats.Dbc;
+ 
+using System;
 
 namespace Drama.Shard.Interfaces.Maps
 {
-	[DbcEntity("Map.dbc")]
-	public class MapDefinitionEntity
+	public class MapDoesNotExistException : MapException
 	{
-		public bool Exists { get; set; }
-
-		[DbcKey]
-		[DbcFieldOffset(0)]
-		public int Id { get; set; }
-
-		[DbcFieldOffset(4)]
-		public string Name { get; set; }
-
-		[DbcFieldOffset(8)]
-		public MapType Type { get; set; }
-
-		[DbcFieldOffset(52)]
-		public int MinLevel { get; set; }
-
-		[DbcFieldOffset(56)]
-		public int MaxLevel { get; set; }
-
-		[DbcFieldOffset(60)]
-		public int MaxPlayerCount { get; set; }
+		public MapDoesNotExistException(string message) : base(message) { }
+		public MapDoesNotExistException(string message, Exception cause) : base(message, cause) { }
 	}
 }

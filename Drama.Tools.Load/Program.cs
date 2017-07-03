@@ -21,9 +21,11 @@ using Drama.Shard.Interfaces.Maps;
 using Drama.Tools.Load.Configuration;
 using Drama.Tools.Load.Formats.Dbc;
 using Microsoft.Extensions.Configuration;
+using Orleans;
 using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -40,18 +42,42 @@ namespace Drama.Tools.Load
 			else
 				configFileName = "Load.json";
 
+			Console.Write("loading configuration...");
 			var config = GetConfiguration(configFileName);
+			Console.WriteLine("done!");
 
-			var fileName = typeof(MapDefinitionEntity).GetTypeInfo().GetCustomAttribute<DbcEntityAttribute>().DbcFileName;
-			using (var dbc = new Dbc<MapDefinitionEntity>(new FileStream(Path.Combine(config.Dbc.Path, fileName), FileMode.Open, FileAccess.Read, FileShare.Read)))
+			Console.Write("starting orleans...");
+			GrainClient.Initialize(GetOrleansConfiguration(config));
+			Console.WriteLine("done!");
+
+			try
 			{
-				foreach(var row in dbc)
+				Console.Write("loading map definitions...");
+				var fileName = typeof(MapDefinitionEntity).GetTypeInfo().GetCustomAttribute<DbcEntityAttribute>().DbcFileName;
+				using (var dbc = new Dbc<MapDefinitionEntity>(new FileStream(Path.Combine(config.Dbc.Path, fileName), FileMode.Open, FileAccess.Read, FileShare.Read)))
 				{
-					Console.WriteLine($"{row.Id} {row.Name} {row.Type} {row.MaxPlayerCount} {row.MinLevel} {row.MaxLevel}");
+					foreach (var row in dbc)
+					{
+						var mapDefinition = GrainClient.GrainFactory.GetGrain<IMapDefinition>(row.Id);
+
+						mapDefinition.Clear().Wait();
+						mapDefinition.Merge(row).Wait();
+					}
 				}
+				Console.WriteLine("done!");
+			}
+			finally
+			{
+				Console.Write("stopping orleans...");
+				GrainClient.Uninitialize();
+				Console.WriteLine("done!");
 			}
 
-			Console.ReadLine();
+			if (Debugger.IsAttached)
+			{
+				Console.WriteLine("running with attached debugger; press enter to quit");
+				Console.ReadLine();
+			}
 		}
 
 		private static LoaderConfiguration GetConfiguration(string filename)

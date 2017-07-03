@@ -16,32 +16,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Formats.Dbc;
+using Orleans;
+using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Maps
 {
-	[DbcEntity("Map.dbc")]
-	public class MapDefinitionEntity
+	/// <summary>
+	/// MapDefinitions define static properties of map instances.
+	/// 
+	/// The key for this grain is the MapId.
+	/// </summary>
+	public interface IMapDefinition : IGrainWithIntegerKey
 	{
-		public bool Exists { get; set; }
+		/// <summary>
+		/// Returns true if this MapDefinition is defined.
+		/// </summary>
+		Task<bool> Exists();
 
-		[DbcKey]
-		[DbcFieldOffset(0)]
-		public int Id { get; set; }
+		/// <summary>
+		/// Gets a MapDefinitionEntity describing this map.
+		/// </summary>
+		/// <returns></returns>
+		Task<MapDefinitionEntity> GetEntity();
 
-		[DbcFieldOffset(4)]
-		public string Name { get; set; }
+		/// <summary>
+		/// Merges all non-default values of input into this MapDefinition.
+		/// </summary>
+		Task Merge(MapDefinitionEntity input);
 
-		[DbcFieldOffset(8)]
-		public MapType Type { get; set; }
-
-		[DbcFieldOffset(52)]
-		public int MinLevel { get; set; }
-
-		[DbcFieldOffset(56)]
-		public int MaxLevel { get; set; }
-
-		[DbcFieldOffset(60)]
-		public int MaxPlayerCount { get; set; }
+		/// <summary>
+		/// Clears all fields from this MapDefinition and removes it from storage.
+		/// </summary>
+		/// <returns></returns>
+		Task Clear();
 	}
 }
