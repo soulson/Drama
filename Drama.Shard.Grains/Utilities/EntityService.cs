@@ -16,43 +16,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Core.Interfaces;
-using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Utilities;
 using Orleans;
-using Orleans.Providers;
+using Orleans.Concurrency;
+using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Grains.Maps
+namespace Drama.Shard.Grains.Utilities
 {
-	[StorageProvider(ProviderName = StorageProviders.StaticWorld)]
-	public class MapDefinition : Grain<MapDefinitionEntity>, IMapDefinition
+	[StatelessWorker]
+	public class EntityService : Grain, IEntityService
 	{
-		public Task<bool> Exists()
-			=> Task.FromResult(State.Exists);
-
-		public Task<MapDefinitionEntity> GetEntity()
+		public Task<TEntity> Merge<TEntity>(TEntity existing, TEntity @new)
 		{
-			if (!Exists().Result)
-				throw new MapDoesNotExistException($"map id {this.GetPrimaryKeyLong()} does not exist");
+			var properties =
+				from property in existing.GetType().GetProperties()
+				where property.SetMethod != null
+					 && property.GetMethod != null
+				select property;
 
-			return Task.FromResult(State);
+			foreach (var property in properties)
+			{
+				if (property.GetValue(@new) != GetDefaultValue(property.PropertyType))
+					property.SetValue(existing, property.GetValue(@new));
+			}
+
+			return Task.FromResult(existing);
 		}
 
-		public async Task Merge(MapDefinitionEntity input)
+		private object GetDefaultValue(Type type)
 		{
-			var entityService = GrainFactory.GetGrain<IEntityService>(0);
-			State = await entityService.Merge(State, input);
-
-			State.Exists = true;
-
-			await WriteStateAsync();
-		}
-
-		public Task Clear()
-		{
-			State = new MapDefinitionEntity();
-			return ClearStateAsync();
+			if (type.GetTypeInfo().IsValueType)
+				return Activator.CreateInstance(type);
+			else
+				return null;
 		}
 	}
 }
