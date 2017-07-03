@@ -61,16 +61,17 @@ namespace Drama.Tools.Load.Formats.Dbc
 		/// <param name="grainFactory">The IGrainFactory to load into</param>
 		public void LoadEntities(IGrainFactory grainFactory)
 		{
-			var fileName = typeof(TEntity).GetTypeInfo().GetCustomAttribute<DbcEntityAttribute>()?.DbcFileName
+			var entityType = typeof(TEntity);
+			var fileName = entityType.GetTypeInfo().GetCustomAttribute<DbcEntityAttribute>()?.DbcFileName
 				?? throw new DramaException($"type {typeof(TEntity).Name} does not have a {nameof(DbcEntityAttribute)} but is used as a DbcEntity");
-			var idProperty = GetIdProperty(typeof(TEntity));
+			var idProperty = GetIdProperty(entityType);
 
 			using (var dbc = new Dbc<TEntity>(new FileStream(Path.Combine(DbcPath, fileName), FileMode.Open, FileAccess.Read, FileShare.Read)))
 			{
 				foreach (var row in dbc)
 				{
 					var idValue = Convert.ToInt64(idProperty.GetValue(row));
-					TGrain grain = grainFactory.GetGrain<TGrain>(idValue);
+					var grain = grainFactory.GetGrain<TGrain>(idValue);
 
 					grain.Clear().Wait();
 					grain.Merge(row).Wait();
@@ -88,7 +89,7 @@ namespace Drama.Tools.Load.Formats.Dbc
 
 			var candidateKeys = properties.ToList();
 
-			if (candidateKeys.Count == 0)
+			if (candidateKeys.Count < 1)
 				throw new ArgumentException($"this type does not have any fields with {nameof(DbcKeyAttribute)}", nameof(type));
 			if (candidateKeys.Count > 1)
 				throw new ArgumentException($"this type has {candidateKeys.Count} fields with {nameof(DbcKeyAttribute)} but expected 1", nameof(type));
