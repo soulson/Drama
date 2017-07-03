@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /Drama.Host/storage
+/Drama.Tools.Load/data

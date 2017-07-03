@@ -18,9 +18,14 @@
 
 using Drama.Shard.Interfaces.Formats.Dbc;
 using Drama.Shard.Interfaces.Maps;
+using Drama.Tools.Load.Configuration;
 using Drama.Tools.Load.Formats.Dbc;
+using Microsoft.Extensions.Configuration;
+using Orleans.Runtime;
+using Orleans.Runtime.Configuration;
 using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
 
 namespace Drama.Tools.Load
@@ -29,17 +34,16 @@ namespace Drama.Tools.Load
 	{
 		public static void Main(string[] args)
 		{
-			string dbcPath;
-			if (args.Length < 1)
-			{
-				Console.Write("dbc path: ");
-				dbcPath = Console.ReadLine();
-			}
+			string configFileName;
+			if (args.Length >= 1)
+				configFileName = args[0];
 			else
-				dbcPath = args[0];
+				configFileName = "Load.json";
+
+			var config = GetConfiguration(configFileName);
 
 			var fileName = typeof(MapDefinitionEntity).GetTypeInfo().GetCustomAttribute<DbcEntityAttribute>().DbcFileName;
-			using (var dbc = new Dbc<MapDefinitionEntity>(new FileStream(Path.Combine(dbcPath, fileName), FileMode.Open, FileAccess.Read, FileShare.Read)))
+			using (var dbc = new Dbc<MapDefinitionEntity>(new FileStream(Path.Combine(config.Dbc.Path, fileName), FileMode.Open, FileAccess.Read, FileShare.Read)))
 			{
 				foreach(var row in dbc)
 				{
@@ -48,6 +52,30 @@ namespace Drama.Tools.Load
 			}
 
 			Console.ReadLine();
+		}
+
+		private static LoaderConfiguration GetConfiguration(string filename)
+		{
+			var config = new ConfigurationBuilder()
+				.AddJsonFile(filename)
+				.Build();
+
+			return config.GetSection(nameof(LoaderConfiguration)).Get<LoaderConfiguration>();
+		}
+
+		private static ClientConfiguration GetOrleansConfiguration(LoaderConfiguration config)
+		{
+			var orleansConfig = new ClientConfiguration()
+			{
+				DefaultTraceLevel = Severity.Info,
+				TraceToConsole = true,
+				TraceFilePattern = "none",
+			};
+
+			foreach (var silo in config.Orleans.Silos)
+				orleansConfig.Gateways.Add(new IPEndPoint(IPAddress.Parse(silo.Address), silo.Port));
+
+			return orleansConfig;
 		}
 	}
 }

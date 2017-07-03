@@ -1,0 +1,15 @@
+﻿{
+    "LoaderConfiguration": {
+        "Dbc": {
+            "Path": "./data/dbc"
+        },
+        "Orleans": {
+            "Silos": [
+                {
+                    "Address": "127.0.0.1",
+                    "Port": "30000"
+                }
+            ]
+        }
+    }
+}
