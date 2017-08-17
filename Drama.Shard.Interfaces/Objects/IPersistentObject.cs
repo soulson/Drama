@@ -17,6 +17,7 @@
  */
 
 using Orleans;
+using Orleans.Concurrency;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Objects
@@ -35,7 +36,9 @@ namespace Drama.Shard.Interfaces.Objects
 	public interface IPersistentObject<TEntity> : IGrainWithIntegerKey
 		where TEntity : ObjectEntity, new()
 	{
+		[OneWay]
 		Task Subscribe(IObjectObserver observer);
+		[OneWay]
 		Task Unsubscribe(IObjectObserver observer);
 
 		Task<bool> Exists();
