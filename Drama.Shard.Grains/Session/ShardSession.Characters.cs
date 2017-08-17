@@ -19,6 +19,7 @@
 using Drama.Auth.Interfaces;
 using Drama.Auth.Interfaces.Utilities;
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
 using System.Collections.Generic;
@@ -135,6 +136,11 @@ namespace Drama.Shard.Grains.Session
 					ZoneId = entity.ZoneId,
 				};
 				sendTasks.AddLast(Send(initializeWorldState));
+
+				var mapManager = GrainFactory.GetGrain<IMapManager>(0);
+				var mapInstanceId = await mapManager.GetInstanceIdForCharacter(entity);
+				var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
+				await mapInstance.AddCharacter(entity);
 
 				var createUpdate = await ActiveCharacter.GetCreationUpdate();
 				var objectUpdateRequest = new ObjectUpdateRequest()
