@@ -21,6 +21,7 @@ using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
 using Orleans;
+using Orleans.Concurrency;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -65,8 +66,11 @@ namespace Drama.Shard.Interfaces.Session
 		/// Forwards a notification to the network-layer session associated with
 		/// this ShardSession. The network layer is responsible for forwarding it
 		/// to the session client.
+		/// 
+		/// This method is one-way.
 		/// </summary>
 		/// <param name="packet">Cannot be null</param>
+		[OneWay]
 		Task Send(IOutPacket packet);
 
 		#region Authentication

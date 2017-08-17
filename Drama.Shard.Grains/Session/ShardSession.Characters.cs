@@ -80,6 +80,7 @@ namespace Drama.Shard.Grains.Session
 				GetLogger().Info($"account {AuthenticatedIdentity} logs in as character {entity.Name}");
 
 				ActiveCharacter = character;
+				var sendTasks = new LinkedList<Task>();
 
 				var loginVerifyWorld = new LoginVerifyWorldRequest()
 				{
@@ -87,13 +88,13 @@ namespace Drama.Shard.Grains.Session
 					Position = entity.Position,
 					Orientation = entity.Orientation,
 				};
-				var sendLoginVerifyWorld = Send(loginVerifyWorld);
+				sendTasks.AddLast(Send(loginVerifyWorld));
 
 				var accountDataTimes = new AccountDataTimesRequest();
-				var sendAccountDataTimes = Send(accountDataTimes);
+				sendTasks.AddLast(Send(accountDataTimes));
 
 				var loginSetRestStart = new LoginSetRestStartRequest();
-				var sendLoginSetRestStart = Send(loginSetRestStart);
+				sendTasks.AddLast(Send(loginSetRestStart));
 
 				var updateBindPoint = new UpdateBindPointRequest()
 				{
@@ -102,16 +103,16 @@ namespace Drama.Shard.Grains.Session
 					MapId = entity.MapId,
 					ZoneId = entity.ZoneId,
 				};
-				var sendUpdateBindPoint = Send(updateBindPoint);
+				sendTasks.AddLast(Send(updateBindPoint));
 
 				var loginInitializeTutorial = new LoginTutorialRequest();
-				var sendLoginInitializeTutorial = Send(loginInitializeTutorial);
+				sendTasks.AddLast(Send(loginInitializeTutorial));
 
 				var loginInitializeSpells = new LoginInitializeSpellsRequest();
-				var sendLoginInitializeSpells = Send(loginInitializeSpells);
+				sendTasks.AddLast(Send(loginInitializeSpells));
 
 				var loginInitializeActionButtons = new LoginInitializeActionButtonsRequest();
-				var sendLoginInitializeActionButtons = Send(loginInitializeActionButtons);
+				sendTasks.AddLast(Send(loginInitializeActionButtons));
 
 				var timeService = GrainFactory.GetGrain<ITimeService>(0);
 				var loginSetTimeAndSpeed = new LoginSetTimeAndSpeedRequest()
@@ -120,20 +121,20 @@ namespace Drama.Shard.Grains.Session
 					GameSpeed = 0.01666667f,
 					ServerTime = await timeService.GetNow(),
 				};
-				var sendLoginSetTimeAndSpeed = Send(loginSetTimeAndSpeed);
+				sendTasks.AddLast(Send(loginSetTimeAndSpeed));
 
 				var friendList = new FriendListResponse();
-				var sendFriendList = Send(friendList);
+				sendTasks.AddLast(Send(friendList));
 
 				var ignoreList = new IgnoreListResponse();
-				var sendIgnoreList = Send(ignoreList);
+				sendTasks.AddLast(Send(ignoreList));
 
 				var initializeWorldState = new InitializeWorldStateRequest()
 				{
 					MapId = entity.MapId,
 					ZoneId = entity.ZoneId,
 				};
-				var sendInitializeWorldState = Send(initializeWorldState);
+				sendTasks.AddLast(Send(initializeWorldState));
 
 				var createUpdate = await ActiveCharacter.GetCreationUpdate();
 				var objectUpdateRequest = new ObjectUpdateRequest()
@@ -141,9 +142,9 @@ namespace Drama.Shard.Grains.Session
 					TargetObjectId = entity.Id,
 				};
 				objectUpdateRequest.ObjectUpdates.Add(createUpdate);
-				var sendObjectUpdate = Send(objectUpdateRequest);
+				sendTasks.AddLast(Send(objectUpdateRequest));
 
-				await Task.WhenAll(sendLoginVerifyWorld, sendAccountDataTimes, sendLoginSetRestStart, sendUpdateBindPoint, sendLoginInitializeTutorial, sendLoginInitializeSpells, sendLoginInitializeActionButtons, sendLoginSetTimeAndSpeed, sendFriendList, sendIgnoreList, sendInitializeWorldState, sendObjectUpdate);
+				await Task.WhenAll(sendTasks);
 			}
 			else
 				GetLogger().Warn($"received login request from account {AuthenticatedIdentity} for non-existing character id {characterId}");
