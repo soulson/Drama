@@ -154,10 +154,13 @@ namespace Drama.Shard.Grains.Characters
 
 		public Task Send(IOutPacket message)
 		{
-			VerifyOnline();
-
-			var session = GrainFactory.GetGrain<IShardSession>(GetSessionId().Result);
-			session.Send(message);
+			if (IsOnline().Result)
+			{
+				var session = GrainFactory.GetGrain<IShardSession>(GetSessionId().Result);
+				session.Send(message);
+			}
+			else
+				GetLogger().Warn($"tried to send packet of type {message.GetType().Name} to not-online {nameof(Character)} {State.Name}");
 
 			return Task.CompletedTask;
 		}
