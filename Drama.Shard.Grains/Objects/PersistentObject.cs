@@ -107,7 +107,7 @@ namespace Drama.Shard.Grains.Objects
 				}
 
 				var objectUpdate = new ObjectUpdate(State.Id, State.TypeId, UpdateFlags, movementUpdate, valuesUpdate);
-				observerManager.Notify(observer => observer.HandleObjectUpdate(State.Id, objectUpdate));
+				observerManager.Notify(observer => observer.HandleObjectUpdate(State, objectUpdate));
 			}
 			return Task.CompletedTask;
 		}
@@ -152,6 +152,17 @@ namespace Drama.Shard.Grains.Objects
 
 			return Task.FromResult(new CreationUpdate(State.Id, State.TypeId, UpdateFlags, BuildMovementUpdate(), BuildValuesUpdate(true)));
 		}
+
+		public Task Destroy()
+		{
+			VerifyExists();
+
+			observerManager.Notify(observer => observer.HandleObjectDestroyed(State));
+			return Task.CompletedTask;
+		}
+
+		public virtual Task<bool> IsIngame()
+			=> Task.FromResult(true);
 
 		protected virtual ValuesUpdate BuildValuesUpdate(bool creating)
 			=> new ValuesUpdate(State, creating);

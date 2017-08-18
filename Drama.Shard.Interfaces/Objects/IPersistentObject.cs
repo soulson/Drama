@@ -36,13 +36,45 @@ namespace Drama.Shard.Interfaces.Objects
 	public interface IPersistentObject<TEntity> : IGrainWithIntegerKey
 		where TEntity : ObjectEntity, new()
 	{
+		/// <summary>
+		/// Subscribes an observer to creation, movement, and values updates from
+		/// this PersistentObject.
+		/// </summary>
+		/// <param name="observer">Cannot be null</param>
 		[OneWay]
 		Task Subscribe(IObjectObserver observer);
+
+		/// <summary>
+		/// Subscribes an observer from creation, movement, and values updates from
+		/// this PersistentObject.
+		/// </summary>
+		/// <param name="obs
 		[OneWay]
 		Task Unsubscribe(IObjectObserver observer);
-
+		
+		/// <summary>
+		/// Returns true if this PersistentObject has been created.
+		/// </summary>
 		Task<bool> Exists();
+
+		/// <summary>
+		/// Returns true if this object is in-game at this time.
+		/// </summary>
+		Task<bool> IsIngame();
+
+		/// <summary>
+		/// Gets a snapshot of the state of this object.
+		/// </summary>
 		Task<TEntity> GetEntity();
+
+		/// <summary>
+		/// Gets an ObjectUpdate that represents the creation of this object.
+		/// </summary>
 		Task<CreationUpdate> GetCreationUpdate();
+
+		/// <summary>
+		/// Removes this PersistentObject from the game world.
+		/// </summary>
+		Task Destroy();
 	}
 }

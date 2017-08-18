@@ -17,13 +17,16 @@
  */
 
 using Drama.Core.Interfaces;
+using Drama.Core.Interfaces.Networking;
 using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Grains.Units;
 using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.Session;
 using Drama.Shard.Interfaces.Units;
 using Orleans;
 using Orleans.Providers;
+using System;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Characters
@@ -37,6 +40,8 @@ namespace Drama.Shard.Grains.Characters
 	public abstract class AbstractCharacter<TEntity> : AbstractUnit<TEntity>, ICharacter<TEntity>
 		where TEntity : CharacterEntity, new()
 	{
+		protected Guid SessionId { get; private set; } = Guid.Empty;
+
 		public async Task<TEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
 		{
 			if (IsExists)
@@ -67,5 +72,62 @@ namespace Drama.Shard.Grains.Characters
 
 			return State;
 		}
+
+		public Task<Guid> GetSessionId()
+		{
+			VerifyOnline();
+
+			return Task.FromResult(SessionId);
+		}
+
+		public Task Login(Guid sessionId)
+		{
+			VerifyExists();
+
+			if (sessionId == Guid.Empty)
+				throw new ArgumentException($"cannot be an empty {nameof(Guid)}", nameof(sessionId));
+
+			SessionId = sessionId;
+			return Task.CompletedTask;
+		}
+
+		public Task Logout()
+		{
+			VerifyOnline();
+
+			SessionId = Guid.Empty;
+			return Destroy();
+		}
+
+		public Task Send(IOutPacket message)
+		{
+			VerifyOnline();
+
+			var session = GrainFactory.GetGrain<IShardSession>(GetSessionId().Result);
+			session.Send(message);
+
+			return Task.CompletedTask;
+		}
+
+		public Task<CharacterEntity> GetCharacterEntity()
+		{
+			VerifyExists();
+
+			return Task.FromResult<CharacterEntity>(State);
+		}
+
+		protected void VerifyOnline()
+		{
+			VerifyExists();
+
+			if (!IsOnline().Result)
+				throw new CharacterException($"{nameof(Character)} is not ingame");
+		}
+
+		public Task<bool> IsOnline()
+			=> Task.FromResult(SessionId != Guid.Empty);
+
+		public override Task<bool> IsIngame()
+			=> Task.FromResult(base.IsIngame().Result && IsOnline().Result);
 	}
 }

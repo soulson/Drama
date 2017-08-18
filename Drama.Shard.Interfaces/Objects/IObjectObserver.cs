@@ -30,8 +30,14 @@ namespace Drama.Shard.Interfaces.Objects
 		/// This method is called when a PersistentObject's client-visible state
 		/// has changed.
 		/// </summary>
-		/// <param name="objectId">the ID of the object that has updated</param>
+		/// <param name="objectEntity">the state of the object that has updated</param>
 		/// <param name="update">an ObjectUpdate describing what has changed</param>
-		void HandleObjectUpdate(ObjectID objectId, ObjectUpdate update);
+		void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update);
+
+		/// <summary>
+		/// This method is called when a PersistentObject is destroyed.
+		/// </summary>
+		/// <param name="objectId">the state of the destroyed object</param>
+		void HandleObjectDestroyed(ObjectEntity objectEntity);
 	}
 }

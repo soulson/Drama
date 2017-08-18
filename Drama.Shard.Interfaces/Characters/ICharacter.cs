@@ -16,8 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Core.Interfaces.Networking;
 using Drama.Shard.Interfaces.Units;
 using Orleans;
+using Orleans.Concurrency;
+using System;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Characters
@@ -40,5 +43,35 @@ namespace Drama.Shard.Interfaces.Characters
 		/// </summary>
 		/// <returns>The Entity of the new Character</returns>
 		Task<TEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair);
+
+		/// <summary>
+		/// Logs the character into the world under the specified ShardSession ID.
+		/// </summary>
+		Task Login(Guid sessionId);
+
+		/// <summary>
+		/// Starts the process of logging the character out of the world.
+		/// </summary>
+		Task Logout();
+
+		/// <summary>
+		/// Gets the ID of the ShardSession for which this Character is an agent.
+		/// </summary>
+		Task<Guid> GetSessionId();
+
+		/// <summary>
+		/// Sends a message to the ShardSession for which this Character is an
+		/// agent.
+		/// 
+		/// This method is one-way.
+		/// </summary>
+		/// <param name="message">Cannot be null</param>
+		[OneWay]
+		Task Send(IOutPacket message);
+
+		/// <summary>
+		/// Returns true if this Character is ingame.
+		/// </summary>
+		Task<bool> IsOnline();
 	}
 }
