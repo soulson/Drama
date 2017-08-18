@@ -101,12 +101,12 @@ namespace Drama.Shard.Grains.Objects
 
 				if (IsValuesUpdated)
 				{
-					valuesUpdate = BuildValuesUpdate(false);
+					valuesUpdate = BuildValuesUpdate(State, false);
 					IsValuesUpdated = false;
 				}
 				if (IsMovementUpdated)
 				{
-					movementUpdate = BuildMovementUpdate();
+					movementUpdate = BuildMovementUpdate(State);
 					IsMovementUpdated = false;
 				}
 
@@ -150,13 +150,6 @@ namespace Drama.Shard.Grains.Objects
 			return Task.CompletedTask;
 		}
 
-		public Task<CreationUpdate> GetCreationUpdate()
-		{
-			VerifyExists();
-
-			return Task.FromResult(new CreationUpdate(State.Id, State.TypeId, UpdateFlags, BuildMovementUpdate(), BuildValuesUpdate(true)));
-		}
-
 		public Task Destroy()
 		{
 			VerifyExists();
@@ -168,11 +161,14 @@ namespace Drama.Shard.Grains.Objects
 		public virtual Task<bool> IsIngame()
 			=> Task.FromResult(true);
 
-		protected virtual ValuesUpdate BuildValuesUpdate(bool creating)
-			=> new ValuesUpdate(State, creating);
+		protected virtual ValuesUpdate BuildValuesUpdate(ObjectEntity entity, bool creating)
+			=> new ValuesUpdate(entity, creating);
 
-		protected virtual MovementUpdate BuildMovementUpdate()
-			=> new MovementUpdate(State);
+		protected virtual MovementUpdate BuildMovementUpdate(ObjectEntity entity)
+			=> new MovementUpdate(entity);
+
+		protected CreationUpdate GetCreationUpdate(ObjectEntity entity)
+			=> new CreationUpdate(State.Id, State.TypeId, UpdateFlags, BuildMovementUpdate(entity), BuildValuesUpdate(entity, true));
 
 		protected void VerifyExists()
 		{

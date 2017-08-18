@@ -80,7 +80,7 @@ namespace Drama.Shard.Grains.Session
 
 			if (ActiveCharacter != null)
 			{
-				var characterEntity = await ActiveCharacter.GetEntity();
+				var characterEntity = await ActiveCharacter.GetCharacterEntity();
 				var mapManager = GrainFactory.GetGrain<IMapManager>(0);
 				var mapInstanceId = await mapManager.GetInstanceIdForCharacter(characterEntity);
 				var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);

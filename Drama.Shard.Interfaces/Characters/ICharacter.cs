@@ -35,14 +35,14 @@ namespace Drama.Shard.Interfaces.Characters
 
 	}
 
-	public interface ICharacter<TEntity> : IUnit<TEntity>, IGrainWithIntegerKey
+	public interface ICharacter<out TEntity> : IUnit<TEntity>, IGrainWithIntegerKey
 		where TEntity : CharacterEntity, new()
 	{
 		/// <summary>
 		/// Creates a new Character.
 		/// </summary>
 		/// <returns>The Entity of the new Character</returns>
-		Task<TEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair);
+		Task<CharacterEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair);
 
 		/// <summary>
 		/// Logs the character into the world under the specified ShardSession ID.
@@ -73,5 +73,10 @@ namespace Drama.Shard.Interfaces.Characters
 		/// Returns true if this Character is ingame.
 		/// </summary>
 		Task<bool> IsOnline();
+
+		/// <summary>
+		/// Gets a snapshot of the state of this Character.
+		/// </summary>
+		Task<CharacterEntity> GetCharacterEntity();
 	}
 }

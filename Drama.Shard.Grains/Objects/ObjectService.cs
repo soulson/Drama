@@ -16,24 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Objects;
 using Orleans;
+using Orleans.Concurrency;
+using System;
+using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Units
+namespace Drama.Shard.Grains.Objects
 {
-	/// <summary>
-	/// A Unit grain represents a persistent object that can move.
-	/// 
-	/// The key for this grain is the ObjectID of the Unit.
-	/// </summary>
-	public interface IUnit : IUnit<UnitEntity>, IGrainWithIntegerKey
+	[StatelessWorker]
+	public class ObjectService : Grain
 	{
-
-	}
-
-	public interface IUnit<out TEntity> : IPersistentObject<TEntity>, IGrainWithIntegerKey
-		where TEntity : UnitEntity, new()
-	{
-
+		public Task<IPersistentObject<ObjectEntity>> GetObject(ObjectID id)
+		{
+			switch (id.ObjectType)
+			{
+				case ObjectID.Type.Player:
+					var character = GrainFactory.GetGrain<ICharacter>(id);
+					return Task.FromResult<IPersistentObject<ObjectEntity>>(character);
+				default:
+					return Task.FromException<IPersistentObject<ObjectEntity>>(new NotImplementedException($"object type {id.ObjectType} is not yet implemented by {nameof(ObjectService)}.{nameof(GetObject)}"));
+			}
+		}
 	}
 }

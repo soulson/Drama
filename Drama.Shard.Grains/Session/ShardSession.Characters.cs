@@ -41,7 +41,7 @@ namespace Drama.Shard.Grains.Session
 			foreach(var id in characterIds)
 			{
 				var character = GrainFactory.GetGrain<ICharacter>(id);
-				result.Add(await character.GetEntity());
+				result.Add(await character.GetCharacterEntity());
 			}
 
 			return result;
@@ -65,7 +65,7 @@ namespace Drama.Shard.Grains.Session
 
 			if (await character.Exists())
 			{
-				var entity = await character.GetEntity();
+				var entity = await character.GetCharacterEntity();
 
 				// sanity checks
 				if(entity.Account != AuthenticatedIdentity)
@@ -144,14 +144,6 @@ namespace Drama.Shard.Grains.Session
 				var mapInstanceId = await mapManager.GetInstanceIdForCharacter(entity);
 				var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
 				await mapInstance.AddCharacter(entity);
-
-				var createUpdate = await ActiveCharacter.GetCreationUpdate();
-				var objectUpdateRequest = new ObjectUpdateRequest()
-				{
-					TargetObjectId = entity.Id,
-				};
-				objectUpdateRequest.ObjectUpdates.Add(createUpdate);
-				sendTasks.AddLast(Send(objectUpdateRequest));
 
 				await Task.WhenAll(sendTasks);
 			}

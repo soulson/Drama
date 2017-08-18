@@ -23,7 +23,8 @@ using System;
 namespace Drama.Shard.Interfaces.Objects
 {
 	/// <summary>
-	/// An ObjectID is used to uniquely identify 
+	/// An ObjectID is used to uniquely identify a PersistentObject in the game
+	/// world.
 	/// </summary>
 	[JsonObject(MemberSerialization.Fields)]
 	public struct ObjectID : IEquatable<ObjectID>

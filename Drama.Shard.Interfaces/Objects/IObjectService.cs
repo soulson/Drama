@@ -16,24 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Objects;
 using Orleans;
+using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Units
+namespace Drama.Shard.Interfaces.Objects
 {
 	/// <summary>
-	/// A Unit grain represents a persistent object that can move.
+	/// This service provides access to PersistentObjects as other types. For
+	/// instance, it can provide an IPersistentObject view of an ICharacter.
 	/// 
-	/// The key for this grain is the ObjectID of the Unit.
+	/// The only expected key for this stateless grain is 0.
 	/// </summary>
-	public interface IUnit : IUnit<UnitEntity>, IGrainWithIntegerKey
+	public interface IObjectService : IGrainWithIntegerKey
 	{
-
-	}
-
-	public interface IUnit<out TEntity> : IPersistentObject<TEntity>, IGrainWithIntegerKey
-		where TEntity : UnitEntity, new()
-	{
-
+		Task<IPersistentObject<ObjectEntity>> GetObject(ObjectID id);
 	}
 }

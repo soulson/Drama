@@ -32,7 +32,21 @@ namespace Drama.Shard.Grains.Units
 	{
 		protected override ObjectUpdateFlags UpdateFlags => base.UpdateFlags | ObjectUpdateFlags.Living;
 
-		protected override MovementUpdate BuildMovementUpdate()
-			=> new MovementUpdate(State);
+		protected override MovementUpdate BuildMovementUpdate(ObjectEntity entity)
+		{
+			// i don't really like this.
+			//  it was cleaner when this method did not take entity as a parameter
+			//  and instead just used State as the argument to MovementUpdate, but
+			//  then it was not possible to generate CreationUpdates for objects
+			//  other than self. the necessity of these CreationUpdates caused cycles
+			//  between objects, which was undesirable.
+			//  the problem now is that incorrect CreationUpdates will be generated
+			//  for Units by non-Units; they will not have this overridden method and
+			//  therefore will not send MovementInfo
+			if (entity is UnitEntity)
+				return new MovementUpdate(entity as UnitEntity);
+			else
+				return new MovementUpdate(entity);
+		}
 	}
 }

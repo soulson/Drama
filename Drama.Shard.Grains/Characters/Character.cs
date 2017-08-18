@@ -70,7 +70,7 @@ namespace Drama.Shard.Grains.Characters
 			return base.OnDeactivateAsync();
 		}
 
-		public async Task<TEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
+		public async Task<CharacterEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
 		{
 			if (IsExists)
 				throw new CharacterAlreadyExistsException($"{GetType().Name} with objectid {State.Id} already exists");
@@ -108,6 +108,13 @@ namespace Drama.Shard.Grains.Characters
 			return Task.FromResult(SessionId);
 		}
 
+		public Task<CharacterEntity> GetCharacterEntity()
+		{
+			VerifyExists();
+
+			return Task.FromResult<CharacterEntity>(State);
+		}
+
 		public Task Login(Guid sessionId)
 		{
 			VerifyExists();
@@ -122,7 +129,15 @@ namespace Drama.Shard.Grains.Characters
 			else
 				GetLogger().Warn($"{nameof(Character)} {State.Name} logged in but {nameof(workingSetUpdateTimerHandle)} was not null");
 
-			return Task.CompletedTask;
+			// send creation update for self to client
+			var createUpdate = GetCreationUpdate(State);
+			var objectUpdateRequest = new ObjectUpdateRequest()
+			{
+				TargetObjectId = State.Id,
+			};
+			objectUpdateRequest.ObjectUpdates.Add(createUpdate);
+
+			return Send(objectUpdateRequest);
 		}
 
 		public Task Logout()

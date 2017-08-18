@@ -33,7 +33,7 @@ namespace Drama.Shard.Interfaces.Objects
 
 	}
 
-	public interface IPersistentObject<TEntity> : IGrainWithIntegerKey
+	public interface IPersistentObject<out TEntity> : IGrainWithIntegerKey
 		where TEntity : ObjectEntity, new()
 	{
 		/// <summary>
@@ -65,12 +65,7 @@ namespace Drama.Shard.Interfaces.Objects
 		/// <summary>
 		/// Gets a snapshot of the state of this object.
 		/// </summary>
-		Task<TEntity> GetEntity();
-
-		/// <summary>
-		/// Gets an ObjectUpdate that represents the creation of this object.
-		/// </summary>
-		Task<CreationUpdate> GetCreationUpdate();
+		//Task<TEntity> GetEntity();
 
 		/// <summary>
 		/// Removes this PersistentObject from the game world.
