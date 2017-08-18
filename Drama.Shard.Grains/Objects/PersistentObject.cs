@@ -33,6 +33,10 @@ namespace Drama.Shard.Grains.Objects
 		where TEntity : ObjectEntity, new()
 	{
 		// TODO: make this a configuration item
+		/// <summary>
+		/// PersistentObjects will notify subscribed PersistentObjects of updates
+		/// to their state with the frequency established by this value.
+		/// </summary>
 		private const double UpdatePeriodSeconds = 1.0 / 20.0;
 
 		/// <summary>

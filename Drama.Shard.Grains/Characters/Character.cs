@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Auth.Interfaces;
 using Drama.Core.Interfaces;
 using Drama.Core.Interfaces.Networking;
 using Drama.Core.Interfaces.Numerics;
@@ -27,6 +28,7 @@ using Drama.Shard.Interfaces.Units;
 using Orleans;
 using Orleans.Providers;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Characters
@@ -40,7 +42,27 @@ namespace Drama.Shard.Grains.Characters
 	public abstract class AbstractCharacter<TEntity> : AbstractUnit<TEntity>, ICharacter<TEntity>
 		where TEntity : CharacterEntity, new()
 	{
+		// TODO: make this a configuration item
+		/// <summary>
+		/// Characters will update which PersistentObjects are in its working set
+		/// with the frequency established by this value.
+		/// </summary>
+		private const double WorkingSetUpdatePeriodSeconds = 1.0;
+
+		private IDisposable workingSetUpdateTimerHandle;
+		private readonly IList<ObjectID> workingSet = new List<ObjectID>();
+
 		protected Guid SessionId { get; private set; } = Guid.Empty;
+
+		public override Task OnDeactivateAsync()
+		{
+			workingSetUpdateTimerHandle?.Dispose();
+			workingSetUpdateTimerHandle = null;
+
+			workingSet.Clear();
+
+			return base.OnDeactivateAsync();
+		}
 
 		public async Task<TEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
 		{
@@ -88,6 +110,12 @@ namespace Drama.Shard.Grains.Characters
 				throw new ArgumentException($"cannot be an empty {nameof(Guid)}", nameof(sessionId));
 
 			SessionId = sessionId;
+
+			if (workingSetUpdateTimerHandle == null)
+				workingSetUpdateTimerHandle = RegisterTimer(UpdateWorkingSet, null, TimeSpan.FromSeconds(WorkingSetUpdatePeriodSeconds), TimeSpan.FromSeconds(WorkingSetUpdatePeriodSeconds));
+			else
+				GetLogger().Warn($"{nameof(Character)} {State.Name} logged in but {nameof(workingSetUpdateTimerHandle)} was not null");
+
 			return Task.CompletedTask;
 		}
 
@@ -95,7 +123,11 @@ namespace Drama.Shard.Grains.Characters
 		{
 			VerifyOnline();
 
+			workingSetUpdateTimerHandle?.Dispose();
+			workingSetUpdateTimerHandle = null;
+
 			SessionId = Guid.Empty;
+
 			return Destroy();
 		}
 
@@ -122,5 +154,16 @@ namespace Drama.Shard.Grains.Characters
 
 		public override Task<bool> IsIngame()
 			=> Task.FromResult(base.IsIngame().Result && IsOnline().Result);
+
+		/// <remarks>
+		/// This method gets invoked by the update timer every
+		/// WorkingSetUpdatePeriodSeconds. It updates the working set of this
+		/// Character; that is, which PersistentObjects it can see. The argument is
+		/// always null.
+		/// </remarks>
+		private Task UpdateWorkingSet(object arg)
+		{
+			return Task.CompletedTask;
+		}
 	}
 }
