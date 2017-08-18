@@ -22,13 +22,16 @@ using Drama.Core.Interfaces.Networking;
 using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Grains.Units;
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.Protocol;
 using Drama.Shard.Interfaces.Session;
 using Drama.Shard.Interfaces.Units;
 using Orleans;
 using Orleans.Providers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Characters
@@ -49,8 +52,11 @@ namespace Drama.Shard.Grains.Characters
 		/// </summary>
 		private const double WorkingSetUpdatePeriodSeconds = 1.0;
 
+		// TODO: this should be like, anything but a const float in AbstractCharacter
+		private const float ViewDistance = 60.0f;
+
 		private IDisposable workingSetUpdateTimerHandle;
-		private readonly IList<ObjectID> workingSet = new List<ObjectID>();
+		private readonly ISet<ObjectID> workingSet = new HashSet<ObjectID>();
 
 		protected Guid SessionId { get; private set; } = Guid.Empty;
 
@@ -161,9 +167,47 @@ namespace Drama.Shard.Grains.Characters
 		/// Character; that is, which PersistentObjects it can see. The argument is
 		/// always null.
 		/// </remarks>
-		private Task UpdateWorkingSet(object arg)
+		private async Task UpdateWorkingSet(object arg)
 		{
-			return Task.CompletedTask;
+			var map = await GetMapInstance();
+			var newWorkingSet = await map.GetNearbyObjects(State, ViewDistance);
+
+			var addedObjects = newWorkingSet.Except(workingSet);
+			var removedObjects = workingSet.Except(newWorkingSet);
+
+			// is this the most efficient way to set workingSet?
+			workingSet.Clear();
+			workingSet.UnionWith(newWorkingSet);
+
+			var tasks = new LinkedList<Task>();
+
+			foreach(var removedObject in removedObjects)
+			{
+				// TODO: fill in with generic GetGrain, then unsubscribe
+				var removeRequest = new ObjectDestroyRequest()
+				{
+					ObjectId = removedObject,
+				};
+
+				tasks.AddLast(Send(removeRequest));
+			}
+
+			foreach(var addedObject in addedObjects)
+			{
+				// TODO: fill in with generic GetGrain, then subscribe, getCreationUpdate, and send
+			}
+
+			await Task.WhenAll(tasks);
+		}
+
+		/// <summary>
+		/// Gets the Map instance that this Character is currently in.
+		/// </summary>
+		protected async Task<IMap> GetMapInstance()
+		{
+			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
+			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
+			return GrainFactory.GetGrain<IMap>(mapInstanceId);
 		}
 	}
 }

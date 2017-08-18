@@ -20,8 +20,10 @@ using Drama.Auth.Interfaces.Utilities;
 using Drama.Core.Interfaces;
 using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Maps;
+using Drama.Shard.Interfaces.Objects;
 using Orleans;
 using Orleans.Providers;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Maps
@@ -29,9 +31,15 @@ namespace Drama.Shard.Grains.Maps
 	[StorageProvider(ProviderName = StorageProviders.DynamicWorld)]
 	public class Map : Grain<MapEntity>, IMap
 	{
+		// contains all objects in the map. this is inefficient and will obviously
+		//  need to be replaced with something more performant eventually
+		private readonly ISet<ObjectEntity> objects = new HashSet<ObjectEntity>();
+
 		public Task AddCharacter(CharacterEntity characterEntity)
 		{
 			VerifyExists();
+
+			objects.Add(characterEntity);
 
 			return Task.CompletedTask;
 		}
@@ -39,6 +47,8 @@ namespace Drama.Shard.Grains.Maps
 		public Task RemoveCharacter(CharacterEntity characterEntity)
 		{
 			VerifyExists();
+
+			objects.Remove(characterEntity);
 
 			return Task.CompletedTask;
 		}
@@ -64,6 +74,32 @@ namespace Drama.Shard.Grains.Maps
 			VerifyExists();
 
 			return Task.FromResult(State);
+		}
+
+		public Task<IEnumerable<ObjectID>> GetNearbyObjects(ObjectEntity objectEntity, float distance)
+		{
+			VerifyExists();
+
+			var result = new HashSet<ObjectID>();
+			var distanceSquared = distance * distance;
+
+			foreach (var entity in objects)
+			{
+				var xPart = objectEntity.Position.X - entity.Position.X;
+				var yPart = objectEntity.Position.Y - entity.Position.Y;
+
+				xPart *= xPart;
+				yPart *= yPart;
+
+				if (xPart + yPart < distanceSquared)
+				{
+					// don't return objectEntity's id
+					if (!entity.Equals(objectEntity))
+						result.Add(objectEntity.Id);
+				}
+			}
+
+			return Task.FromResult<IEnumerable<ObjectID>>(result);
 		}
 
 		private void VerifyExists()

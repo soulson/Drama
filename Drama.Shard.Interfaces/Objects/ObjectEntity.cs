@@ -252,5 +252,16 @@ namespace Drama.Shard.Interfaces.Objects
 		public void SetField(ObjectFields field, float value)
 			=> SetField((short)field, value);
 		#endregion
+
+		public override bool Equals(object obj)
+		{
+			if (!(obj is ObjectEntity))
+				return false;
+			else
+				return Id == (obj as ObjectEntity).Id;
+		}
+
+		public override int GetHashCode()
+		  => Id.Id;
 	}
 }

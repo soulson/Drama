@@ -17,7 +17,9 @@
  */
 
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Objects;
 using Orleans;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Maps
@@ -55,5 +57,12 @@ namespace Drama.Shard.Interfaces.Maps
 		/// Removes a Character from this Map instance.
 		/// </summary>
 		Task RemoveCharacter(CharacterEntity characterEntity);
+
+		/// <summary>
+		/// Returns a collection of ObjectIDs representing objects within a
+		/// specified distance of objectEntity.
+		/// </summary>
+		/// <param name="distance">maximum distance of returned objects, exclusive</param>
+		Task<IEnumerable<ObjectID>> GetNearbyObjects(ObjectEntity objectEntity, float distance);
 	}
 }

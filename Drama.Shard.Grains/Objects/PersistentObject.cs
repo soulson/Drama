@@ -32,7 +32,7 @@ namespace Drama.Shard.Grains.Objects
 	public abstract class AbstractPersistentObject<TEntity> : Grain<TEntity>, IPersistentObject<TEntity>
 		where TEntity : ObjectEntity, new()
 	{
-		// TODO: make this a configuration item
+		// TODO: make this a configuration item, or make it a virtual property
 		/// <summary>
 		/// PersistentObjects will notify subscribed PersistentObjects of updates
 		/// to their state with the frequency established by this value.
