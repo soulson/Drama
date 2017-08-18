@@ -101,12 +101,12 @@ namespace Drama.Shard.Grains.Objects
 
 				if (IsValuesUpdated)
 				{
-					valuesUpdate = BuildValuesUpdate(State, false);
+					valuesUpdate = BuildValuesUpdate(false);
 					IsValuesUpdated = false;
 				}
 				if (IsMovementUpdated)
 				{
-					movementUpdate = BuildMovementUpdate(State);
+					movementUpdate = BuildMovementUpdate();
 					IsMovementUpdated = false;
 				}
 
@@ -130,6 +130,9 @@ namespace Drama.Shard.Grains.Objects
 		{
 			VerifyExists();
 
+			// TODO: determine how stealth/invisibility interact with this
+			observer.HandleObjectCreate(State, GetCreationUpdate());
+
 			if (observerManager.IsSubscribed(observer))
 				GetLogger().Warn($"observer {observer} tried to subscribe to {GetType().Name} {this.GetPrimaryKeyLong()} more than once");
 			else
@@ -147,6 +150,8 @@ namespace Drama.Shard.Grains.Objects
 			else
 				observerManager.Unsubscribe(observer);
 
+			observer.HandleObjectDestroyed(State);
+
 			return Task.CompletedTask;
 		}
 
@@ -161,14 +166,14 @@ namespace Drama.Shard.Grains.Objects
 		public virtual Task<bool> IsIngame()
 			=> Task.FromResult(true);
 
-		protected virtual ValuesUpdate BuildValuesUpdate(ObjectEntity entity, bool creating)
-			=> new ValuesUpdate(entity, creating);
+		protected virtual ValuesUpdate BuildValuesUpdate(bool creating)
+			=> new ValuesUpdate(State, creating);
 
-		protected virtual MovementUpdate BuildMovementUpdate(ObjectEntity entity)
-			=> new MovementUpdate(entity);
+		protected virtual MovementUpdate BuildMovementUpdate()
+			=> new MovementUpdate(State);
 
-		protected CreationUpdate GetCreationUpdate(ObjectEntity entity)
-			=> new CreationUpdate(State.Id, State.TypeId, UpdateFlags, BuildMovementUpdate(entity), BuildValuesUpdate(entity, true));
+		protected CreationUpdate GetCreationUpdate()
+			=> new CreationUpdate(State.Id, State.TypeId, UpdateFlags, BuildMovementUpdate(), BuildValuesUpdate(true));
 
 		protected void VerifyExists()
 		{

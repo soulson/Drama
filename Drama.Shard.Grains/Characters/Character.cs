@@ -42,7 +42,7 @@ namespace Drama.Shard.Grains.Characters
 
 	}
 
-	public abstract class AbstractCharacter<TEntity> : AbstractUnit<TEntity>, ICharacter<TEntity>
+	public abstract class AbstractCharacter<TEntity> : AbstractUnit<TEntity>, ICharacter<TEntity>, IObjectObserver
 		where TEntity : CharacterEntity, new()
 	{
 		// TODO: make this a configuration item
@@ -130,12 +130,11 @@ namespace Drama.Shard.Grains.Characters
 				GetLogger().Warn($"{nameof(Character)} {State.Name} logged in but {nameof(workingSetUpdateTimerHandle)} was not null");
 
 			// send creation update for self to client
-			var createUpdate = GetCreationUpdate(State);
 			var objectUpdateRequest = new ObjectUpdateRequest()
 			{
 				TargetObjectId = State.Id,
 			};
-			objectUpdateRequest.ObjectUpdates.Add(createUpdate);
+			objectUpdateRequest.ObjectUpdates.Add(GetCreationUpdate());
 
 			return Send(objectUpdateRequest);
 		}
@@ -146,6 +145,7 @@ namespace Drama.Shard.Grains.Characters
 
 			workingSetUpdateTimerHandle?.Dispose();
 			workingSetUpdateTimerHandle = null;
+			workingSet.Clear();
 
 			SessionId = Guid.Empty;
 
@@ -190,27 +190,28 @@ namespace Drama.Shard.Grains.Characters
 			var addedObjects = newWorkingSet.Except(workingSet);
 			var removedObjects = workingSet.Except(newWorkingSet);
 
-			// is this the most efficient way to set workingSet?
-			workingSet.Clear();
-			workingSet.UnionWith(newWorkingSet);
-
 			var tasks = new LinkedList<Task>();
+			var objectService = GrainFactory.GetGrain<IObjectService>(0);
 
 			foreach(var removedObject in removedObjects)
 			{
-				// TODO: fill in with generic GetGrain, then unsubscribe
-				var removeRequest = new ObjectDestroyRequest()
-				{
-					ObjectId = removedObject,
-				};
+				var grainReference = await objectService.GetObject(removedObject);
+				tasks.AddLast(grainReference.Unsubscribe(this));
 
-				tasks.AddLast(Send(removeRequest));
+				GetLogger().Warn($"{this.GetPrimaryKeyLong()} unsubbed from {removedObject}");
 			}
 
 			foreach(var addedObject in addedObjects)
 			{
-				// TODO: fill in with generic GetGrain, then subscribe, getCreationUpdate, and send
+				var grainReference = await objectService.GetObject(addedObject);
+				tasks.AddLast(grainReference.Subscribe(this));
+
+				GetLogger().Warn($"{this.GetPrimaryKeyLong()} subbed to {addedObject}");
 			}
+
+			// is this the most efficient way to set workingSet?
+			workingSet.Clear();
+			workingSet.UnionWith(newWorkingSet);
 
 			await Task.WhenAll(tasks);
 		}
@@ -223,6 +224,34 @@ namespace Drama.Shard.Grains.Characters
 			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
 			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
 			return GrainFactory.GetGrain<IMap>(mapInstanceId);
+		}
+
+		public void HandleObjectCreate(ObjectEntity objectEntity, CreationUpdate update)
+			=> HandleObjectUpdate(objectEntity, update);
+
+		public void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update)
+		{
+			var objectUpdateRequest = new ObjectUpdateRequest()
+			{
+				TargetObjectId = State.Id,
+			};
+			objectUpdateRequest.ObjectUpdates.Add(update);
+
+			GetLogger().Warn($"character {this.GetPrimaryKeyLong()} sees update of object {objectEntity.Id}");
+
+			Send(objectUpdateRequest).Wait();
+		}
+
+		public void HandleObjectDestroyed(ObjectEntity objectEntity)
+		{
+			var objectDestroyRequest = new ObjectDestroyRequest()
+			{
+				ObjectId = objectEntity.Id,
+			};
+
+			GetLogger().Warn($"character {this.GetPrimaryKeyLong()} sees destruction of object {objectEntity.Id}");
+
+			Send(objectDestroyRequest).Wait();
 		}
 	}
 }

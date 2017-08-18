@@ -27,6 +27,14 @@ namespace Drama.Shard.Interfaces.Objects
 	public interface IObjectObserver : IGrainObserver
 	{
 		/// <summary>
+		/// This method is called when a PersistentObject is becoming
+		/// client-visible.
+		/// </summary>
+		/// <param name="objectEntity">the state of the object that is created</param>
+		/// <param name="update">a CreationUpdate describing the object</param>
+		void HandleObjectCreate(ObjectEntity objectEntity, CreationUpdate update);
+
+		/// <summary>
 		/// This method is called when a PersistentObject's client-visible state
 		/// has changed.
 		/// </summary>

@@ -48,7 +48,7 @@ namespace Drama.Shard.Interfaces.Objects
 		/// Subscribes an observer from creation, movement, and values updates from
 		/// this PersistentObject.
 		/// </summary>
-		/// <param name="obs
+		/// <param name="observer">Cannot be null</param>
 		[OneWay]
 		Task Unsubscribe(IObjectObserver observer);
 		
@@ -61,11 +61,6 @@ namespace Drama.Shard.Interfaces.Objects
 		/// Returns true if this object is in-game at this time.
 		/// </summary>
 		Task<bool> IsIngame();
-
-		/// <summary>
-		/// Gets a snapshot of the state of this object.
-		/// </summary>
-		//Task<TEntity> GetEntity();
 
 		/// <summary>
 		/// Removes this PersistentObject from the game world.

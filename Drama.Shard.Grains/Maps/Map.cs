@@ -95,7 +95,7 @@ namespace Drama.Shard.Grains.Maps
 				{
 					// don't return objectEntity's id
 					if (!entity.Equals(objectEntity))
-						result.Add(objectEntity.Id);
+						result.Add(entity.Id);
 				}
 			}
 

@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 namespace Drama.Shard.Grains.Objects
 {
 	[StatelessWorker]
-	public class ObjectService : Grain
+	public class ObjectService : Grain, IObjectService
 	{
 		public Task<IPersistentObject<ObjectEntity>> GetObject(ObjectID id)
 		{
