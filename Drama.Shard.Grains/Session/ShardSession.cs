@@ -20,6 +20,7 @@ using Drama.Auth.Interfaces;
 using Drama.Auth.Interfaces.Utilities;
 using Drama.Core.Interfaces.Networking;
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Protocol;
 using Drama.Shard.Interfaces.Session;
 using Orleans;
@@ -71,12 +72,21 @@ namespace Drama.Shard.Grains.Session
 			await Send(authChallenge);
 		}
 
-		public Task Disconnect(IShardSessionObserver observer)
+		public async Task Disconnect(IShardSessionObserver observer)
 		{
 			sessionObservers.Unsubscribe(observer);
 			seed = 0;
 			GetLogger().Info($"session {this.GetPrimaryKey()} disconnected");
-			return Task.CompletedTask;
+
+			if (ActiveCharacter != null)
+			{
+				var characterEntity = await ActiveCharacter.GetEntity();
+				var mapManager = GrainFactory.GetGrain<IMapManager>(0);
+				var mapInstanceId = await mapManager.GetInstanceIdForCharacter(characterEntity);
+				var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
+				await mapInstance.RemoveCharacter(characterEntity);
+				await ActiveCharacter.Logout();
+			}
 		}
 
 		public Task Send(IOutPacket packet)
