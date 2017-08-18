@@ -109,13 +109,6 @@ namespace Drama.Shard.Grains.Characters
 			return Task.CompletedTask;
 		}
 
-		public Task<CharacterEntity> GetCharacterEntity()
-		{
-			VerifyExists();
-
-			return Task.FromResult<CharacterEntity>(State);
-		}
-
 		protected void VerifyOnline()
 		{
 			VerifyExists();
