@@ -148,14 +148,14 @@ namespace Drama.Shard.Grains.Characters
 		{
 			VerifyOnline();
 
+			workingSetUpdateTimerHandle?.Dispose();
+			workingSetUpdateTimerHandle = null;
+			await ClearWorkingSet();
+
 			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
 			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
 			var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
 			await mapInstance.RemoveObject(State);
-
-			workingSetUpdateTimerHandle?.Dispose();
-			workingSetUpdateTimerHandle = null;
-			workingSet.Clear();
 
 			SessionId = Guid.Empty;
 
@@ -211,7 +211,7 @@ namespace Drama.Shard.Grains.Characters
 				var grainReference = await objectService.GetObject(removedObject);
 				tasks.AddLast(grainReference.Unsubscribe(this));
 
-				GetLogger().Debug($"{this.GetPrimaryKeyLong()} unsubbed from {removedObject}");
+				GetLogger().Debug($"{State.Id} unsubbed from {removedObject}");
 			}
 
 			foreach(var addedObject in addedObjects)
@@ -219,12 +219,28 @@ namespace Drama.Shard.Grains.Characters
 				var grainReference = await objectService.GetObject(addedObject);
 				tasks.AddLast(grainReference.Subscribe(this));
 
-				GetLogger().Debug($"{this.GetPrimaryKeyLong()} subbed to {addedObject}");
+				GetLogger().Debug($"{State.Id} subbed to {addedObject}");
 			}
 
 			// is this the most efficient way to set workingSet?
 			workingSet.Clear();
 			workingSet.UnionWith(newWorkingSet);
+
+			await Task.WhenAll(tasks);
+		}
+
+		private async Task ClearWorkingSet()
+		{
+			var tasks = new LinkedList<Task>();
+			var objectService = GrainFactory.GetGrain<IObjectService>(0);
+
+			foreach(var objectId in workingSet)
+			{
+				var grainReference = await objectService.GetObject(objectId);
+				tasks.AddLast(grainReference.Unsubscribe(this));
+			}
+
+			workingSet.Clear();
 
 			await Task.WhenAll(tasks);
 		}
@@ -244,7 +260,7 @@ namespace Drama.Shard.Grains.Characters
 
 		public void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update)
 		{
-			GetLogger().Debug($"character {this.GetPrimaryKeyLong()} sees update of object {objectEntity.Id}");
+			GetLogger().Debug($"{nameof(Character)} {State.Id} sees update of object {objectEntity.Id}");
 
 			var tasks = new LinkedList<Task>();
 
@@ -330,7 +346,7 @@ namespace Drama.Shard.Grains.Characters
 				ObjectId = objectEntity.Id,
 			};
 
-			GetLogger().Debug($"character {this.GetPrimaryKeyLong()} sees destruction of object {objectEntity.Id}");
+			GetLogger().Debug($"{nameof(Character)} {State.Id} sees destruction of object {objectEntity.Id}");
 
 			Send(objectDestroyRequest).Wait();
 		}
