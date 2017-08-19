@@ -46,6 +46,11 @@ namespace Drama.Shard.Grains.Characters
 	{
 		protected Guid SessionId { get; private set; } = Guid.Empty;
 
+		public AbstractCharacter()
+		{
+			UpdatePeriodSeconds = 1.0 / 20.0;
+		}
+
 		public async Task<CharacterEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
 		{
 			if (IsExists)

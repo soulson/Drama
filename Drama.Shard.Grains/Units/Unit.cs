@@ -48,10 +48,15 @@ namespace Drama.Shard.Grains.Units
 		/// This Unit will "see" other PersistentObjects up to this distance away
 		/// with its working set.
 		/// </summary>
-		protected float ViewDistance { get; set; } = 60.0f;
+		protected float ViewDistance { get; set; } = 75.0f;
 
 		private IDisposable workingSetUpdateTimerHandle;
 		private readonly ISet<ObjectID> workingSet = new HashSet<ObjectID>();
+
+		public AbstractUnit()
+		{
+			UpdatePeriodSeconds = 1.0 / 4.0;
+		}
 
 		public override Task OnDeactivateAsync()
 		{

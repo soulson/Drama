@@ -40,7 +40,7 @@ namespace Drama.Shard.Grains.Objects
 		/// PersistentObjects will notify subscribed PersistentObjects of updates
 		/// to their state with the frequency established by this value.
 		/// </summary>
-		protected double UpdatePeriodSeconds { get; set; } = 1.0 / 20.0;
+		protected double UpdatePeriodSeconds { get; set; } = 1.0;
 
 		/// <summary>
 		/// True if this object has been created.
