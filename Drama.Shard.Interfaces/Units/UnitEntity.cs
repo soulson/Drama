@@ -61,10 +61,18 @@ namespace Drama.Shard.Interfaces.Units
 
 		/// <summary>
 		/// This field isn't part of the persisted state of a Unit. It is used to
-		/// determine which move start/stop packets need to be sent to observers.
+		/// determine which move start/stop packets need to be sent to clients.
 		/// </summary>
 		[JsonIgnore]
 		public MovementFlags PreviousMoveFlags { get; set; }
+
+		/// <summary>
+		/// This field isn't part of the persisted state of a Unit. It is used to
+		/// determine whether a MoveSetOrientation packet needs to be sent to
+		/// clients.
+		/// </summary>
+		[JsonIgnore]
+		public float PreviousOrientation { get; set; }
 
 		#region Client-visible State
 		public int Health

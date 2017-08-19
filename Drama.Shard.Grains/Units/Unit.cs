@@ -41,6 +41,7 @@ namespace Drama.Shard.Grains.Units
 			base.OnPostUpdate();
 
 			State.PreviousMoveFlags = State.MoveFlags;
+			State.PreviousOrientation = State.Orientation;
 		}
 
 		public Task SetMovementState(MovementFlags movementFlags, int time, int fallTime, Jump jump)

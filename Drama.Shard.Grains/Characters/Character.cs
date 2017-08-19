@@ -234,15 +234,83 @@ namespace Drama.Shard.Grains.Characters
 
 		public void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update)
 		{
+			GetLogger().Debug($"character {this.GetPrimaryKeyLong()} sees update of object {objectEntity.Id}");
+
+			var tasks = new LinkedList<Task>();
+
 			var objectUpdateRequest = new ObjectUpdateRequest()
 			{
 				TargetObjectId = State.Id,
 			};
 			objectUpdateRequest.ObjectUpdates.Add(update);
+			tasks.AddLast(Send(objectUpdateRequest));
 
-			GetLogger().Debug($"character {this.GetPrimaryKeyLong()} sees update of object {objectEntity.Id}");
+			// for Unit entities, we need to send move start/stop/heartbeat packets as well
+			if (objectEntity is UnitEntity unitEntity)
+			{
+				var opcodes = new LinkedList<ShardServerOpcode>();
 
-			Send(objectUpdateRequest).Wait();
+				if ((unitEntity.MoveFlags & MovementFlags.MoveMask) != 0 && unitEntity.PreviousMoveFlags == unitEntity.MoveFlags)
+				{
+					// heartbeat
+					opcodes.AddLast(ShardServerOpcode.MoveHeartbeat);
+				}
+				else
+				{
+					// complicated
+					if ((unitEntity.MoveFlags & MovementFlags.MoveLeft) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveLeft) == 0)
+						opcodes.AddLast(ShardServerOpcode.MoveStrafeStartLeft);
+					else if ((unitEntity.MoveFlags & MovementFlags.MoveRight) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveRight) == 0)
+						opcodes.AddLast(ShardServerOpcode.MoveStrafeStartRight);
+					else if ((unitEntity.MoveFlags & (MovementFlags.MoveLeft | MovementFlags.MoveRight)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.MoveLeft | MovementFlags.MoveRight)) != 0)
+						opcodes.AddLast(ShardServerOpcode.MoveStrafeStop);
+
+					if ((unitEntity.MoveFlags & MovementFlags.MoveForward) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveForward) == 0)
+						opcodes.AddLast(ShardServerOpcode.MoveStartForward);
+					else if ((unitEntity.MoveFlags & MovementFlags.MoveBackward) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveBackward) == 0)
+						opcodes.AddLast(ShardServerOpcode.MoveStartBackward);
+					else if ((unitEntity.MoveFlags & (MovementFlags.MoveForward | MovementFlags.MoveBackward)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.MoveForward | MovementFlags.MoveBackward)) != 0)
+						opcodes.AddLast(ShardServerOpcode.MoveStop);
+
+					if ((unitEntity.MoveFlags & MovementFlags.TurnLeft) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.TurnLeft) == 0)
+						opcodes.AddLast(ShardServerOpcode.MoveTurnStartLeft);
+					else if ((unitEntity.MoveFlags & MovementFlags.TurnRight) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.TurnRight) == 0)
+						opcodes.AddLast(ShardServerOpcode.MoveTurnStartRight);
+					else if ((unitEntity.MoveFlags & (MovementFlags.TurnLeft | MovementFlags.TurnRight)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.TurnLeft | MovementFlags.TurnRight)) != 0)
+						opcodes.AddLast(ShardServerOpcode.MoveTurnStop);
+				}
+
+				if (unitEntity.Orientation != unitEntity.PreviousOrientation && (unitEntity.MoveFlags & (MovementFlags.TurnLeft | MovementFlags.TurnRight)) == 0)
+					opcodes.AddLast(ShardServerOpcode.MoveSetOrientation);
+
+				foreach(var opcode in opcodes)
+				{
+					var movePacket = new MovementOutPacket(opcode)
+					{
+						ObjectId = unitEntity.Id,
+
+						FallTime = unitEntity.FallTime,
+						MovementFlags = unitEntity.MoveFlags,
+						Orientation = unitEntity.Orientation,
+						Pitch = unitEntity.MovePitch,
+						Position = unitEntity.Position,
+						Time = unitEntity.MoveTime,
+
+						Falling = new MovementOutPacket.FallingInfo()
+						{
+							CosAngle = unitEntity.Jump.CosineAngle,
+							SinAngle = unitEntity.Jump.SineAngle,
+							Velocity = unitEntity.Jump.Velocity,
+							XYSpeed = unitEntity.Jump.XYSpeed,
+						},
+						Transport = null,
+					};
+
+					tasks.AddLast(Send(movePacket));
+				}
+			}
+
+			Task.WhenAll(tasks).Wait();
 		}
 
 		public void HandleObjectDestroyed(ObjectEntity objectEntity)

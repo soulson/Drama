@@ -42,7 +42,7 @@ namespace Drama.Shard.Interfaces.Protocol
 	[ClientPacket(ShardClientOpcode.MoveTurnStartLeft)]
 	[ClientPacket(ShardClientOpcode.MoveTurnStartRight)]
 	[ClientPacket(ShardClientOpcode.MoveTurnStop)]
-	public class MovementInPacket : AbstractInPacket
+	public sealed class MovementInPacket : AbstractInPacket
 	{
 		public MovementFlags MovementFlags { get; set; }
 		public int Time { get; set; }
