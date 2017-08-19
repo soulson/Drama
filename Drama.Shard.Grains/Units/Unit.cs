@@ -16,9 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Auth.Interfaces;
 using Drama.Shard.Grains.Objects;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Units
@@ -28,9 +32,37 @@ namespace Drama.Shard.Grains.Units
 
 	}
 
-	public abstract class AbstractUnit<TEntity> : AbstractPersistentObject<TEntity>, IUnit<TEntity>
+	public abstract class AbstractUnit<TEntity> : AbstractPersistentObject<TEntity>, IUnit<TEntity>, IObjectObserver
 		where TEntity : UnitEntity, new()
 	{
+		// TODO: make this a configuration item
+		// TODO: implement a set method that resets the working set timer
+		/// <summary>
+		/// Characters will update which PersistentObjects are in its working set
+		/// with the frequency established by this value.
+		/// </summary>
+		protected double WorkingSetUpdatePeriodSeconds { get; set; } = 1.0;
+
+		// TODO: make this a configuration item
+		/// <summary>
+		/// This Unit will "see" other PersistentObjects up to this distance away
+		/// with its working set.
+		/// </summary>
+		protected float ViewDistance { get; set; } = 60.0f;
+
+		private IDisposable workingSetUpdateTimerHandle;
+		private readonly ISet<ObjectID> workingSet = new HashSet<ObjectID>();
+
+		public override Task OnDeactivateAsync()
+		{
+			workingSetUpdateTimerHandle?.Dispose();
+			workingSetUpdateTimerHandle = null;
+
+			workingSet.Clear();
+
+			return base.OnDeactivateAsync();
+		}
+
 		protected override ObjectUpdateFlags UpdateFlags => base.UpdateFlags | ObjectUpdateFlags.Living;
 
 		protected override MovementUpdate BuildMovementUpdate()
@@ -66,5 +98,87 @@ namespace Drama.Shard.Grains.Units
 
 			return WriteStateAsync();
 		}
+
+		protected void ActivateWorkingSet()
+		{
+			if (workingSetUpdateTimerHandle == null)
+				workingSetUpdateTimerHandle = RegisterTimer(UpdateWorkingSet, null, TimeSpan.FromSeconds(WorkingSetUpdatePeriodSeconds), TimeSpan.FromSeconds(WorkingSetUpdatePeriodSeconds));
+			else
+				GetLogger().Warn($"{nameof(ActivateWorkingSet)} called but {nameof(workingSetUpdateTimerHandle)} was not null");
+		}
+
+		protected void DeactivateWorkingSet()
+		{
+			workingSetUpdateTimerHandle?.Dispose();
+			workingSetUpdateTimerHandle = null;
+			ClearWorkingSet();
+		}
+
+		private void ClearWorkingSet()
+		{
+			var tasks = new LinkedList<Task>();
+			var objectService = GrainFactory.GetGrain<IObjectService>(0);
+
+			/*foreach (var objectId in workingSet)
+			{
+				var grainReference = objectService.GetObject(objectId).Result;
+				tasks.AddLast(grainReference.Unsubscribe(this));
+
+				GetLogger().Debug($"{nameof(Unit)} {State.Id} unsubbed from {objectId}");
+			}*/
+
+			workingSet.Clear();
+
+			Task.WhenAll(tasks).Wait();
+		}
+
+		/// <remarks>
+		/// This method gets invoked by the update timer every
+		/// WorkingSetUpdatePeriodSeconds. It updates the working set of this
+		/// Character; that is, which PersistentObjects it can see. The argument is
+		/// always null.
+		/// </remarks>
+		private async Task UpdateWorkingSet(object arg)
+		{
+			var map = await GetMapInstance();
+			var newWorkingSet = await map.GetNearbyObjects(State, ViewDistance);
+
+			var addedObjects = newWorkingSet.Except(workingSet);
+			var removedObjects = workingSet.Except(newWorkingSet);
+
+			var tasks = new LinkedList<Task>();
+			var objectService = GrainFactory.GetGrain<IObjectService>(0);
+
+			foreach (var removedObject in removedObjects)
+			{
+				var grainReference = await objectService.GetObject(removedObject);
+				tasks.AddLast(grainReference.Unsubscribe(this));
+
+				GetLogger().Debug($"{nameof(Unit)} {State.Id} unsubbed from {removedObject}");
+			}
+
+			foreach (var addedObject in addedObjects)
+			{
+				var grainReference = await objectService.GetObject(addedObject);
+				tasks.AddLast(grainReference.Subscribe(this));
+
+				GetLogger().Debug($"{nameof(Unit)} {State.Id} subbed to {addedObject}");
+			}
+
+			// is this the most efficient way to set workingSet?
+			workingSet.Clear();
+			workingSet.UnionWith(newWorkingSet);
+
+			await Task.WhenAll(tasks);
+		}
+
+		public virtual void HandleObjectCreate(ObjectEntity objectEntity, CreationUpdate update)
+			=> GetLogger().Debug($"{nameof(Unit)} {State.Id} sees creation of object {objectEntity.Id}");
+
+		public virtual void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update)
+			=> GetLogger().Debug($"{nameof(Unit)} {State.Id} sees update of object {objectEntity.Id}");
+
+		public virtual void HandleObjectDestroyed(ObjectEntity objectEntity)
+		  => GetLogger().Debug($"{nameof(Unit)} {State.Id} sees destruction of object {objectEntity.Id}");
 	}
 }

@@ -18,6 +18,7 @@
 
 using Drama.Auth.Interfaces;
 using Drama.Core.Interfaces.Numerics;
+using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
 using Orleans;
 using System;
@@ -33,12 +34,13 @@ namespace Drama.Shard.Grains.Objects
 	public abstract class AbstractPersistentObject<TEntity> : Grain<TEntity>, IPersistentObject<TEntity>
 		where TEntity : ObjectEntity, new()
 	{
-		// TODO: make this a configuration item, or make it a virtual property
+		// TODO: make this a configuration item
+		// TODO: implement a set method that resets the update timer
 		/// <summary>
 		/// PersistentObjects will notify subscribed PersistentObjects of updates
 		/// to their state with the frequency established by this value.
 		/// </summary>
-		private const double UpdatePeriodSeconds = 1.0 / 20.0;
+		protected double UpdatePeriodSeconds { get; set; } = 1.0 / 20.0;
 
 		/// <summary>
 		/// True if this object has been created.
@@ -198,6 +200,11 @@ namespace Drama.Shard.Grains.Objects
 
 		protected CreationUpdate GetCreationUpdate()
 			=> new CreationUpdate(State.Id, State.TypeId, UpdateFlags, BuildMovementUpdate(), BuildValuesUpdate(true));
+
+		protected virtual Task<IMap> GetMapInstance()
+		{
+			return Task.FromException<IMap>(new NotImplementedException("GetMapInstance is NYI on PersistentObject"));
+		}
 
 		protected void VerifyExists()
 		{

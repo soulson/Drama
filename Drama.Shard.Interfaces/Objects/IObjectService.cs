@@ -17,6 +17,7 @@
  */
 
 using Orleans;
+using Orleans.Concurrency;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Objects
@@ -29,6 +30,10 @@ namespace Drama.Shard.Interfaces.Objects
 	/// </summary>
 	public interface IObjectService : IGrainWithIntegerKey
 	{
+		/// <summary>
+		/// Gets a reference to any PersistentObject subclass as a PersistentObject
+		/// by ObjectId.
+		/// </summary>
 		Task<IPersistentObject<ObjectEntity>> GetObject(ObjectID id);
 	}
 }

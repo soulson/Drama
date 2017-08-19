@@ -31,7 +31,6 @@ using Orleans;
 using Orleans.Providers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Characters
@@ -45,30 +44,7 @@ namespace Drama.Shard.Grains.Characters
 	public abstract class AbstractCharacter<TEntity> : AbstractUnit<TEntity>, ICharacter<TEntity>, IObjectObserver
 		where TEntity : CharacterEntity, new()
 	{
-		// TODO: make this a configuration item
-		/// <summary>
-		/// Characters will update which PersistentObjects are in its working set
-		/// with the frequency established by this value.
-		/// </summary>
-		private const double WorkingSetUpdatePeriodSeconds = 1.0;
-
-		// TODO: this should be like, anything but a const float in AbstractCharacter
-		private const float ViewDistance = 60.0f;
-
-		private IDisposable workingSetUpdateTimerHandle;
-		private readonly ISet<ObjectID> workingSet = new HashSet<ObjectID>();
-
 		protected Guid SessionId { get; private set; } = Guid.Empty;
-
-		public override Task OnDeactivateAsync()
-		{
-			workingSetUpdateTimerHandle?.Dispose();
-			workingSetUpdateTimerHandle = null;
-
-			workingSet.Clear();
-
-			return base.OnDeactivateAsync();
-		}
 
 		public async Task<CharacterEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
 		{
@@ -124,10 +100,7 @@ namespace Drama.Shard.Grains.Characters
 
 			SessionId = sessionId;
 
-			if (workingSetUpdateTimerHandle == null)
-				workingSetUpdateTimerHandle = RegisterTimer(UpdateWorkingSet, null, TimeSpan.FromSeconds(WorkingSetUpdatePeriodSeconds), TimeSpan.FromSeconds(WorkingSetUpdatePeriodSeconds));
-			else
-				GetLogger().Warn($"{nameof(Character)} {State.Name} logged in but {nameof(workingSetUpdateTimerHandle)} was not null");
+			ActivateWorkingSet();
 
 			// send creation update for self to client
 			var objectUpdateRequest = new ObjectUpdateRequest()
@@ -148,9 +121,7 @@ namespace Drama.Shard.Grains.Characters
 		{
 			VerifyOnline();
 
-			workingSetUpdateTimerHandle?.Dispose();
-			workingSetUpdateTimerHandle = null;
-			await ClearWorkingSet();
+			DeactivateWorkingSet();
 
 			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
 			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
@@ -189,78 +160,26 @@ namespace Drama.Shard.Grains.Characters
 		public override Task<bool> IsIngame()
 			=> Task.FromResult(base.IsIngame().Result && IsOnline().Result);
 
-		/// <remarks>
-		/// This method gets invoked by the update timer every
-		/// WorkingSetUpdatePeriodSeconds. It updates the working set of this
-		/// Character; that is, which PersistentObjects it can see. The argument is
-		/// always null.
-		/// </remarks>
-		private async Task UpdateWorkingSet(object arg)
-		{
-			var map = await GetMapInstance();
-			var newWorkingSet = await map.GetNearbyObjects(State, ViewDistance);
-
-			var addedObjects = newWorkingSet.Except(workingSet);
-			var removedObjects = workingSet.Except(newWorkingSet);
-
-			var tasks = new LinkedList<Task>();
-			var objectService = GrainFactory.GetGrain<IObjectService>(0);
-
-			foreach(var removedObject in removedObjects)
-			{
-				var grainReference = await objectService.GetObject(removedObject);
-				tasks.AddLast(grainReference.Unsubscribe(this));
-
-				GetLogger().Debug($"{State.Id} unsubbed from {removedObject}");
-			}
-
-			foreach(var addedObject in addedObjects)
-			{
-				var grainReference = await objectService.GetObject(addedObject);
-				tasks.AddLast(grainReference.Subscribe(this));
-
-				GetLogger().Debug($"{State.Id} subbed to {addedObject}");
-			}
-
-			// is this the most efficient way to set workingSet?
-			workingSet.Clear();
-			workingSet.UnionWith(newWorkingSet);
-
-			await Task.WhenAll(tasks);
-		}
-
-		private async Task ClearWorkingSet()
-		{
-			var tasks = new LinkedList<Task>();
-			var objectService = GrainFactory.GetGrain<IObjectService>(0);
-
-			foreach(var objectId in workingSet)
-			{
-				var grainReference = await objectService.GetObject(objectId);
-				tasks.AddLast(grainReference.Unsubscribe(this));
-			}
-
-			workingSet.Clear();
-
-			await Task.WhenAll(tasks);
-		}
-
 		/// <summary>
 		/// Gets the Map instance that this Character is currently in.
 		/// </summary>
-		protected async Task<IMap> GetMapInstance()
+		protected override async Task<IMap> GetMapInstance()
 		{
 			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
 			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
 			return GrainFactory.GetGrain<IMap>(mapInstanceId);
 		}
 
-		public void HandleObjectCreate(ObjectEntity objectEntity, CreationUpdate update)
-			=> HandleObjectUpdate(objectEntity, update);
-
-		public void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update)
+		public override void HandleObjectCreate(ObjectEntity objectEntity, CreationUpdate update)
 		{
-			GetLogger().Debug($"{nameof(Character)} {State.Id} sees update of object {objectEntity.Id}");
+			base.HandleObjectCreate(objectEntity, update);
+
+			HandleObjectUpdate(objectEntity, update);
+		}
+
+		public override void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update)
+		{
+			base.HandleObjectUpdate(objectEntity, update);
 
 			var tasks = new LinkedList<Task>();
 
@@ -339,14 +258,14 @@ namespace Drama.Shard.Grains.Characters
 			Task.WhenAll(tasks).Wait();
 		}
 
-		public void HandleObjectDestroyed(ObjectEntity objectEntity)
+		public override void HandleObjectDestroyed(ObjectEntity objectEntity)
 		{
+			base.HandleObjectDestroyed(objectEntity);
+
 			var objectDestroyRequest = new ObjectDestroyRequest()
 			{
 				ObjectId = objectEntity.Id,
 			};
-
-			GetLogger().Debug($"{nameof(Character)} {State.Id} sees destruction of object {objectEntity.Id}");
 
 			Send(objectDestroyRequest).Wait();
 		}
