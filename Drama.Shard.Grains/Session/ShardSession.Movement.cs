@@ -22,6 +22,7 @@ using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
+using Drama.Shard.Interfaces.Units;
 using Orleans;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,7 +35,22 @@ namespace Drama.Shard.Grains.Session
 		{
 			VerifyIngame();
 
-			return ActiveCharacter.SetPosition(request.Position, request.Orientation);
+			Jump jump = null;
+			if (request.Falling != null)
+			{
+				jump = new Jump()
+				{
+					Velocity = request.Falling.Velocity,
+					SineAngle = request.Falling.SinAngle,
+					CosineAngle = request.Falling.CosAngle,
+					XYSpeed = request.Falling.XYSpeed,
+				};
+			}
+
+			return Task.WhenAll(
+					ActiveCharacter.SetPosition(request.Position, request.Orientation),
+					ActiveCharacter.SetMovementState(request.MovementFlags, request.Time, request.FallTime, jump)
+			);
 		}
 	}
 }

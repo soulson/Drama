@@ -19,6 +19,7 @@
 using Drama.Shard.Grains.Objects;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
+using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Units
 {
@@ -34,5 +35,28 @@ namespace Drama.Shard.Grains.Units
 
 		protected override MovementUpdate BuildMovementUpdate()
 			=> new MovementUpdate(State);
+
+		public Task SetMovementState(MovementFlags movementFlags, int time, int fallTime, Jump jump)
+		{
+			VerifyExists();
+
+			State.MoveFlags = movementFlags;
+			State.MoveTime = time;
+			State.FallTime = fallTime;
+
+			if (jump != null)
+			{
+				State.Jump.Velocity = jump.Velocity;
+				State.Jump.SineAngle = jump.SineAngle;
+				State.Jump.CosineAngle = jump.CosineAngle;
+				State.Jump.XYSpeed = jump.XYSpeed;
+			}
+			else
+				State.Jump.Velocity = State.Jump.SineAngle = State.Jump.CosineAngle = State.Jump.XYSpeed = 0.0f;
+
+			IsMovementUpdated = true;
+
+			return WriteStateAsync();
+		}
 	}
 }

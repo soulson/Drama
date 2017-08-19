@@ -18,6 +18,8 @@
 
 using Drama.Shard.Interfaces.Objects;
 using Orleans;
+using Orleans.Concurrency;
+using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Units
 {
@@ -34,6 +36,10 @@ namespace Drama.Shard.Interfaces.Units
 	public interface IUnit<out TEntity> : IPersistentObject<TEntity>, IGrainWithIntegerKey
 		where TEntity : UnitEntity, new()
 	{
-
+		/// <summary>
+		/// Sets the movement state of this Unit. This method is one-way.
+		/// </summary>
+		[OneWay]
+		Task SetMovementState(MovementFlags movementFlags, int time, int fallTime, Jump jump);
 	}
 }

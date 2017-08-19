@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -76,10 +77,14 @@ namespace Drama.Core.Gateway.Networking
 
     protected void WaitForInitialization()
     {
-      // we need to wait until InitializeAsync finishes before sending any data to the host, or we may not
-      //  be able to read the response
-      if (!initialized.WaitOne(TimeSpan.FromSeconds(16)))
-        throw new InvalidOperationException($"{nameof(PacketRouter)} was not initialized");
+			// we need to wait until InitializeAsync finishes before sending any data to the host, or we may not
+			//  be able to read the response
+			while (!initialized.WaitOne(TimeSpan.FromSeconds(16)))
+			{
+				// this initialize can be paused by a breakpoint and interrupt a debugging sequence, so only throw if a debugger is not attached
+				if (!Debugger.IsAttached)
+					throw new InvalidOperationException($"{nameof(PacketRouter)} was not initialized");
+			}
     }
   }
 }

@@ -45,18 +45,18 @@ namespace Drama.Shard.Interfaces.Protocol
 	public class MovementInPacket : AbstractInPacket
 	{
 		public MovementFlags MovementFlags { get; set; }
-		public uint Time { get; set; }
+		public int Time { get; set; }
 		public Vector3 Position { get; set; }
 		public float Orientation { get; set; }
 		public TransportInfo Transport { get; set; }
 		public float? Pitch { get; set; }
-		public uint FallTime { get; set; }
+		public int FallTime { get; set; }
 		public FallingInfo Falling { get; set; }
 
 		protected override void Read(BinaryReader reader)
 		{
 			MovementFlags = (MovementFlags)reader.ReadInt32();
-			Time = reader.ReadUInt32();
+			Time = reader.ReadInt32();
 			Position = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 			Orientation = reader.ReadSingle();
 
@@ -77,7 +77,7 @@ namespace Drama.Shard.Interfaces.Protocol
 			else
 				Pitch = null;
 
-			FallTime = reader.ReadUInt32();
+			FallTime = reader.ReadInt32();
 
 			if (MovementFlags.HasFlag(MovementFlags.ModeFalling))
 			{
