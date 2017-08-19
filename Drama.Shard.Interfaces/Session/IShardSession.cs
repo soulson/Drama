@@ -115,5 +115,12 @@ namespace Drama.Shard.Interfaces.Session
 		/// </summary>
 		Task Move(MovementInPacket request);
 		#endregion
+
+		#region Queries
+		/// <summary>
+		/// Looks up the name, race, class, and sex of a Character.
+		/// </summary>
+		Task<QueryNameResponse> QueryName(QueryNameRequest request);
+		#endregion
 	}
 }

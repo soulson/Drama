@@ -39,6 +39,7 @@ namespace Drama.Shard.Gateway
 			}
 			catch (SessionException ex)
 			{
+				// TODO: logging
 				Console.WriteLine(ex.Message);
 				authenticationFailed = true;
 			}

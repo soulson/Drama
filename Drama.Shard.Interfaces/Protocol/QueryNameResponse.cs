@@ -16,23 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Protocol;
-using System;
-using System.Threading.Tasks;
+using Drama.Core.Interfaces.Utilities;
+using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.Units;
+using System.IO;
+using System.Text;
 
-namespace Drama.Shard.Gateway
+namespace Drama.Shard.Interfaces.Protocol
 {
-	public partial class ShardPacketRouter
+	public sealed class QueryNameResponse : AbstractOutPacket
 	{
-		[Handler(typeof(PingRequest))]
-		private Task HandlePing(PingRequest request)
+		public override ShardServerOpcode Opcode => ShardServerOpcode.QueryName;
+
+		public ObjectID ObjectId { get; set; }
+		public string Name { get; set; }
+		public byte CrossShardId { get; set; }
+		public Race Race { get; set; }
+		public Class Class { get; set; }
+		public Sex Sex { get; set; }
+
+		protected override void Write(BinaryWriter writer)
 		{
-			ForwardPacket(new PongResponse() { Cookie = request.Cookie });
-
-			// TODO: logging
-			Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {request.Latency} and cookie = 0x{request.Cookie:x8}");
-
-			return Task.CompletedTask;
+			writer.Write(ObjectId);
+			writer.WriteNullTerminatedString(Name, Encoding.UTF8);
+			writer.Write(CrossShardId);
+			writer.Write((int)Race);
+			writer.Write((int)Sex);
+			writer.Write((int)Class);
 		}
 	}
 }

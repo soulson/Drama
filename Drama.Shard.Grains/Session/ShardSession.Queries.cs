@@ -16,23 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Protocol;
-using System;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Gateway
+namespace Drama.Shard.Grains.Session
 {
-	public partial class ShardPacketRouter
+	public partial class ShardSession
 	{
-		[Handler(typeof(PingRequest))]
-		private Task HandlePing(PingRequest request)
+		public async Task<QueryNameResponse> QueryName(QueryNameRequest request)
 		{
-			ForwardPacket(new PongResponse() { Cookie = request.Cookie });
+			VerifyIngame();
+			
+			var character = GrainFactory.GetGrain<ICharacter>(request.ObjectId);
+			var entity = await character.GetCharacterEntity();
 
-			// TODO: logging
-			Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {request.Latency} and cookie = 0x{request.Cookie:x8}");
+			var response = new QueryNameResponse()
+			{
+				ObjectId = request.ObjectId,
+				Class = entity.Class,
+				CrossShardId = 0, // NYI
+				Name = entity.Name,
+				Race = entity.Race,
+				Sex = entity.Sex,
+			};
 
-			return Task.CompletedTask;
+			return response;
 		}
 	}
 }

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
 using System;
 using System.Threading.Tasks;
@@ -24,15 +25,19 @@ namespace Drama.Shard.Gateway
 {
 	public partial class ShardPacketRouter
 	{
-		[Handler(typeof(PingRequest))]
-		private Task HandlePing(PingRequest request)
+		[Handler(typeof(QueryNameRequest))]
+		private async Task HandleQueryName(QueryNameRequest request)
 		{
-			ForwardPacket(new PongResponse() { Cookie = request.Cookie });
-
-			// TODO: logging
-			Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {request.Latency} and cookie = 0x{request.Cookie:x8}");
-
-			return Task.CompletedTask;
+			try
+			{
+				var response = await ShardSession.QueryName(request);
+				ForwardPacket(response);
+			}
+			catch (ObjectDoesNotExistException ex)
+			{
+				// TODO: logging
+				Console.Error.WriteLine(ex.Message);
+			}
 		}
 	}
 }

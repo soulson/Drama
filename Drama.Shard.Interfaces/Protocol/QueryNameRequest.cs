@@ -16,23 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Protocol;
-using System;
-using System.Threading.Tasks;
+using Drama.Shard.Interfaces.Objects;
+using System.IO;
 
-namespace Drama.Shard.Gateway
+namespace Drama.Shard.Interfaces.Protocol
 {
-	public partial class ShardPacketRouter
+	[ClientPacket(ShardClientOpcode.QueryName)]
+	public sealed class QueryNameRequest : AbstractInPacket
 	{
-		[Handler(typeof(PingRequest))]
-		private Task HandlePing(PingRequest request)
+		public ObjectID ObjectId { get; set; }
+
+		protected override void Read(BinaryReader reader)
 		{
-			ForwardPacket(new PongResponse() { Cookie = request.Cookie });
-
-			// TODO: logging
-			Console.WriteLine($"sent {ShardServerOpcode.Pong} with latency = {request.Latency} and cookie = 0x{request.Cookie:x8}");
-
-			return Task.CompletedTask;
+			ObjectId = new ObjectID(reader.ReadInt64());
 		}
 	}
 }
