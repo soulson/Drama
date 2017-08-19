@@ -3,6 +3,13 @@
         "Dbc": {
             "Path": "./data/dbc"
         },
+        "Sql": {
+            "Address": "192.168.0.1",
+            "Port": 3306,
+            "User": "mangos",
+            "Password": "",
+            "Schema": "mangos"
+        },
         "Orleans": {
             "Silos": [
                 {

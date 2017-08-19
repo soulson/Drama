@@ -16,14 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Core.Gateway.Configuration;
+using System;
 
 namespace Drama.Tools.Load.Configuration
 {
-	public class LoaderConfiguration
+	public class SqlConfiguration
 	{
-		public DbcConfiguration Dbc { get; set; }
-		public SqlConfiguration Sql { get; set; }
-		public OrleansClientConfiguration Orleans { get; set; }
+		public string Address { get; set; }
+		public int Port { get; set; }
+		public string User { get; set; }
+		public string Password { get; set; }
+		public string Schema { get; set; }
 	}
 }
