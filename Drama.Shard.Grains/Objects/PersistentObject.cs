@@ -167,7 +167,7 @@ namespace Drama.Shard.Grains.Objects
 			return Task.CompletedTask;
 		}
 
-		public Task Destroy()
+		public virtual Task Destroy()
 		{
 			VerifyExists();
 

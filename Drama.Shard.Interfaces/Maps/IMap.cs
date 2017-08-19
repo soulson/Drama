@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Objects;
 using Orleans;
 using System.Collections.Generic;
@@ -49,14 +48,14 @@ namespace Drama.Shard.Interfaces.Maps
 		Task<MapEntity> GetEntity();
 
 		/// <summary>
-		/// Adds a new player Character to this Map instance.
+		/// Adds a new PersistentObject to this Map instance.
 		/// </summary>
-		Task AddCharacter(CharacterEntity characterEntity);
+		Task AddObject(ObjectEntity objectEntity);
 
 		/// <summary>
-		/// Removes a Character from this Map instance.
+		/// Removes a PersistentObject from this Map instance.
 		/// </summary>
-		Task RemoveCharacter(CharacterEntity characterEntity);
+		Task RemoveObject(ObjectEntity objectEntity);
 
 		/// <summary>
 		/// Returns a collection of ObjectIDs representing objects within a

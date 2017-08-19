@@ -115,7 +115,7 @@ namespace Drama.Shard.Grains.Characters
 			return Task.FromResult<CharacterEntity>(State);
 		}
 
-		public Task Login(Guid sessionId)
+		public async Task Login(Guid sessionId)
 		{
 			VerifyExists();
 
@@ -136,12 +136,22 @@ namespace Drama.Shard.Grains.Characters
 			};
 			objectUpdateRequest.ObjectUpdates.Add(GetCreationUpdate());
 
-			return Send(objectUpdateRequest);
+			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
+			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
+			var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
+			await mapInstance.AddObject(State);
+
+			await Send(objectUpdateRequest);
 		}
 
-		public Task Logout()
+		public async Task Logout()
 		{
 			VerifyOnline();
+
+			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
+			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
+			var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
+			await mapInstance.RemoveObject(State);
 
 			workingSetUpdateTimerHandle?.Dispose();
 			workingSetUpdateTimerHandle = null;
@@ -149,7 +159,7 @@ namespace Drama.Shard.Grains.Characters
 
 			SessionId = Guid.Empty;
 
-			return Destroy();
+			await Destroy();
 		}
 
 		public Task Send(IOutPacket message)

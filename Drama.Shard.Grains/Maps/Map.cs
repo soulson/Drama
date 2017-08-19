@@ -19,7 +19,6 @@
 using Drama.Auth.Interfaces;
 using Drama.Auth.Interfaces.Utilities;
 using Drama.Core.Interfaces;
-using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
 using Orleans;
@@ -36,28 +35,28 @@ namespace Drama.Shard.Grains.Maps
 		//  need to be replaced with something more performant eventually
 		private readonly ISet<ObjectEntity> objects = new HashSet<ObjectEntity>();
 
-		public async Task AddCharacter(CharacterEntity characterEntity)
+		public async Task AddObject(ObjectEntity objectEntity)
 		{
 			VerifyExists();
 
-			objects.Add(characterEntity);
+			objects.Add(objectEntity);
 
 			var objectService = GrainFactory.GetGrain<IObjectService>(0);
-			var persistentObject = await objectService.GetObject(characterEntity.Id);
+			var persistentObject = await objectService.GetObject(objectEntity.Id);
 
 			await persistentObject.Subscribe(this);
 		}
 
-		public async Task RemoveCharacter(CharacterEntity characterEntity)
+		public async Task RemoveObject(ObjectEntity objectEntity)
 		{
 			VerifyExists();
 
-			objects.Remove(characterEntity);
-
 			var objectService = GrainFactory.GetGrain<IObjectService>(0);
-			var persistentObject = await objectService.GetObject(characterEntity.Id);
+			var persistentObject = await objectService.GetObject(objectEntity.Id);
 
 			await persistentObject.Unsubscribe(this);
+
+			objects.Remove(objectEntity);
 		}
 
 		public async Task<MapEntity> Create(int mapId)

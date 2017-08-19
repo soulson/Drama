@@ -80,13 +80,12 @@ namespace Drama.Shard.Grains.Session
 
 			if (ActiveCharacter != null)
 			{
-				var characterEntity = await ActiveCharacter.GetCharacterEntity();
-				var mapManager = GrainFactory.GetGrain<IMapManager>(0);
-				var mapInstanceId = await mapManager.GetInstanceIdForCharacter(characterEntity);
-				var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
-				await mapInstance.RemoveCharacter(characterEntity);
 				await ActiveCharacter.Logout();
+				ActiveCharacter = null;
 			}
+
+			AuthenticatedIdentity = null;
+			ShardName = null;
 		}
 
 		public Task Send(IOutPacket packet)
