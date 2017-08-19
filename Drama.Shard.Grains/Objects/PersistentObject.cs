@@ -113,8 +113,19 @@ namespace Drama.Shard.Grains.Objects
 
 				var objectUpdate = new ObjectUpdate(State.Id, State.TypeId, UpdateFlags, movementUpdate, valuesUpdate);
 				observerManager.Notify(observer => observer.HandleObjectUpdate(State, objectUpdate));
+
+				OnPostUpdate();
 			}
 			return Task.CompletedTask;
+		}
+
+		/// <summary>
+		/// This method is called once per UpdateObservers tick, only if an update
+		/// is logged, and before building update blocks and notifying subscribers.
+		/// </summary>
+		protected virtual void OnPostUpdate()
+		{
+
 		}
 
 		public Task<bool> Exists()

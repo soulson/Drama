@@ -17,6 +17,7 @@
  */
 
 using Drama.Shard.Interfaces.Objects;
+using Newtonsoft.Json;
 
 namespace Drama.Shard.Interfaces.Units
 {
@@ -57,6 +58,13 @@ namespace Drama.Shard.Interfaces.Units
 		public MovementSpeed MoveSpeed { get; }
 		public Jump Jump { get; }
 		public float UnknownSplineThingy { get; set; }
+
+		/// <summary>
+		/// This field isn't part of the persisted state of a Unit. It is used to
+		/// determine which move start/stop packets need to be sent to observers.
+		/// </summary>
+		[JsonIgnore]
+		public MovementFlags PreviousMoveFlags { get; set; }
 
 		#region Client-visible State
 		public int Health

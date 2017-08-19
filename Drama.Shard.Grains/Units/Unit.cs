@@ -36,6 +36,13 @@ namespace Drama.Shard.Grains.Units
 		protected override MovementUpdate BuildMovementUpdate()
 			=> new MovementUpdate(State);
 
+		protected override void OnPostUpdate()
+		{
+			base.OnPostUpdate();
+
+			State.PreviousMoveFlags = State.MoveFlags;
+		}
+
 		public Task SetMovementState(MovementFlags movementFlags, int time, int fallTime, Jump jump)
 		{
 			VerifyExists();
