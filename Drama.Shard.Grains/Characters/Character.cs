@@ -100,7 +100,7 @@ namespace Drama.Shard.Grains.Characters
 
 			SessionId = sessionId;
 
-			ActivateWorkingSet();
+			await ActivateWorkingSet();
 
 			// send creation update for self to client
 			var objectUpdateRequest = new ObjectUpdateRequest()
@@ -121,7 +121,7 @@ namespace Drama.Shard.Grains.Characters
 		{
 			VerifyOnline();
 
-			DeactivateWorkingSet();
+			await DeactivateWorkingSet();
 
 			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
 			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);

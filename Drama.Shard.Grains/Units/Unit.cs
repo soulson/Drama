@@ -99,37 +99,39 @@ namespace Drama.Shard.Grains.Units
 			return WriteStateAsync();
 		}
 
-		protected void ActivateWorkingSet()
+		protected Task ActivateWorkingSet()
 		{
 			if (workingSetUpdateTimerHandle == null)
 				workingSetUpdateTimerHandle = RegisterTimer(UpdateWorkingSet, null, TimeSpan.FromSeconds(WorkingSetUpdatePeriodSeconds), TimeSpan.FromSeconds(WorkingSetUpdatePeriodSeconds));
 			else
 				GetLogger().Warn($"{nameof(ActivateWorkingSet)} called but {nameof(workingSetUpdateTimerHandle)} was not null");
+
+			return Task.CompletedTask;
 		}
 
-		protected void DeactivateWorkingSet()
+		protected Task DeactivateWorkingSet()
 		{
 			workingSetUpdateTimerHandle?.Dispose();
 			workingSetUpdateTimerHandle = null;
-			ClearWorkingSet();
+			return ClearWorkingSet();
 		}
 
-		private void ClearWorkingSet()
+		private async Task ClearWorkingSet()
 		{
 			var tasks = new LinkedList<Task>();
 			var objectService = GrainFactory.GetGrain<IObjectService>(0);
 
-			/*foreach (var objectId in workingSet)
+			foreach (var objectId in workingSet)
 			{
-				var grainReference = objectService.GetObject(objectId).Result;
+				var grainReference = await objectService.GetObject(objectId);
 				tasks.AddLast(grainReference.Unsubscribe(this));
 
 				GetLogger().Debug($"{nameof(Unit)} {State.Id} unsubbed from {objectId}");
-			}*/
+			}
 
 			workingSet.Clear();
 
-			Task.WhenAll(tasks).Wait();
+			await Task.WhenAll(tasks);
 		}
 
 		/// <remarks>
