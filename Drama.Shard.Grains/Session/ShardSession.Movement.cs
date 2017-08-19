@@ -16,15 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Auth.Interfaces;
-using Drama.Auth.Interfaces.Utilities;
-using Drama.Shard.Interfaces.Characters;
-using Drama.Shard.Interfaces.Maps;
-using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
 using Drama.Shard.Interfaces.Units;
-using Orleans;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Session
