@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Core.Interfaces.Numerics;
 using Orleans;
 using Orleans.Concurrency;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace Drama.Shard.Interfaces.Objects
 	{
 		/// <summary>
 		/// Subscribes an observer to creation, movement, and values updates from
-		/// this PersistentObject.
+		/// this PersistentObject. This method is one-way.
 		/// </summary>
 		/// <param name="observer">Cannot be null</param>
 		[OneWay]
@@ -46,7 +47,7 @@ namespace Drama.Shard.Interfaces.Objects
 
 		/// <summary>
 		/// Subscribes an observer from creation, movement, and values updates from
-		/// this PersistentObject.
+		/// this PersistentObject. This method is one-way.
 		/// </summary>
 		/// <param name="observer">Cannot be null</param>
 		[OneWay]
@@ -66,5 +67,12 @@ namespace Drama.Shard.Interfaces.Objects
 		/// Removes this PersistentObject from the game world.
 		/// </summary>
 		Task Destroy();
+
+		/// <summary>
+		/// Sets the position of this PersistentObject. Does not change the Map
+		/// in which the PersistentObject is located. This method is one-way.
+		/// </summary>
+		[OneWay]
+		Task SetPosition(Vector3 position, float orientation);
 	}
 }

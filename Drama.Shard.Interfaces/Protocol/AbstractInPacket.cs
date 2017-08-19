@@ -16,18 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using Drama.Core.Interfaces.Networking;
+using System.IO;
+using System.Text;
 
 namespace Drama.Shard.Interfaces.Protocol
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = false)]
-	public sealed class ClientPacketAttribute : Attribute
+	public abstract class AbstractInPacket : IInPacket
 	{
-		public ShardClientOpcode Opcode { get; }
-
-		public ClientPacketAttribute(ShardClientOpcode opcode)
+		public bool Read(Stream stream)
 		{
-			Opcode = opcode;
+			try
+			{
+				using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
+				{
+					Read(reader);
+					return true;
+				}
+			}
+			catch (EndOfStreamException)
+			{
+				return false;
+			}
 		}
+
+		protected abstract void Read(BinaryReader reader);
 	}
 }

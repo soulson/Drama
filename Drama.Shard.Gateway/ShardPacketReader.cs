@@ -44,10 +44,16 @@ namespace Drama.Shard.Gateway
 
 			var annotatedTypes =
 				from type in packetDefinitionAssembly.GetExportedTypes()
-				where type.GetTypeInfo().GetCustomAttribute<ClientPacketAttribute>() != null
-				select new KeyValuePair<ShardClientOpcode, Type>(type.GetTypeInfo().GetCustomAttribute<ClientPacketAttribute>().Opcode, type);
+				where type.GetTypeInfo().GetCustomAttributes<ClientPacketAttribute>().Any()
+				select type;
 
-			packetMap = ImmutableDictionary.CreateRange(annotatedTypes);
+			packetMap = ImmutableDictionary.CreateRange(
+				annotatedTypes.SelectMany(
+					annotatedType => annotatedType.GetTypeInfo().GetCustomAttributes<ClientPacketAttribute>().Select(
+						attribute => new KeyValuePair<ShardClientOpcode, Type>(attribute.Opcode, annotatedType)
+					)
+				)
+			);
 		}
 
     protected override IInPacket CreatePacket(Stream stream, out int packetSize)

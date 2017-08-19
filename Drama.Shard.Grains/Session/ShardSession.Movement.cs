@@ -16,18 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using Drama.Auth.Interfaces;
+using Drama.Auth.Interfaces.Utilities;
+using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Maps;
+using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.Protocol;
+using Orleans;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Protocol
+namespace Drama.Shard.Grains.Session
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = false)]
-	public sealed class ClientPacketAttribute : Attribute
+	public partial class ShardSession
 	{
-		public ShardClientOpcode Opcode { get; }
-
-		public ClientPacketAttribute(ShardClientOpcode opcode)
+		public Task Move(MovementInPacket request)
 		{
-			Opcode = opcode;
+			VerifyIngame();
+
+			return ActiveCharacter.SetPosition(request.Position, request.Orientation);
 		}
 	}
 }

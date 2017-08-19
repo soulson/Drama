@@ -17,6 +17,7 @@
  */
 
 using Drama.Auth.Interfaces;
+using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Interfaces.Objects;
 using Orleans;
 using System;
@@ -161,6 +162,18 @@ namespace Drama.Shard.Grains.Objects
 
 			observerManager.Notify(observer => observer.HandleObjectDestroyed(State));
 			return Task.CompletedTask;
+		}
+
+		public Task SetPosition(Vector3 position, float orientation)
+		{
+			VerifyExists();
+
+			State.Position = position;
+			State.Orientation = orientation;
+
+			IsMovementUpdated = true;
+
+			return WriteStateAsync();
 		}
 
 		public virtual Task<bool> IsIngame()

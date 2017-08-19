@@ -108,5 +108,12 @@ namespace Drama.Shard.Interfaces.Session
 		/// </summary>
 		Task Login(ObjectID characterId);
 		#endregion
+
+		#region Movement
+		/// <summary>
+		/// Sets the movement mode of the ingame player's controlled unit.
+		/// </summary>
+		Task Move(MovementInPacket request);
+		#endregion
 	}
 }

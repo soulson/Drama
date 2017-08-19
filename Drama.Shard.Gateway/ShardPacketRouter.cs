@@ -72,7 +72,7 @@ namespace Drama.Shard.Gateway
 
 			foreach (var method in typeInfo.DeclaredMethods)
 			{
-				foreach (var handlerAttribute in method.GetCustomAttributes<HandlerAttribute>(true))
+				foreach (var handlerAttribute in method.GetCustomAttributes<HandlerAttribute>(false))
 				{
 					if (method.ReturnType != typeof(Task))
 						throw new DramaException($"packet handler method {method.Name} must return {nameof(Task)}");

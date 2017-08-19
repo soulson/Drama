@@ -16,18 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using Drama.Shard.Interfaces.Protocol;
+using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Protocol
+namespace Drama.Shard.Gateway
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = false)]
-	public sealed class ClientPacketAttribute : Attribute
+	public partial class ShardPacketRouter
 	{
-		public ShardClientOpcode Opcode { get; }
-
-		public ClientPacketAttribute(ShardClientOpcode opcode)
+		[Handler(typeof(MovementInPacket))]
+		private Task HandleGenericMovement(MovementInPacket request)
 		{
-			Opcode = opcode;
+			return ShardSession.Move(request);
 		}
 	}
 }
