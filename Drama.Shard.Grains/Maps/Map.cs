@@ -16,6 +16,7 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Drama.Auth.Interfaces;
 using Drama.Auth.Interfaces.Utilities;
 using Drama.Core.Interfaces;
 using Drama.Shard.Interfaces.Characters;
@@ -29,28 +30,34 @@ using System.Threading.Tasks;
 namespace Drama.Shard.Grains.Maps
 {
 	[StorageProvider(ProviderName = StorageProviders.DynamicWorld)]
-	public class Map : Grain<MapEntity>, IMap
+	public class Map : Grain<MapEntity>, IMap, IObjectObserver
 	{
 		// contains all objects in the map. this is inefficient and will obviously
 		//  need to be replaced with something more performant eventually
 		private readonly ISet<ObjectEntity> objects = new HashSet<ObjectEntity>();
 
-		public Task AddCharacter(CharacterEntity characterEntity)
+		public async Task AddCharacter(CharacterEntity characterEntity)
 		{
 			VerifyExists();
 
 			objects.Add(characterEntity);
 
-			return Task.CompletedTask;
+			var objectService = GrainFactory.GetGrain<IObjectService>(0);
+			var persistentObject = await objectService.GetObject(characterEntity.Id);
+
+			await persistentObject.Subscribe(this);
 		}
 
-		public Task RemoveCharacter(CharacterEntity characterEntity)
+		public async Task RemoveCharacter(CharacterEntity characterEntity)
 		{
 			VerifyExists();
 
 			objects.Remove(characterEntity);
 
-			return Task.CompletedTask;
+			var objectService = GrainFactory.GetGrain<IObjectService>(0);
+			var persistentObject = await objectService.GetObject(characterEntity.Id);
+
+			await persistentObject.Unsubscribe(this);
 		}
 
 		public async Task<MapEntity> Create(int mapId)
@@ -106,6 +113,34 @@ namespace Drama.Shard.Grains.Maps
 		{
 			if (!Exists().Result)
 				throw new MapDoesNotExistException($"{nameof(Map)} instance id {this.GetPrimaryKeyLong()} does not exist");
+		}
+
+		public void HandleObjectCreate(ObjectEntity objectEntity, CreationUpdate update)
+		{
+			GetLogger().Info($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes the creation of object {objectEntity.Id}");
+		}
+
+		public void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update)
+		{
+			// Maps only care about object updates if they have moved
+			if (update.MovementUpdate != null)
+			{
+				if (objects.Contains(objectEntity))
+				{
+					GetLogger().Info($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id}");
+
+					// ObjectEntity is equal on ID, so removing and re-adding it updates its other properties
+					objects.Remove(objectEntity);
+					objects.Add(objectEntity);
+				}
+				else
+					GetLogger().Warn($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id} which is not in working memory");
+			}
+		}
+
+		public void HandleObjectDestroyed(ObjectEntity objectEntity)
+		{
+			GetLogger().Info($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes the destruction of object {objectEntity.Id}");
 		}
 	}
 }
