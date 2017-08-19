@@ -201,7 +201,7 @@ namespace Drama.Shard.Grains.Characters
 				var grainReference = await objectService.GetObject(removedObject);
 				tasks.AddLast(grainReference.Unsubscribe(this));
 
-				GetLogger().Warn($"{this.GetPrimaryKeyLong()} unsubbed from {removedObject}");
+				GetLogger().Debug($"{this.GetPrimaryKeyLong()} unsubbed from {removedObject}");
 			}
 
 			foreach(var addedObject in addedObjects)
@@ -209,7 +209,7 @@ namespace Drama.Shard.Grains.Characters
 				var grainReference = await objectService.GetObject(addedObject);
 				tasks.AddLast(grainReference.Subscribe(this));
 
-				GetLogger().Warn($"{this.GetPrimaryKeyLong()} subbed to {addedObject}");
+				GetLogger().Debug($"{this.GetPrimaryKeyLong()} subbed to {addedObject}");
 			}
 
 			// is this the most efficient way to set workingSet?
@@ -240,7 +240,7 @@ namespace Drama.Shard.Grains.Characters
 			};
 			objectUpdateRequest.ObjectUpdates.Add(update);
 
-			GetLogger().Warn($"character {this.GetPrimaryKeyLong()} sees update of object {objectEntity.Id}");
+			GetLogger().Debug($"character {this.GetPrimaryKeyLong()} sees update of object {objectEntity.Id}");
 
 			Send(objectUpdateRequest).Wait();
 		}
@@ -252,7 +252,7 @@ namespace Drama.Shard.Grains.Characters
 				ObjectId = objectEntity.Id,
 			};
 
-			GetLogger().Warn($"character {this.GetPrimaryKeyLong()} sees destruction of object {objectEntity.Id}");
+			GetLogger().Debug($"character {this.GetPrimaryKeyLong()} sees destruction of object {objectEntity.Id}");
 
 			Send(objectDestroyRequest).Wait();
 		}

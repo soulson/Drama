@@ -117,7 +117,7 @@ namespace Drama.Shard.Grains.Maps
 
 		public void HandleObjectCreate(ObjectEntity objectEntity, CreationUpdate update)
 		{
-			GetLogger().Info($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes the creation of object {objectEntity.Id}");
+			GetLogger().Debug($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes the creation of object {objectEntity.Id}");
 		}
 
 		public void HandleObjectUpdate(ObjectEntity objectEntity, ObjectUpdate update)
@@ -127,7 +127,7 @@ namespace Drama.Shard.Grains.Maps
 			{
 				if (objects.Contains(objectEntity))
 				{
-					GetLogger().Info($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id}");
+					GetLogger().Debug($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id}");
 
 					// ObjectEntity is equal on ID, so removing and re-adding it updates its other properties
 					objects.Remove(objectEntity);
@@ -140,7 +140,7 @@ namespace Drama.Shard.Grains.Maps
 
 		public void HandleObjectDestroyed(ObjectEntity objectEntity)
 		{
-			GetLogger().Info($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes the destruction of object {objectEntity.Id}");
+			GetLogger().Debug($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes the destruction of object {objectEntity.Id}");
 		}
 	}
 }
