@@ -18,6 +18,7 @@
 
 using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Maps;
+using Drama.Shard.Interfaces.Units;
 using Drama.Tools.Load.Configuration;
 using Drama.Tools.Load.Formats.Dbc;
 using Drama.Tools.Load.Formats.Sql;
@@ -54,7 +55,9 @@ namespace Drama.Tools.Load
 			{
 				Console.WriteLine($"loading dbc {nameof(MapDefinitionEntity)}");
 				new DbcLoader<IMapDefinition, MapDefinitionEntity>(config.Dbc.Path).LoadEntities(GrainClient.GrainFactory);
-				
+				Console.WriteLine($"loading dbc {nameof(RaceDefinitionEntity)}");
+				new DbcLoader<IRaceDefinition, RaceDefinitionEntity>(config.Dbc.Path).LoadEntities(GrainClient.GrainFactory);
+
 				using (var context = new ElysiumContext(config.Sql.Address, config.Sql.Port, config.Sql.Schema, config.Sql.User, config.Sql.Password))
 				{
 					Console.WriteLine($"loading sql {nameof(CharacterTemplateEntity)}");
