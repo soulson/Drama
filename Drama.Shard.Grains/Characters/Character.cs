@@ -55,9 +55,12 @@ namespace Drama.Shard.Grains.Characters
 		{
 			if (IsExists)
 				throw new CharacterAlreadyExistsException($"{GetType().Name} with objectid {State.Id} already exists");
-			
+
+			var raceDefinitionTask = GrainFactory.GetGrain<IRaceDefinition>((byte)race).GetEntity();
+			var characterTemplate = await GrainFactory.GetGrain<ICharacterTemplate>(((byte)race << 8) + (byte)@class).GetEntity();
+
 			State.Account = account;
-			State.Class = @class;
+			State.Class = characterTemplate.Class;
 			State.Enabled = true;
 			State.Face = face;
 			State.FacialHair = facialHair;
@@ -65,17 +68,31 @@ namespace Drama.Shard.Grains.Characters
 			State.HairStyle = hairStyle;
 			State.Id = new ObjectID(this.GetPrimaryKeyLong());
 			State.Level = 1;
-			State.MapId = 0; // TODO
+			State.MapId = characterTemplate.MapId;
 			State.Name = name;
-			State.Orientation = 0.0f; // TODO
-			State.Position = new Vector3(-8949.95f, -132.493f, 83.5312f); // TODO
-			State.Race = race;
+			State.Orientation = characterTemplate.Orientation;
+			State.Position = characterTemplate.Position;
+			State.Race = characterTemplate.Race;
 			State.Sex = sex;
 			State.Shard = shard;
 			State.Skin = skin;
-			State.ZoneId = 12; // TODO
-			State.FactionTemplate = 1; // TODO
-			State.DisplayID = State.NativeDisplayID = 50; // TODO
+			State.ZoneId = characterTemplate.ZoneId;
+
+			var raceDefinition = await raceDefinitionTask;
+			
+			State.FactionTemplate = raceDefinition.FactionId;
+			if (sex == Sex.Male)
+			{
+				State.DisplayID = raceDefinition.MaleDisplayId;
+				State.NativeDisplayID = raceDefinition.MaleDisplayId;
+			}
+			else if (sex == Sex.Female)
+			{
+				State.DisplayID = raceDefinition.FemaleDisplayId;
+				State.NativeDisplayID = raceDefinition.FemaleDisplayId;
+			}
+			else
+				throw new CharacterException($"invalid {nameof(Character)} {nameof(Sex)} {sex}");
 
 			await WriteStateAsync();
 
