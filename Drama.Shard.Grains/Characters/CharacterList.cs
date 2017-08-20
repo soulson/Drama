@@ -58,7 +58,7 @@ namespace Drama.Shard.Grains.Characters
 
 		public Task<ObjectID?> GetCharacterByName(string characterName)
 		{
-			if (State.CharactersByAccount.ContainsKey(characterName))
+			if (State.CharacterByName.ContainsKey(characterName))
 				return Task.FromResult<ObjectID?>(State.CharacterByName[characterName]);
 			else
 				return Task.FromResult<ObjectID?>(null);

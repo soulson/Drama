@@ -18,6 +18,7 @@
 
 using Drama.Core.Interfaces.Networking;
 using Drama.Shard.Interfaces.Chat;
+using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
 using Orleans;
 using Orleans.Concurrency;
@@ -89,5 +90,10 @@ namespace Drama.Shard.Interfaces.Characters
 		/// Yells a message from this Character to nearby subscribed objects.
 		/// </summary>
 		Task Yell(string message, ChatLanguage language);
+
+		/// <summary>
+		/// Causes this Character to receive a whisper from sender.
+		/// </summary>
+		Task ReceiveWhisper(ObjectID senderId, string message, ChatLanguage language);
 	}
 }

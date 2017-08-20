@@ -182,6 +182,22 @@ namespace Drama.Shard.Grains.Characters
 			return Task.CompletedTask;
 		}
 
+		public Task ReceiveWhisper(ObjectID senderId, string message, ChatLanguage language)
+		{
+			var chatResponse = new ChatMessageResponse()
+			{
+				// TODO: language support needed here
+				Language = ChatLanguage.Universal,
+				Message = message,
+				MessageType = ChatMessageType.Whisper,
+				SenderId = senderId,
+				Tag = ChatTag.None,
+				TargetId = State.Id,
+			};
+
+			return Send(chatResponse);
+		}
+
 		public Task Send(IOutPacket message)
 		{
 			if (IsOnline().Result)

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Chat;
 using Drama.Shard.Interfaces.Protocol;
 using System.Threading.Tasks;
@@ -36,9 +37,38 @@ namespace Drama.Shard.Grains.Session
 				case ChatMessageType.Yell:
 					return ActiveCharacter.Yell(request.Message, request.Language);
 
+				case ChatMessageType.Whisper:
+					return SendWhisper(request);
+
 				default:
 					// not yet implemented or nonsense
 					return Task.CompletedTask;
+			}
+		}
+
+		private async Task SendWhisper(ChatMessageRequest request)
+		{
+			var characterList = GrainFactory.GetGrain<ICharacterList>(ShardName);
+			var characterId = await characterList.GetCharacterByName(request.TargetName);
+
+			if(characterId != null)
+			{
+				var character = GrainFactory.GetGrain<ICharacter>(characterId.Value);
+
+				// technically a race condition, but probably okay
+				if(await character.IsOnline())
+				{
+					var myEntity = await ActiveCharacter.GetCharacterEntity();
+					await character.ReceiveWhisper(myEntity.Id, request.Message, request.Language);
+				}
+				else
+				{
+					// TODO: "character is not online" notification
+				}
+			}
+			else
+			{
+				// TODO: "character does not exist" notification
 			}
 		}
 	}
