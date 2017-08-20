@@ -17,6 +17,7 @@
  */
 
 using Drama.Core.Interfaces.Networking;
+using Drama.Shard.Interfaces.Chat;
 using Drama.Shard.Interfaces.Units;
 using Orleans;
 using Orleans.Concurrency;
@@ -78,5 +79,15 @@ namespace Drama.Shard.Interfaces.Characters
 		/// Gets a snapshot of the state of this Character.
 		/// </summary>
 		Task<CharacterEntity> GetCharacterEntity();
+
+		/// <summary>
+		/// Says a message from this Character to nearby subscribed objects.
+		/// </summary>
+		Task Say(string message, ChatLanguage language);
+
+		/// <summary>
+		/// Yells a message from this Character to nearby subscribed objects.
+		/// </summary>
+		Task Yell(string message, ChatLanguage language);
 	}
 }

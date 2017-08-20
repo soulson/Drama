@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Shard.Interfaces.Chat;
 using Orleans;
 
 namespace Drama.Shard.Interfaces.Objects
@@ -47,5 +48,15 @@ namespace Drama.Shard.Interfaces.Objects
 		/// </summary>
 		/// <param name="objectId">the state of the destroyed object</param>
 		void HandleObjectDestroyed(ObjectEntity objectEntity);
+
+		/// <summary>
+		/// This method is called by subscribed objects that Say something.
+		/// </summary>
+		void HandleSay(ObjectEntity objectEntity, string message, ChatLanguage language);
+
+		/// <summary>
+		/// This method is called by subscribed objects that Yell something.
+		/// </summary>
+		void HandleYell(ObjectEntity objectEntity, string message, ChatLanguage language);
 	}
 }

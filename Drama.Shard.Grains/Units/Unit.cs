@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Drama.Shard.Interfaces.Chat;
 
 namespace Drama.Shard.Grains.Units
 {
@@ -197,5 +198,13 @@ namespace Drama.Shard.Grains.Units
 
 		public virtual void HandleObjectDestroyed(ObjectEntity objectEntity)
 		  => GetLogger().Debug($"{nameof(Unit)} {State.Id} sees destruction of object {objectEntity.Id}");
+
+		public virtual void HandleSay(ObjectEntity objectEntity, string message, ChatLanguage language)
+		{
+		}
+
+		public virtual void HandleYell(ObjectEntity objectEntity, string message, ChatLanguage language)
+		{
+		}
 	}
 }

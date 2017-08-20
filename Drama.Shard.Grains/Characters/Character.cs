@@ -21,6 +21,7 @@ using Drama.Core.Interfaces;
 using Drama.Core.Interfaces.Networking;
 using Drama.Shard.Grains.Units;
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Chat;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
@@ -157,6 +158,28 @@ namespace Drama.Shard.Grains.Characters
 
 				await Destroy();
 			}
+		}
+
+		public Task Say(string message, ChatLanguage language)
+		{
+			// TODO: language support needed here
+			NotifySubscribers(observer => observer.HandleSay(State, message, ChatLanguage.Universal));
+
+			// also send to self
+			HandleSay(State, message, ChatLanguage.Universal);
+
+			return Task.CompletedTask;
+		}
+
+		public Task Yell(string message, ChatLanguage language)
+		{
+			// TODO: language support needed here
+			NotifySubscribers(observer => observer.HandleYell(State, message, ChatLanguage.Universal));
+
+			// also send to self
+			HandleYell(State, message, ChatLanguage.Universal);
+
+			return Task.CompletedTask;
 		}
 
 		public Task Send(IOutPacket message)
@@ -299,6 +322,40 @@ namespace Drama.Shard.Grains.Characters
 			};
 
 			Send(objectDestroyRequest).Wait();
+		}
+
+		public override void HandleSay(ObjectEntity objectEntity, string message, ChatLanguage language)
+		{
+			base.HandleSay(objectEntity, message, language);
+
+			var chatResponse = new ChatMessageResponse()
+			{
+				Language = language,
+				Message = message,
+				MessageType = ChatMessageType.Say,
+				SenderId = objectEntity.Id,
+				Tag = ChatTag.None,
+				TargetId = State.Id,
+			};
+
+			Send(chatResponse).Wait();
+		}
+
+		public override void HandleYell(ObjectEntity objectEntity, string message, ChatLanguage language)
+		{
+			base.HandleYell(objectEntity, message, language);
+
+			var chatResponse = new ChatMessageResponse()
+			{
+				Language = language,
+				Message = message,
+				MessageType = ChatMessageType.Yell,
+				SenderId = objectEntity.Id,
+				Tag = ChatTag.None,
+				TargetId = State.Id,
+			};
+
+			Send(chatResponse).Wait();
 		}
 	}
 }

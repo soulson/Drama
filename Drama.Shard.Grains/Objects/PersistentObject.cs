@@ -130,6 +130,12 @@ namespace Drama.Shard.Grains.Objects
 
 		}
 
+		/// <summary>
+		/// Immediately sends a notification to all subscribed objects.
+		/// </summary>
+		protected void NotifySubscribers(Action<IObjectObserver> notification)
+			=> observerManager.Notify(notification);
+
 		public Task<bool> Exists()
 			=> Task.FromResult(IsExists);
 

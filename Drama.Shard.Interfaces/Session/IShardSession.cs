@@ -132,5 +132,12 @@ namespace Drama.Shard.Interfaces.Session
 		/// </summary>
 		Task<QueryNameResponse> QueryName(QueryNameRequest request);
 		#endregion
+
+		#region Chat
+		/// <summary>
+		/// Sends a chat message from the currently logged-in Character.
+		/// </summary>
+		Task SendChatMessage(ChatMessageRequest request);
+		#endregion
 	}
 }

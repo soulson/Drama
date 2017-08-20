@@ -25,6 +25,7 @@ using Orleans;
 using Orleans.Providers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Drama.Shard.Interfaces.Chat;
 
 namespace Drama.Shard.Grains.Maps
 {
@@ -140,6 +141,16 @@ namespace Drama.Shard.Grains.Maps
 		public void HandleObjectDestroyed(ObjectEntity objectEntity)
 		{
 			GetLogger().Debug($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes the destruction of object {objectEntity.Id}");
+		}
+
+		public void HandleSay(ObjectEntity objectEntity, string message, ChatLanguage language)
+		{
+			// map doesn't care
+		}
+
+		public void HandleYell(ObjectEntity objectEntity, string message, ChatLanguage language)
+		{
+			// map doesn't care
 		}
 	}
 }
