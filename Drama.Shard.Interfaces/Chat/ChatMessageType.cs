@@ -33,6 +33,7 @@ namespace Drama.Shard.Interfaces.Chat
 		Officer = 4,
 		Yell = 5,
 		Whisper = 6,
+		WhisperConfirm = 7,
 		Emote = 8,
 		TextEmote = 9,
 		System = 10,

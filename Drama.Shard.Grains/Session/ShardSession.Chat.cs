@@ -60,6 +60,20 @@ namespace Drama.Shard.Grains.Session
 				{
 					var myEntity = await ActiveCharacter.GetCharacterEntity();
 					await character.ReceiveWhisper(myEntity.Id, request.Message, request.Language);
+
+					var chatConfirm = new ChatMessageResponse()
+					{
+						// TODO: language support needed here
+						Language = ChatLanguage.Universal,
+						Message = request.Message,
+						MessageType = ChatMessageType.WhisperConfirm,
+						// sender and target are reversed for WhisperConfirm
+						SenderId = characterId.Value,
+						Tag = ChatTag.None,
+						TargetId = myEntity.Id,
+					};
+
+					await Send(chatConfirm);
 				}
 				else
 				{
