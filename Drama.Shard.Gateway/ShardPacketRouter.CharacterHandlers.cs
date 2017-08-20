@@ -64,5 +64,11 @@ namespace Drama.Shard.Gateway
 		{
 			return ShardSession.Login(request.CharacterId);
 		}
+
+		[Handler(typeof(PlayerLogoutRequest))]
+		private Task HandlePlayerLogoutRequest(PlayerLogoutRequest request)
+		{
+			return ShardSession.Logout();
+		}
 	}
 }

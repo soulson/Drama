@@ -149,6 +149,8 @@ namespace Drama.Shard.Grains.Characters
 			var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
 			await mapInstance.RemoveObject(State);
 
+			await Send(new PlayerLogoutCompleteResponse());
+
 			SessionId = Guid.Empty;
 
 			await Destroy();

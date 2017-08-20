@@ -144,5 +144,12 @@ namespace Drama.Shard.Grains.Session
 			else
 				GetLogger().Warn($"received login request from account {AuthenticatedIdentity} for non-existing character id {characterId}");
 		}
+
+		public Task Logout()
+		{
+			VerifyIngame();
+
+			return ActiveCharacter.Logout();
+		}
 	}
 }

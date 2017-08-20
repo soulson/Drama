@@ -107,6 +107,11 @@ namespace Drama.Shard.Interfaces.Session
 		/// characterId.
 		/// </summary>
 		Task Login(ObjectID characterId);
+
+		/// <summary>
+		/// Logs this session out of the Character it is currently playing.
+		/// </summary>
+		Task Logout();
 		#endregion
 
 		#region Movement
