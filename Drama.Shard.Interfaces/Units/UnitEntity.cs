@@ -74,6 +74,13 @@ namespace Drama.Shard.Interfaces.Units
 		[JsonIgnore]
 		public float PreviousOrientation { get; set; }
 
+		/// <summary>
+		/// This field isn't part of the persisted state of a Unit. It is used to
+		/// determine whether a MoveJump packet needs to be sent to clients.
+		/// </summary>
+		[JsonIgnore]
+		public bool Jumped { get; set; }
+
 		#region Client-visible State
 		public int Health
 		{

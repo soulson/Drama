@@ -119,6 +119,11 @@ namespace Drama.Shard.Interfaces.Session
 		/// Sets the movement mode of the ingame player's controlled unit.
 		/// </summary>
 		Task Move(MovementInPacket request);
+
+		/// <summary>
+		/// Equivalent to Move, except also broadcasts that the player has jumped.
+		/// </summary>
+		Task Jump(MoveJumpRequest request);
 		#endregion
 
 		#region Queries

@@ -79,6 +79,7 @@ namespace Drama.Shard.Grains.Units
 
 			State.PreviousMoveFlags = State.MoveFlags;
 			State.PreviousOrientation = State.Orientation;
+			State.Jumped = false;
 		}
 
 		public Task SetMovementState(MovementFlags movementFlags, int time, int fallTime, Jump jump)
@@ -102,6 +103,15 @@ namespace Drama.Shard.Grains.Units
 			IsMovementUpdated = true;
 
 			return WriteStateAsync();
+		}
+
+		public Task Jump()
+		{
+			VerifyExists();
+
+			State.Jumped = true;
+
+			return Task.CompletedTask;
 		}
 
 		protected Task ActivateWorkingSet()

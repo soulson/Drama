@@ -15,24 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+using System;
 
-using Drama.Shard.Interfaces.Protocol;
-using System.Threading.Tasks;
-
-namespace Drama.Shard.Gateway
+namespace Drama.Shard.Interfaces.Protocol
 {
-	public partial class ShardPacketRouter
+	[ClientPacket(ShardClientOpcode.MoveJump)]
+	public sealed class MoveJumpRequest : MovementInPacket
 	{
-		[Handler(typeof(MovementInPacket))]
-		private Task HandleGenericMovement(MovementInPacket request)
-		{
-			return ShardSession.Move(request);
-		}
-
-		[Handler(typeof(MoveJumpRequest))]
-		private Task HandleMoveJump(MoveJumpRequest request)
-		{
-			return ShardSession.Jump(request);
-		}
 	}
 }

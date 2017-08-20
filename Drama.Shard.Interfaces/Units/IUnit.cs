@@ -41,5 +41,12 @@ namespace Drama.Shard.Interfaces.Units
 		/// </summary>
 		[OneWay]
 		Task SetMovementState(MovementFlags movementFlags, int time, int fallTime, Jump jump);
+
+		/// <summary>
+		/// Broadcasts to subscribed Characters that this Unit has jumped. This
+		/// method is one-way.
+		/// </summary>
+		[OneWay]
+		Task Jump();
 	}
 }

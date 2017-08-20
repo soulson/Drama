@@ -25,7 +25,6 @@ namespace Drama.Shard.Interfaces.Protocol
 {
 	[ClientPacket(ShardClientOpcode.MoveFallLand)]
 	[ClientPacket(ShardClientOpcode.MoveHeartbeat)]
-	[ClientPacket(ShardClientOpcode.MoveJump)]
 	[ClientPacket(ShardClientOpcode.MovePitchStartDown)]
 	[ClientPacket(ShardClientOpcode.MovePitchStartUp)]
 	[ClientPacket(ShardClientOpcode.MovePitchStop)]
@@ -42,7 +41,7 @@ namespace Drama.Shard.Interfaces.Protocol
 	[ClientPacket(ShardClientOpcode.MoveTurnStartLeft)]
 	[ClientPacket(ShardClientOpcode.MoveTurnStartRight)]
 	[ClientPacket(ShardClientOpcode.MoveTurnStop)]
-	public sealed class MovementInPacket : AbstractInPacket
+	public class MovementInPacket : AbstractInPacket
 	{
 		public MovementFlags MovementFlags { get; set; }
 		public int Time { get; set; }

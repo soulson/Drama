@@ -140,20 +140,23 @@ namespace Drama.Shard.Grains.Characters
 
 		public async Task Logout()
 		{
-			VerifyOnline();
+			VerifyExists();
 
-			await DeactivateWorkingSet();
+			if (IsOnline().Result)
+			{
+				await DeactivateWorkingSet();
 
-			var mapManager = GrainFactory.GetGrain<IMapManager>(0);
-			var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
-			var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
-			await mapInstance.RemoveObject(State);
+				var mapManager = GrainFactory.GetGrain<IMapManager>(0);
+				var mapInstanceId = await mapManager.GetInstanceIdForCharacter(State);
+				var mapInstance = GrainFactory.GetGrain<IMap>(mapInstanceId);
+				await mapInstance.RemoveObject(State);
 
-			await Send(new PlayerLogoutCompleteResponse());
+				await Send(new PlayerLogoutCompleteResponse());
 
-			SessionId = Guid.Empty;
+				SessionId = Guid.Empty;
 
-			await Destroy();
+				await Destroy();
+			}
 		}
 
 		public Task Send(IOutPacket message)
@@ -226,30 +229,38 @@ namespace Drama.Shard.Grains.Characters
 				else
 				{
 					// complicated
-					if ((unitEntity.MoveFlags & MovementFlags.MoveLeft) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveLeft) == 0)
-						opcodes.AddLast(ShardServerOpcode.MoveStrafeStartLeft);
-					else if ((unitEntity.MoveFlags & MovementFlags.MoveRight) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveRight) == 0)
-						opcodes.AddLast(ShardServerOpcode.MoveStrafeStartRight);
-					else if ((unitEntity.MoveFlags & (MovementFlags.MoveLeft | MovementFlags.MoveRight)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.MoveLeft | MovementFlags.MoveRight)) != 0)
-						opcodes.AddLast(ShardServerOpcode.MoveStrafeStop);
+					if (unitEntity.Jumped)
+						opcodes.AddLast(ShardServerOpcode.MoveJump);
+					else
+					{
+						if ((unitEntity.MoveFlags & MovementFlags.MoveLeft) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveLeft) == 0)
+							opcodes.AddLast(ShardServerOpcode.MoveStrafeStartLeft);
+						else if ((unitEntity.MoveFlags & MovementFlags.MoveRight) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveRight) == 0)
+							opcodes.AddLast(ShardServerOpcode.MoveStrafeStartRight);
+						else if ((unitEntity.MoveFlags & (MovementFlags.MoveLeft | MovementFlags.MoveRight)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.MoveLeft | MovementFlags.MoveRight)) != 0)
+							opcodes.AddLast(ShardServerOpcode.MoveStrafeStop);
 
-					if ((unitEntity.MoveFlags & MovementFlags.MoveForward) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveForward) == 0)
-						opcodes.AddLast(ShardServerOpcode.MoveStartForward);
-					else if ((unitEntity.MoveFlags & MovementFlags.MoveBackward) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveBackward) == 0)
-						opcodes.AddLast(ShardServerOpcode.MoveStartBackward);
-					else if ((unitEntity.MoveFlags & (MovementFlags.MoveForward | MovementFlags.MoveBackward)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.MoveForward | MovementFlags.MoveBackward)) != 0)
-						opcodes.AddLast(ShardServerOpcode.MoveStop);
+						if ((unitEntity.MoveFlags & MovementFlags.MoveForward) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveForward) == 0)
+							opcodes.AddLast(ShardServerOpcode.MoveStartForward);
+						else if ((unitEntity.MoveFlags & MovementFlags.MoveBackward) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.MoveBackward) == 0)
+							opcodes.AddLast(ShardServerOpcode.MoveStartBackward);
+						else if ((unitEntity.MoveFlags & (MovementFlags.MoveForward | MovementFlags.MoveBackward)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.MoveForward | MovementFlags.MoveBackward)) != 0)
+							opcodes.AddLast(ShardServerOpcode.MoveStop);
 
-					if ((unitEntity.MoveFlags & MovementFlags.TurnLeft) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.TurnLeft) == 0)
-						opcodes.AddLast(ShardServerOpcode.MoveTurnStartLeft);
-					else if ((unitEntity.MoveFlags & MovementFlags.TurnRight) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.TurnRight) == 0)
-						opcodes.AddLast(ShardServerOpcode.MoveTurnStartRight);
-					else if ((unitEntity.MoveFlags & (MovementFlags.TurnLeft | MovementFlags.TurnRight)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.TurnLeft | MovementFlags.TurnRight)) != 0)
-						opcodes.AddLast(ShardServerOpcode.MoveTurnStop);
+						if ((unitEntity.MoveFlags & MovementFlags.TurnLeft) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.TurnLeft) == 0)
+							opcodes.AddLast(ShardServerOpcode.MoveTurnStartLeft);
+						else if ((unitEntity.MoveFlags & MovementFlags.TurnRight) != 0 && (unitEntity.PreviousMoveFlags & MovementFlags.TurnRight) == 0)
+							opcodes.AddLast(ShardServerOpcode.MoveTurnStartRight);
+						else if ((unitEntity.MoveFlags & (MovementFlags.TurnLeft | MovementFlags.TurnRight)) == 0 && (unitEntity.PreviousMoveFlags & (MovementFlags.TurnLeft | MovementFlags.TurnRight)) != 0)
+							opcodes.AddLast(ShardServerOpcode.MoveTurnStop);
+					}
 				}
 
 				if (unitEntity.Orientation != unitEntity.PreviousOrientation && (unitEntity.MoveFlags & (MovementFlags.TurnLeft | MovementFlags.TurnRight)) == 0)
 					opcodes.AddLast(ShardServerOpcode.MoveSetOrientation);
+
+				if (unitEntity.PreviousMoveFlags.HasFlag(MovementFlags.ModeFalling) && !unitEntity.MoveFlags.HasFlag(MovementFlags.ModeFalling))
+					opcodes.AddLast(ShardServerOpcode.MoveFallLand);
 
 				foreach(var opcode in opcodes)
 				{

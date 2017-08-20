@@ -45,5 +45,15 @@ namespace Drama.Shard.Grains.Session
 					ActiveCharacter.SetMovementState(request.MovementFlags, request.Time, request.FallTime, jump)
 			);
 		}
+
+		public Task Jump(MoveJumpRequest request)
+		{
+			VerifyIngame();
+
+			return Task.WhenAll(
+				Move(request),
+				ActiveCharacter.Jump()
+			);
+		}
 	}
 }
