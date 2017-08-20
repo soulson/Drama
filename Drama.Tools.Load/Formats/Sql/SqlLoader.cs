@@ -17,26 +17,35 @@
  */
 
 using Drama.Shard.Interfaces.Utilities;
+using Microsoft.EntityFrameworkCore;
 using Orleans;
-using System.Threading.Tasks;
+using System;
 
-namespace Drama.Shard.Interfaces.Maps
+namespace Drama.Tools.Load.Formats.Sql
 {
-	/// <summary>
-	/// MapDefinitions define static properties of map instances.
-	/// 
-	/// The key for this grain is the MapId.
-	/// </summary>
-	public interface IMapDefinition : IGrainWithIntegerKey, IMergeable<MapDefinitionEntity>
+	public class SqlLoader<TGrain, TGrainEntity, TSqlEntity>
+		where TGrain : IGrainWithIntegerKey, IMergeable<TGrainEntity>
+		where TGrainEntity : new()
+		where TSqlEntity : class, ISqlEntity<TGrainEntity>
 	{
-		/// <summary>
-		/// Returns true if this MapDefinition is defined.
-		/// </summary>
-		Task<bool> Exists();
+		private readonly DbContext context;
 
-		/// <summary>
-		/// Gets a MapDefinitionEntity describing this map.
-		/// </summary>
-		Task<MapDefinitionEntity> GetEntity();
+		public SqlLoader(DbContext context)
+		{
+			this.context = context ?? throw new ArgumentNullException(nameof(context));
+		}
+
+		public void LoadEntities(IGrainFactory grainFactory)
+		{
+			foreach (var row in context.Set<TSqlEntity>())
+			{
+				var idValue = row.GetKey();
+				var grain = grainFactory.GetGrain<TGrain>(idValue);
+				var grainEntity = row.ToGrainEntity();
+
+				grain.Clear().Wait();
+				grain.Merge(grainEntity).Wait();
+			}
+		}
 	}
 }

@@ -16,27 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Utilities;
-using Orleans;
-using System.Threading.Tasks;
+using System;
 
-namespace Drama.Shard.Interfaces.Maps
+namespace Drama.Shard.Interfaces.Characters
 {
 	/// <summary>
-	/// MapDefinitions define static properties of map instances.
-	/// 
-	/// The key for this grain is the MapId.
+	/// This exception is thrown when a Character is created without a mathing
+	/// CharacterTemplate.
 	/// </summary>
-	public interface IMapDefinition : IGrainWithIntegerKey, IMergeable<MapDefinitionEntity>
+	public class CharacterTemplateDoesNotExistException : CharacterException
 	{
-		/// <summary>
-		/// Returns true if this MapDefinition is defined.
-		/// </summary>
-		Task<bool> Exists();
-
-		/// <summary>
-		/// Gets a MapDefinitionEntity describing this map.
-		/// </summary>
-		Task<MapDefinitionEntity> GetEntity();
+		public CharacterTemplateDoesNotExistException(string message) : base(message) { }
+		public CharacterTemplateDoesNotExistException(string message, Exception cause) : base(message, cause) { }
 	}
 }

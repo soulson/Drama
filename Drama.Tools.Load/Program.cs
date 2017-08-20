@@ -16,9 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Tools.Load.Configuration;
 using Drama.Tools.Load.Formats.Dbc;
+using Drama.Tools.Load.Formats.Sql;
+using Drama.Tools.Load.Formats.Sql.Entities;
 using Microsoft.Extensions.Configuration;
 using Orleans;
 using Orleans.Runtime;
@@ -49,7 +52,14 @@ namespace Drama.Tools.Load
 
 			try
 			{
+				Console.WriteLine($"loading dbc {nameof(MapDefinitionEntity)}");
 				new DbcLoader<IMapDefinition, MapDefinitionEntity>(config.Dbc.Path).LoadEntities(GrainClient.GrainFactory);
+				
+				using (var context = new ElysiumContext(config.Sql.Address, config.Sql.Port, config.Sql.Schema, config.Sql.User, config.Sql.Password))
+				{
+					Console.WriteLine($"loading sql {nameof(CharacterTemplateEntity)}");
+					new SqlLoader<ICharacterTemplate, CharacterTemplateEntity, PlayerCreateInfo>(context).LoadEntities(GrainClient.GrainFactory);
+				}
 			}
 			finally
 			{

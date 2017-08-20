@@ -16,27 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Utilities;
-using Orleans;
-using System.Threading.Tasks;
+using System;
 
-namespace Drama.Shard.Interfaces.Maps
+namespace Drama.Tools.Load.Formats.Sql
 {
 	/// <summary>
-	/// MapDefinitions define static properties of map instances.
-	/// 
-	/// The key for this grain is the MapId.
+	/// Interface for database-layer entities used in ORM.
 	/// </summary>
-	public interface IMapDefinition : IGrainWithIntegerKey, IMergeable<MapDefinitionEntity>
+	/// <typeparam name="TGrainEntity"></typeparam>
+	public interface ISqlEntity<TGrainEntity> where TGrainEntity : new()
 	{
 		/// <summary>
-		/// Returns true if this MapDefinition is defined.
+		/// Gets a 64-bit integer primary key for this entity.
 		/// </summary>
-		Task<bool> Exists();
+		long GetKey();
 
 		/// <summary>
-		/// Gets a MapDefinitionEntity describing this map.
+		/// Converts this database-layer ORM entity into a Grain-layer entity.
 		/// </summary>
-		Task<MapDefinitionEntity> GetEntity();
+		TGrainEntity ToGrainEntity();
 	}
 }

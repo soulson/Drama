@@ -20,23 +20,23 @@ using Drama.Shard.Interfaces.Utilities;
 using Orleans;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Maps
+namespace Drama.Shard.Interfaces.Characters
 {
 	/// <summary>
-	/// MapDefinitions define static properties of map instances.
+	/// Defines initial values for a Character by Race and Class.
 	/// 
-	/// The key for this grain is the MapId.
+	/// The key for this grain is (Race &lt;&lt; 8) + Class
 	/// </summary>
-	public interface IMapDefinition : IGrainWithIntegerKey, IMergeable<MapDefinitionEntity>
+	public interface ICharacterTemplate : IGrainWithIntegerKey, IMergeable<CharacterTemplateEntity>
 	{
 		/// <summary>
-		/// Returns true if this MapDefinition is defined.
+		/// Returns true if this CharacterTemplate is defined.
 		/// </summary>
 		Task<bool> Exists();
 
 		/// <summary>
-		/// Gets a MapDefinitionEntity describing this map.
+		/// Gets a CharacterTemplateEntity describing this map.
 		/// </summary>
-		Task<MapDefinitionEntity> GetEntity();
+		Task<CharacterTemplateEntity> GetEntity();
 	}
 }
