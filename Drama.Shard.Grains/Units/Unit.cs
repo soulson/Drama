@@ -126,7 +126,7 @@ namespace Drama.Shard.Grains.Units
 			else
 				GetLogger().Warn($"{nameof(Unit)}.{nameof(SetTarget)} called with non-{nameof(Unit)} {nameof(unitId)} {unitId}");
 
-			return Task.CompletedTask;
+			return WriteStateAsync();
 		}
 
 		public virtual Task ClearTarget()
@@ -135,7 +135,7 @@ namespace Drama.Shard.Grains.Units
 
 			State.TargetId = ObjectID.Null;
 
-			return Task.CompletedTask;
+			return WriteStateAsync();
 		}
 
 		protected Task ActivateWorkingSet()
