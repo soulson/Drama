@@ -82,18 +82,24 @@ namespace Drama.Shard.Interfaces.Characters
 		Task<CharacterEntity> GetCharacterEntity();
 
 		/// <summary>
-		/// Says a message from this Character to nearby subscribed objects.
+		/// Says a message from this Character to nearby subscribed objects. This
+		/// method is one-way.
 		/// </summary>
+		[OneWay]
 		Task Say(string message, ChatLanguage language);
 
 		/// <summary>
-		/// Yells a message from this Character to nearby subscribed objects.
+		/// Yells a message from this Character to nearby subscribed objects. This
+		/// method is one-way.
 		/// </summary>
+		[OneWay]
 		Task Yell(string message, ChatLanguage language);
 
 		/// <summary>
-		/// Causes this Character to receive a whisper from sender.
+		/// Causes this Character to receive a whisper from sender. This method is
+		/// one-way.
 		/// </summary>
+		[OneWay]
 		Task ReceiveWhisper(ObjectID senderId, string message, ChatLanguage language);
 	}
 }

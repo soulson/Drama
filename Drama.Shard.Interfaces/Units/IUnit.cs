@@ -48,5 +48,18 @@ namespace Drama.Shard.Interfaces.Units
 		/// </summary>
 		[OneWay]
 		Task Jump();
+		
+		/// <summary>
+		/// Sets this Unit's target to another Unit by id. This method is one-way.
+		/// </summary>
+		/// <param name="unitId">ObjectID of the object to target. Must be a Unit</param>
+		[OneWay]
+		Task SetTarget(ObjectID unitId);
+
+		/// <summary>
+		/// Clears this Unit's target. This method is one-way.
+		/// </summary>
+		[OneWay]
+		Task ClearTarget();
 	}
 }

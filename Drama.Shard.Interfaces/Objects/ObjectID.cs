@@ -108,6 +108,8 @@ namespace Drama.Shard.Interfaces.Objects
 		public bool Equals(ObjectID other)
 			=> id == other.id;
 
+		public static ObjectID Null { get; } = new ObjectID(0);
+
 		public static bool operator ==(ObjectID left, ObjectID right)
 			=> left.Equals(right);
 

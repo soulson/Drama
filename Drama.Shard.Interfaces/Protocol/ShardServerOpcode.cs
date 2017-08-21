@@ -101,5 +101,6 @@ namespace Drama.Shard.Interfaces.Protocol
 		InitializeWorldState = 0x02c2,
 		QueryRaidInfo = 0x02cc,
 		AddonInfo = 0x02ef,
+		TargetClear = 0x03be,
 	}
 }

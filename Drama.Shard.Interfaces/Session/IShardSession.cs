@@ -139,5 +139,13 @@ namespace Drama.Shard.Interfaces.Session
 		/// </summary>
 		Task SendChatMessage(ChatMessageRequest request);
 		#endregion
+
+		#region Combat
+		/// <summary>
+		/// Sets the target of the controlled Unit. Use ObjectID.Null to clear.
+		/// </summary>
+		/// <param name="unitId">Must be a Unit ID or ObjectID.Null</param>
+		Task SetTarget(ObjectID unitId);
+		#endregion
 	}
 }

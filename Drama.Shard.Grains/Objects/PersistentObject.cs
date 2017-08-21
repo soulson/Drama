@@ -50,10 +50,8 @@ namespace Drama.Shard.Grains.Objects
 
 		/// <summary>
 		/// True if this object's client-visible state has been modified since the last UpdateObservers tick.
-		/// Inheriting classes may either set this value directly or override its behavior based on other properties.
-		/// UpdateObservers will set the value to false after notifying observers of all updates.
 		/// </summary>
-		protected virtual bool IsValuesUpdated { get; set; } = false;
+		protected virtual bool IsValuesUpdated => !State.UpdateMask.IsEmpty;
 
 		/// <summary>
 		/// True if this object's position or (unit's) movement state has been modified since the last UpdateObservers tick.
@@ -105,7 +103,7 @@ namespace Drama.Shard.Grains.Objects
 				if (IsValuesUpdated)
 				{
 					valuesUpdate = BuildValuesUpdate(false);
-					IsValuesUpdated = false;
+					State.UpdateMask.Clear();
 				}
 				if (IsMovementUpdated)
 				{

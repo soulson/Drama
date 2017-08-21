@@ -115,6 +115,29 @@ namespace Drama.Shard.Grains.Units
 			return Task.CompletedTask;
 		}
 
+		public virtual Task SetTarget(ObjectID unitId)
+		{
+			VerifyExists();
+
+			if (unitId.ObjectType == ObjectID.Type.Player
+				|| unitId.ObjectType == ObjectID.Type.Unit // creature is unit
+				|| unitId.ObjectType == ObjectID.Type.Pet)
+				State.TargetId = unitId;
+			else
+				GetLogger().Warn($"{nameof(Unit)}.{nameof(SetTarget)} called with non-{nameof(Unit)} {nameof(unitId)} {unitId}");
+
+			return Task.CompletedTask;
+		}
+
+		public virtual Task ClearTarget()
+		{
+			VerifyExists();
+
+			State.TargetId = ObjectID.Null;
+
+			return Task.CompletedTask;
+		}
+
 		protected Task ActivateWorkingSet()
 		{
 			if (workingSetUpdateTimerHandle == null)

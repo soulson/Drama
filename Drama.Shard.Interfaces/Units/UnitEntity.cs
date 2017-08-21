@@ -59,6 +59,7 @@ namespace Drama.Shard.Interfaces.Units
 		public Jump Jump { get; }
 		public float UnknownSplineThingy { get; set; }
 
+		#region Transient Fields
 		/// <summary>
 		/// This field isn't part of the persisted state of a Unit. It is used to
 		/// determine which move start/stop packets need to be sent to clients.
@@ -80,6 +81,7 @@ namespace Drama.Shard.Interfaces.Units
 		/// </summary>
 		[JsonIgnore]
 		public bool Jumped { get; set; }
+		#endregion
 
 		#region Client-visible State
 		public int Health
@@ -369,6 +371,12 @@ namespace Drama.Shard.Interfaces.Units
 			get => (UnitFlags2)GetFieldByte((short)UnitFields.Bytes2, 1);
 			set => SetField((short)UnitFields.Bytes2, 1, (byte)value);
 		}
+
+		public ObjectID TargetId
+		{
+			get => new ObjectID(GetFieldLong(UnitFields.Target));
+			set => SetField(UnitFields.Target, value);
+		}
 		#endregion
 
 		#region Field Management
@@ -381,6 +389,9 @@ namespace Drama.Shard.Interfaces.Units
 		public float GetFieldFloat(UnitFields field)
 			=> GetFieldFloat((short)field);
 
+		public long GetFieldLong(UnitFields field)
+			=> GetFieldLong((short)field);
+
 		public void SetField(UnitFields field, uint value)
 			=> SetField((short)field, value);
 
@@ -388,6 +399,9 @@ namespace Drama.Shard.Interfaces.Units
 			=> SetField((short)field, value);
 
 		public void SetField(UnitFields field, float value)
+			=> SetField((short)field, value);
+
+		public void SetField(UnitFields field, long value)
 			=> SetField((short)field, value);
 		#endregion
 	}

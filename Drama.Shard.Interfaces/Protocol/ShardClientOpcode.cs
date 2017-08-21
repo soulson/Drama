@@ -85,6 +85,7 @@ namespace Drama.Shard.Interfaces.Protocol
 		MoveSetOrientation = 0x00da,
 		MoveSetPitch = 0x00db,
 		MoveHeartbeat = 0x00ee,
+		TargetSet = 0x013d,
 		QueryTime = 0x01ce,
 		Ping = 0x01dc,
 		AuthSession = 0x01ed,
