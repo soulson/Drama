@@ -23,7 +23,7 @@ namespace Drama.Shard.Interfaces.Objects
 {
 	/// <summary>
 	/// This service provides access to PersistentObjects as other types. For
-	/// instance, it can provide an IPersistentObject view of an ICharacter.
+	/// instance, it can provide an IObject view of an ICharacter.
 	/// 
 	/// The only expected key for this stateless grain is 0.
 	/// </summary>
@@ -33,6 +33,6 @@ namespace Drama.Shard.Interfaces.Objects
 		/// Gets a reference to any PersistentObject subclass as a PersistentObject
 		/// by ObjectId.
 		/// </summary>
-		Task<IPersistentObject<ObjectEntity>> GetObject(ObjectID id);
+		Task<IObject<ObjectEntity>> GetObject(ObjectID id);
 	}
 }

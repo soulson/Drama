@@ -16,28 +16,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Characters;
+using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Interfaces.Objects;
-using Orleans;
-using Orleans.Concurrency;
-using System;
-using System.Threading.Tasks;
 
-namespace Drama.Shard.Grains.Objects
+namespace Drama.Shard.Interfaces.WorldObjects
 {
-	[StatelessWorker]
-	public class ObjectService : Grain, IObjectService
+	public class WorldObjectEntity : ObjectEntity
 	{
-		public Task<IObject<ObjectEntity>> GetObject(ObjectID id)
+		/// <summary>
+		/// Creates a new instance of the WorldObjectEntity class.
+		/// </summary>
+		public WorldObjectEntity() : this((short)ObjectFields.END)
 		{
-			switch (id.ObjectType)
-			{
-				case ObjectID.Type.Player:
-					var character = GrainFactory.GetGrain<ICharacter>(id);
-					return Task.FromResult<IObject<ObjectEntity>>(character);
-				default:
-					return Task.FromException<IObject<ObjectEntity>>(new NotImplementedException($"object type {id.ObjectType} is not yet implemented by {nameof(ObjectService)}.{nameof(GetObject)}"));
-			}
+			// persistent object entity public default constructors defer to a protected constructor
 		}
+
+		protected WorldObjectEntity(int fieldCount) : base(fieldCount)
+		{
+
+		}
+
+		/// <summary>
+		/// The location of this object within its map.
+		/// </summary>
+		public Vector3 Position { get; set; }
+
+		/// <summary>
+		/// The direction that this object is facing, in radians.
+		/// </summary>
+		public float Orientation { get; set; }
+
+		/// <summary>
+		/// The id of the map in which this object exists.
+		/// </summary>
+		public int MapId { get; set; }
 	}
 }

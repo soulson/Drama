@@ -19,13 +19,14 @@
 using Drama.Auth.Interfaces;
 using Drama.Auth.Interfaces.Utilities;
 using Drama.Core.Interfaces;
+using Drama.Shard.Interfaces.Chat;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.WorldObjects;
 using Orleans;
 using Orleans.Providers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Drama.Shard.Interfaces.Chat;
 
 namespace Drama.Shard.Grains.Maps
 {
@@ -34,9 +35,9 @@ namespace Drama.Shard.Grains.Maps
 	{
 		// contains all objects in the map. this is inefficient and will obviously
 		//  need to be replaced with something more performant eventually
-		private readonly ISet<ObjectEntity> objects = new HashSet<ObjectEntity>();
+		private readonly ISet<WorldObjectEntity> objects = new HashSet<WorldObjectEntity>();
 
-		public async Task AddObject(ObjectEntity objectEntity)
+		public async Task AddObject(WorldObjectEntity objectEntity)
 		{
 			VerifyExists();
 
@@ -48,7 +49,7 @@ namespace Drama.Shard.Grains.Maps
 			await persistentObject.Subscribe(this);
 		}
 
-		public async Task RemoveObject(ObjectEntity objectEntity)
+		public async Task RemoveObject(WorldObjectEntity objectEntity)
 		{
 			VerifyExists();
 
@@ -83,7 +84,7 @@ namespace Drama.Shard.Grains.Maps
 			return Task.FromResult(State);
 		}
 
-		public Task<IEnumerable<ObjectID>> GetNearbyObjects(ObjectEntity objectEntity, float distance)
+		public Task<IEnumerable<ObjectID>> GetNearbyObjects(WorldObjectEntity objectEntity, float distance)
 		{
 			VerifyExists();
 
@@ -125,16 +126,19 @@ namespace Drama.Shard.Grains.Maps
 			// Maps only care about object updates if they have moved
 			if (update.MovementUpdate != null)
 			{
-				if (objects.Contains(objectEntity))
+				if (objectEntity is WorldObjectEntity worldObjectEntity)
 				{
-					GetLogger().Debug($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id}");
+					if (objects.Contains(worldObjectEntity))
+					{
+						GetLogger().Debug($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id}");
 
-					// ObjectEntity is equal on ID, so removing and re-adding it updates its other properties
-					objects.Remove(objectEntity);
-					objects.Add(objectEntity);
+						// ObjectEntity is equal on ID, so removing and re-adding it updates its other properties
+						objects.Remove(worldObjectEntity);
+						objects.Add(worldObjectEntity);
+					}
+					else
+						GetLogger().Warn($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id} which is not in working memory");
 				}
-				else
-					GetLogger().Warn($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id} which is not in working memory");
 			}
 		}
 

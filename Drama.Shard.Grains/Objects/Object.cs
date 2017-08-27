@@ -17,7 +17,6 @@
  */
 
 using Drama.Auth.Interfaces;
-using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
 using Orleans;
@@ -26,12 +25,12 @@ using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Objects
 {
-	public sealed class PersistentObject : AbstractPersistentObject<ObjectEntity>, IPersistentObject
+	public sealed class Object : AbstractObject<ObjectEntity>, IObject
 	{
 
 	}
 
-	public abstract class AbstractPersistentObject<TEntity> : Grain<TEntity>, IPersistentObject<TEntity>
+	public abstract class AbstractObject<TEntity> : Grain<TEntity>, IObject<TEntity>
 		where TEntity : ObjectEntity, new()
 	{
 		// TODO: make this a configuration item
@@ -68,7 +67,7 @@ namespace Drama.Shard.Grains.Objects
 		private IDisposable updateTimerHandle;
 		private readonly ObserverSubscriptionManager<IObjectObserver> observerManager;
 
-		public AbstractPersistentObject()
+		public AbstractObject()
 		{
 			observerManager = new ObserverSubscriptionManager<IObjectObserver>();
 		}
@@ -173,34 +172,12 @@ namespace Drama.Shard.Grains.Objects
 			return Task.CompletedTask;
 		}
 
-		public virtual Task Destroy()
-		{
-			VerifyExists();
-
-			observerManager.Notify(observer => observer.HandleObjectDestroyed(State));
-			return Task.CompletedTask;
-		}
-
-		public Task SetPosition(Vector3 position, float orientation)
-		{
-			VerifyExists();
-
-			State.Position = position;
-			State.Orientation = orientation;
-
-			IsMovementUpdated = true;
-
-			return WriteStateAsync();
-		}
-
-		public virtual Task<bool> IsIngame()
-			=> Task.FromResult(true);
-
 		protected virtual ValuesUpdate BuildValuesUpdate(bool creating)
 			=> new ValuesUpdate(State, creating);
 
+		// vanilla Objects cannot move
 		protected virtual MovementUpdate BuildMovementUpdate()
-			=> new MovementUpdate(State);
+			=> null;
 
 		protected CreationUpdate GetCreationUpdate()
 			=> new CreationUpdate(State.Id, State.TypeId, UpdateFlags, BuildMovementUpdate(), BuildValuesUpdate(true));

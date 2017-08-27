@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Core.Interfaces.Numerics;
 using Orleans;
 using Orleans.Concurrency;
 using System.Threading.Tasks;
@@ -24,17 +23,17 @@ using System.Threading.Tasks;
 namespace Drama.Shard.Interfaces.Objects
 {
 	/// <summary>
-	/// PersistentObjects are the root grain for server-side objects that can be
-	/// displayed in the game world.
+	/// Objects are the root grain for server-side persistent objects. Items,
+	/// players, pets, creatures, and gameobjects are all subclasses of Object.
 	/// 
-	/// The key for this grain is the ObjectID of the persistent object.
+	/// The key for this grain is the ObjectID of the object.
 	/// </summary>
-	public interface IPersistentObject : IPersistentObject<ObjectEntity>, IGrainWithIntegerKey
+	public interface IObject : IObject<ObjectEntity>, IGrainWithIntegerKey
 	{
 
 	}
 
-	public interface IPersistentObject<out TEntity> : IGrainWithIntegerKey
+	public interface IObject<out TEntity> : IGrainWithIntegerKey
 		where TEntity : ObjectEntity, new()
 	{
 		/// <summary>
@@ -57,22 +56,5 @@ namespace Drama.Shard.Interfaces.Objects
 		/// Returns true if this PersistentObject has been created.
 		/// </summary>
 		Task<bool> Exists();
-
-		/// <summary>
-		/// Returns true if this object is in-game at this time.
-		/// </summary>
-		Task<bool> IsIngame();
-
-		/// <summary>
-		/// Removes this PersistentObject from the game world.
-		/// </summary>
-		Task Destroy();
-
-		/// <summary>
-		/// Sets the position of this PersistentObject. Does not change the Map
-		/// in which the PersistentObject is located. This method is one-way.
-		/// </summary>
-		[OneWay]
-		Task SetPosition(Vector3 position, float orientation);
 	}
 }

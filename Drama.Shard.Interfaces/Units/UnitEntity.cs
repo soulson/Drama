@@ -17,6 +17,7 @@
  */
 
 using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.WorldObjects;
 using Newtonsoft.Json;
 
 namespace Drama.Shard.Interfaces.Units
@@ -24,7 +25,7 @@ namespace Drama.Shard.Interfaces.Units
 	/// <summary>
 	/// Persisted storage for Unit grains.
 	/// </summary>
-	public class UnitEntity : ObjectEntity
+	public class UnitEntity : WorldObjectEntity
 	{
 		/// <summary>
 		/// Creates a new instance of the UnitEntity class.

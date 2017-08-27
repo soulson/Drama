@@ -17,14 +17,13 @@
  */
 
 using Drama.Core.Interfaces;
-using Drama.Core.Interfaces.Numerics;
 using Newtonsoft.Json;
 using System;
 
 namespace Drama.Shard.Interfaces.Objects
 {
 	/// <summary>
-	/// Persisted storage for PersistentObject grains.
+	/// Persisted storage for Object grains.
 	/// </summary>
 	public class ObjectEntity
 	{
@@ -33,7 +32,7 @@ namespace Drama.Shard.Interfaces.Objects
 		/// </summary>
 		public ObjectEntity() : this((int)ObjectFields.END)
 		{
-			// persistent object entity public default constructors defer to a protected constructor
+			// object entity public default constructors defer to a protected constructor
 		}
 
 		protected ObjectEntity(int fieldCount)
@@ -89,21 +88,6 @@ namespace Drama.Shard.Interfaces.Objects
 		/// The name of the shard on which this object exists.
 		/// </summary>
 		public string Shard { get; set; }
-
-		/// <summary>
-		/// The location of this object within its map.
-		/// </summary>
-		public Vector3 Position { get; set; }
-
-		/// <summary>
-		/// The direction that this object is facing, in radians.
-		/// </summary>
-		public float Orientation { get; set; }
-
-		/// <summary>
-		/// The id of the map in which this object exists.
-		/// </summary>
-		public int MapId { get; set; }
 
 		#region Client-visible State
 		public ObjectID Id

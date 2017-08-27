@@ -16,51 +16,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Interfaces.Objects;
-using Drama.Shard.Interfaces.WorldObjects;
 using Orleans;
 using Orleans.Concurrency;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Units
+namespace Drama.Shard.Interfaces.WorldObjects
 {
 	/// <summary>
-	/// A Unit grain represents a persistent object that can move.
+	/// WorldObjects are Objects that can be displayed in the game world. These
+	/// objects have properties like position and orientation.
 	/// 
-	/// The key for this grain is the ObjectID of the Unit.
+	/// The key for this grain is the ObjectID of the object.
 	/// </summary>
-	public interface IUnit : IUnit<UnitEntity>, IGrainWithIntegerKey
+	public interface IWorldObject : IWorldObject<WorldObjectEntity>, IGrainWithIntegerKey
 	{
 
 	}
 
-	public interface IUnit<out TEntity> : IWorldObject<TEntity>, IGrainWithIntegerKey
-		where TEntity : UnitEntity, new()
+	public interface IWorldObject<out TEntity> : IObject<TEntity>, IGrainWithIntegerKey
+		where TEntity : WorldObjectEntity, new()
 	{
-		/// <summary>
-		/// Sets the movement state of this Unit. This method is one-way.
-		/// </summary>
-		[OneWay]
-		Task SetMovementState(MovementFlags movementFlags, int time, int fallTime, Jump jump);
 
 		/// <summary>
-		/// Broadcasts to subscribed Characters that this Unit has jumped. This
-		/// method is one-way.
+		/// Returns true if this object is in-game at this time.
 		/// </summary>
-		[OneWay]
-		Task Jump();
-		
-		/// <summary>
-		/// Sets this Unit's target to another Unit by id. This method is one-way.
-		/// </summary>
-		/// <param name="unitId">ObjectID of the object to target. Must be a Unit</param>
-		[OneWay]
-		Task SetTarget(ObjectID unitId);
+		Task<bool> IsIngame();
 
 		/// <summary>
-		/// Clears this Unit's target. This method is one-way.
+		/// Removes this Object from the game world. This method is one-way.
 		/// </summary>
 		[OneWay]
-		Task ClearTarget();
+		Task Destroy();
+
+		/// <summary>
+		/// Sets the position of this Object. Does not change the Map
+		/// in which the Object is located. This method is one-way.
+		/// </summary>
+		[OneWay]
+		Task SetPosition(Vector3 position, float orientation);
 	}
 }

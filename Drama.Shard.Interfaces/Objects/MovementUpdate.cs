@@ -18,6 +18,7 @@
 
 using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Interfaces.Units;
+using Drama.Shard.Interfaces.WorldObjects;
 using Orleans.Concurrency;
 using System;
 
@@ -55,7 +56,7 @@ namespace Drama.Shard.Interfaces.Objects
 		/// Creates a MovementUpdate for a PersistentObject.
 		/// </summary>
 		/// <param name="entity">Cannot be null</param>
-		public MovementUpdate(ObjectEntity entity)
+		public MovementUpdate(WorldObjectEntity entity)
 		{
 			if (entity == null)
 				throw new ArgumentNullException(nameof(entity));
@@ -68,7 +69,7 @@ namespace Drama.Shard.Interfaces.Objects
 		/// Creates a MovementUpdate for a Unit.
 		/// </summary>
 		/// <param name="entity">Cannot be null</param>
-		public MovementUpdate(UnitEntity entity) : this(entity as ObjectEntity)
+		public MovementUpdate(UnitEntity entity) : this(entity as WorldObjectEntity)
 		{
 			MoveTime = entity.MoveTime;
 			FallTime = entity.FallTime;

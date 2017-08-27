@@ -17,14 +17,14 @@
  */
 
 using Drama.Auth.Interfaces;
-using Drama.Shard.Grains.Objects;
+using Drama.Shard.Grains.WorldObjects;
+using Drama.Shard.Interfaces.Chat;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Units;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Drama.Shard.Interfaces.Chat;
 
 namespace Drama.Shard.Grains.Units
 {
@@ -33,7 +33,7 @@ namespace Drama.Shard.Grains.Units
 
 	}
 
-	public abstract class AbstractUnit<TEntity> : AbstractPersistentObject<TEntity>, IUnit<TEntity>, IObjectObserver
+	public abstract class AbstractUnit<TEntity> : AbstractWorldObject<TEntity>, IUnit<TEntity>, IObjectObserver
 		where TEntity : UnitEntity, new()
 	{
 		// TODO: make this a configuration item

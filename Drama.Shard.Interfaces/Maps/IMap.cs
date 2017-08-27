@@ -17,6 +17,7 @@
  */
 
 using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.WorldObjects;
 using Orleans;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -50,18 +51,18 @@ namespace Drama.Shard.Interfaces.Maps
 		/// <summary>
 		/// Adds a new PersistentObject to this Map instance.
 		/// </summary>
-		Task AddObject(ObjectEntity objectEntity);
+		Task AddObject(WorldObjectEntity objectEntity);
 
 		/// <summary>
 		/// Removes a PersistentObject from this Map instance.
 		/// </summary>
-		Task RemoveObject(ObjectEntity objectEntity);
+		Task RemoveObject(WorldObjectEntity objectEntity);
 
 		/// <summary>
 		/// Returns a collection of ObjectIDs representing objects within a
 		/// specified distance of objectEntity.
 		/// </summary>
 		/// <param name="distance">maximum distance of returned objects, exclusive</param>
-		Task<IEnumerable<ObjectID>> GetNearbyObjects(ObjectEntity objectEntity, float distance);
+		Task<IEnumerable<ObjectID>> GetNearbyObjects(WorldObjectEntity objectEntity, float distance);
 	}
 }
