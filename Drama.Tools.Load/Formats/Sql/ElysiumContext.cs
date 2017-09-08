@@ -47,6 +47,8 @@ namespace Drama.Tools.Load.Formats.Sql
 		{
 			modelBuilder.Entity<PlayerCreateInfo>()
 				.HasKey("Race", "Class");
+			modelBuilder.Entity<CreatureTemplate>()
+				.HasKey("Id");
 		}
 	}
 }

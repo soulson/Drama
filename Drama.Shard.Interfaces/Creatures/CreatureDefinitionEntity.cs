@@ -16,7 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Core.Interfaces.Utilities;
+using Drama.Shard.Interfaces.Spells;
+using Drama.Shard.Interfaces.Units;
 using Drama.Shard.Interfaces.Utilities;
+using System.Collections.Generic;
 
 namespace Drama.Shard.Interfaces.Creatures
 {
@@ -25,5 +29,27 @@ namespace Drama.Shard.Interfaces.Creatures
 	/// </summary>
 	public class CreatureDefinitionEntity : AbstractDefinitionEntity
 	{
+		public int Id { get; set; }
+		public ISet<int> ModelIds { get; } = new SortedSet<int>();
+		public string Name { get; set; }
+		public string Subname { get; set; }
+		public Range<byte> Level { get; set; }
+		public Range<int> Health { get; set; }
+		public Range<int> Mana { get; set; }
+		public int Armor { get; set; }
+		public NpcFlags NpcFlags { get; set; }
+		public float SpeedWalking { get; set; }
+		public float SpeedRunning { get; set; }
+		public float Scale { get; set; }
+		public Range<int> AttackDamage { get; set; }
+		public Range<int> AttackDamageRanged { get; set; }
+		public School AttackSchool { get; set; }
+		public int AttackPower { get; set; }
+		public int AttackPowerRanged { get; set; }
+		public int AttackTimeMilliseconds { get; set; }
+		public int AttackTimeRangedMilliseconds { get; set; }
+		public float DamageMultiplier { get; set; }
+		public Class Class { get; set; }
+		public UnitFlags UnitFlags { get; set; }
 	}
 }

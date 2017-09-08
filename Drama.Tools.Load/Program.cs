@@ -17,6 +17,7 @@
  */
 
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Creatures;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Units;
 using Drama.Tools.Load.Configuration;
@@ -62,6 +63,8 @@ namespace Drama.Tools.Load
 				{
 					Console.WriteLine($"loading sql {nameof(CharacterTemplateEntity)}");
 					new SqlLoader<ICharacterTemplate, CharacterTemplateEntity, PlayerCreateInfo>(context).LoadEntities(GrainClient.GrainFactory);
+					Console.WriteLine($"loading sql {nameof(CreatureDefinitionEntity)}");
+					new SqlLoader<ICreatureDefinition, CreatureDefinitionEntity, CreatureTemplate>(context).LoadEntities(GrainClient.GrainFactory);
 				}
 			}
 			finally
