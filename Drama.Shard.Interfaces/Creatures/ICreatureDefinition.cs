@@ -19,14 +19,15 @@
 using Drama.Shard.Interfaces.Utilities;
 using Orleans;
 
-namespace Drama.Shard.Interfaces.Maps
+namespace Drama.Shard.Interfaces.Creatures
 {
 	/// <summary>
-	/// MapDefinitions define static properties of map instances.
+	/// Defines the properties of a class of Creatures.
 	/// 
-	/// The key for this grain is the MapId.
+	/// The key for this grain is definitionId of this Creature definition, also
+	/// known as the creature "entry".
 	/// </summary>
-	public interface IMapDefinition : IGrainWithIntegerKey, IDefinition<MapDefinitionEntity>
+	public interface ICreatureDefinition : IGrainWithIntegerKey, IDefinition<CreatureDefinitionEntity>
 	{
 
 	}

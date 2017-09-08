@@ -17,42 +17,15 @@
  */
 
 using Drama.Core.Interfaces;
+using Drama.Shard.Grains.Utilities;
 using Drama.Shard.Interfaces.Maps;
-using Drama.Shard.Interfaces.Utilities;
-using Orleans;
 using Orleans.Providers;
-using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Maps
 {
 	[StorageProvider(ProviderName = StorageProviders.StaticWorld)]
-	public class MapDefinition : Grain<MapDefinitionEntity>, IMapDefinition
+	public class MapDefinition : AbstractDefinition<MapDefinitionEntity>, IMapDefinition
 	{
-		public Task<bool> Exists()
-			=> Task.FromResult(State.Exists);
 
-		public Task<MapDefinitionEntity> GetEntity()
-		{
-			if (!Exists().Result)
-				throw new MapDoesNotExistException($"map id {this.GetPrimaryKeyLong()} does not exist");
-
-			return Task.FromResult(State);
-		}
-
-		public async Task Merge(MapDefinitionEntity input)
-		{
-			var entityService = GrainFactory.GetGrain<IEntityService>(0);
-			State = await entityService.Merge(State, input);
-
-			State.Exists = true;
-
-			await WriteStateAsync();
-		}
-
-		public Task Clear()
-		{
-			State = new MapDefinitionEntity();
-			return ClearStateAsync();
-		}
 	}
 }

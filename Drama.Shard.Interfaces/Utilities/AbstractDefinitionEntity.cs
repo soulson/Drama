@@ -16,15 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Objects;
-using Drama.Shard.Interfaces.Units;
+using System;
 
-namespace Drama.Shard.Interfaces.Creatures
+namespace Drama.Shard.Interfaces.Utilities
 {
-	/// <summary>
-	/// Persisted storage for CreatureTemplate grains.
-	/// </summary>
-	public class CreatureTemplateEntity
+	public abstract class AbstractDefinitionEntity
 	{
+		public bool Exists { get; set; }
 	}
 }

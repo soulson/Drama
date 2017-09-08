@@ -17,43 +17,15 @@
  */
 
 using Drama.Core.Interfaces;
+using Drama.Shard.Grains.Utilities;
 using Drama.Shard.Interfaces.Characters;
-using Drama.Shard.Interfaces.Units;
-using Drama.Shard.Interfaces.Utilities;
-using Orleans;
 using Orleans.Providers;
-using System.Threading.Tasks;
 
 namespace Drama.Shard.Grains.Characters
 {
 	[StorageProvider(ProviderName = StorageProviders.StaticWorld)]
-	public class CharacterTemplate : Grain<CharacterTemplateEntity>, ICharacterTemplate
+	public class CharacterTemplate : AbstractDefinition<CharacterTemplateEntity>, ICharacterTemplate
 	{
-		public Task<bool> Exists()
-			=> Task.FromResult(State.Exists);
 
-		public Task<CharacterTemplateEntity> GetEntity()
-		{
-			if (!Exists().Result)
-				throw new CharacterTemplateDoesNotExistException($"{(Race)(this.GetPrimaryKeyLong() >> 8)} {(Class)(this.GetPrimaryKeyLong() & 0xff)} is not a valid {nameof(Race)}/{nameof(Class)} combination");
-
-			return Task.FromResult(State);
-		}
-
-		public Task Clear()
-		{
-			State = new CharacterTemplateEntity();
-			return ClearStateAsync();
-		}
-
-		public async Task Merge(CharacterTemplateEntity input)
-		{
-			var entityService = GrainFactory.GetGrain<IEntityService>(0);
-			State = await entityService.Merge(State, input);
-
-			State.Exists = true;
-
-			await WriteStateAsync();
-		}
 	}
 }

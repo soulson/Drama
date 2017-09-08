@@ -16,18 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Utilities;
-using Orleans;
+using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Maps
+namespace Drama.Shard.Interfaces.Utilities
 {
 	/// <summary>
-	/// MapDefinitions define static properties of map instances.
-	/// 
-	/// The key for this grain is the MapId.
+	/// Defines the properties of a class of things.
 	/// </summary>
-	public interface IMapDefinition : IGrainWithIntegerKey, IDefinition<MapDefinitionEntity>
+	public interface IDefinition<T> : IMergeable<T>
+		where T: AbstractDefinitionEntity, new()
 	{
+		/// <summary>
+		/// Returns true if this template is defined.
+		/// </summary>
+		Task<bool> Exists();
 
+		/// <summary>
+		/// Gets an entity describing this class of things.
+		/// </summary>
+		Task<T> GetEntity();
 	}
 }

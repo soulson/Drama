@@ -18,15 +18,15 @@
 
 using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Interfaces.Units;
+using Drama.Shard.Interfaces.Utilities;
 
 namespace Drama.Shard.Interfaces.Characters
 {
 	/// <summary>
 	/// Persisted storage for CharacterTemplate grains.
 	/// </summary>
-	public class CharacterTemplateEntity
+	public class CharacterTemplateEntity : AbstractDefinitionEntity
 	{
-		public bool Exists { get; set; }
 		public Race Race { get; set; }
 		public Class Class { get; set; }
 		public int MapId { get; set; }

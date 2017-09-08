@@ -47,5 +47,11 @@ namespace Drama.Shard.Interfaces.Characters
 		/// </summary>
 		/// <returns>An ObjectID that can be used to create a new Character</returns>
 		Task<ObjectID> AddCharacter(string characterName, string accountName);
+
+		/// <summary>
+		/// Removes a Character from the CharacterList by character name and
+		/// account name.
+		/// </summary>
+		Task RemoveCharacter(string characterName, string accountName);
 	}
 }

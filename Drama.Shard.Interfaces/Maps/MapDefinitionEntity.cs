@@ -17,14 +17,13 @@
  */
 
 using Drama.Shard.Interfaces.Formats.Dbc;
+using Drama.Shard.Interfaces.Utilities;
 
 namespace Drama.Shard.Interfaces.Maps
 {
 	[DbcEntity("Map.dbc")]
-	public class MapDefinitionEntity
+	public class MapDefinitionEntity : AbstractDefinitionEntity
 	{
-		public bool Exists { get; set; }
-
 		[DbcKey]
 		[DbcFieldOffset(0)]
 		public int Id { get; set; }

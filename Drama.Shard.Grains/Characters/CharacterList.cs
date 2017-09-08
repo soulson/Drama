@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Auth.Interfaces;
 using Drama.Core.Interfaces;
 using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Objects;
@@ -62,6 +63,27 @@ namespace Drama.Shard.Grains.Characters
 				return Task.FromResult<ObjectID?>(State.CharacterByName[characterName]);
 			else
 				return Task.FromResult<ObjectID?>(null);
+		}
+
+		public Task RemoveCharacter(string characterName, string accountName)
+		{
+			if (State.CharacterByName.ContainsKey(characterName))
+			{
+				var characterId = State.CharacterByName[characterName];
+
+				if (State.CharactersByAccount.ContainsKey(accountName))
+				{
+					if (!State.CharactersByAccount[accountName].Remove(characterId))
+						GetLogger().Warn($"tried to remove {characterId} ({characterName}) from character/account relationship list but it did not exist");
+				}
+				else
+					GetLogger().Warn($"tried to remove {characterId} ({characterName}) from character/account relationship list but account {accountName} did not exist");
+			}
+
+			if(!State.CharacterByName.Remove(characterName))
+				GetLogger().Warn($"tried to remove {characterName} from character list but it did not exist");
+
+			return WriteStateAsync();
 		}
 	}
 }

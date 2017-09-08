@@ -18,7 +18,6 @@
 
 using Drama.Shard.Interfaces.Utilities;
 using Orleans;
-using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Characters
 {
@@ -27,16 +26,8 @@ namespace Drama.Shard.Interfaces.Characters
 	/// 
 	/// The key for this grain is (Race &lt;&lt; 8) + Class
 	/// </summary>
-	public interface ICharacterTemplate : IGrainWithIntegerKey, IMergeable<CharacterTemplateEntity>
+	public interface ICharacterTemplate : IGrainWithIntegerKey, IDefinition<CharacterTemplateEntity>
 	{
-		/// <summary>
-		/// Returns true if this CharacterTemplate is defined.
-		/// </summary>
-		Task<bool> Exists();
 
-		/// <summary>
-		/// Gets a CharacterTemplateEntity describing this CharacterTemplate.
-		/// </summary>
-		Task<CharacterTemplateEntity> GetEntity();
 	}
 }

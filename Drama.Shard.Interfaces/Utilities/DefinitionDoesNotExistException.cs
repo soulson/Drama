@@ -16,28 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Utilities;
-using Orleans;
-using System.Threading.Tasks;
+using Drama.Core.Interfaces;
+using System;
 
-namespace Drama.Shard.Interfaces.Creatures
+namespace Drama.Shard.Interfaces.Utilities
 {
 	/// <summary>
-	/// Defines the properties of a class of Creatures.
-	/// 
-	/// The key for this grain is templateId of this Creature definition, also
-	/// known as the creature "entry".
+	/// This exception is thrown when an attempt is made to access the entity of
+	/// a definition/template that has not yet been created.
 	/// </summary>
-	public interface ICreatureTemplate : IGrainWithIntegerKey, IMergeable<CreatureTemplateEntity>
+	public class DefinitionDoesNotExistException : DramaException
 	{
-		/// <summary>
-		/// Returns true if this CreatureTemplate is defined.
-		/// </summary>
-		Task<bool> Exists();
-
-		/// <summary>
-		/// Gets a CreatureTemplateEntity describing this CreatureTemplate.
-		/// </summary>
-		Task<CreatureTemplateEntity> GetEntity();
+		public DefinitionDoesNotExistException(string message) : base(message) { }
+		public DefinitionDoesNotExistException(string message, Exception cause) : base(message, cause) { }
 	}
 }

@@ -18,16 +18,38 @@
 
 using Drama.Shard.Interfaces.Utilities;
 using Orleans;
+using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Maps
+namespace Drama.Shard.Grains.Utilities
 {
-	/// <summary>
-	/// MapDefinitions define static properties of map instances.
-	/// 
-	/// The key for this grain is the MapId.
-	/// </summary>
-	public interface IMapDefinition : IGrainWithIntegerKey, IDefinition<MapDefinitionEntity>
+	public abstract class AbstractDefinition<T> : Grain<T>, IMergeable<T>
+		where T : AbstractDefinitionEntity, new()
 	{
+		public Task<bool> Exists()
+			=> Task.FromResult(State.Exists);
 
+		public Task<T> GetEntity()
+		{
+			if (!State.Exists)
+				throw new DefinitionDoesNotExistException($"template {this.GetPrimaryKeyLong()} of type {this.GetType().Name} does not exist");
+
+			return Task.FromResult(State);
+		}
+
+		public Task Clear()
+		{
+			State = new T();
+			return ClearStateAsync();
+		}
+
+		public async Task Merge(T input)
+		{
+			var entityService = GrainFactory.GetGrain<IEntityService>(0);
+			State = await entityService.Merge(State, input);
+
+			State.Exists = true;
+
+			await WriteStateAsync();
+		}
 	}
 }

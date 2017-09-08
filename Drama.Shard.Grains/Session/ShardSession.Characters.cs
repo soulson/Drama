@@ -22,6 +22,7 @@ using Drama.Shard.Interfaces.Characters;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
 using Orleans;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -52,8 +53,20 @@ namespace Drama.Shard.Grains.Session
 
 			var characterList = GrainFactory.GetGrain<ICharacterList>(ShardName);
 			var id = await characterList.AddCharacter(request.Name, AuthenticatedIdentity);
-			var character = GrainFactory.GetGrain<ICharacter>(id);
-			var entity = await character.Create(request.Name, AuthenticatedIdentity, ShardName, request.Race, request.Class, request.Sex, request.Skin, request.Face, request.HairStyle, request.HairColor, request.FacialHair);
+
+			try
+			{
+				var character = GrainFactory.GetGrain<ICharacter>(id);
+				var entity = await character.Create(request.Name, AuthenticatedIdentity, ShardName, request.Race, request.Class, request.Sex, request.Skin, request.Face, request.HairStyle, request.HairColor, request.FacialHair);
+			}
+			catch (Exception)
+			{
+				// un-create the character in the character list if an error occurred, or it will crash the character list on reboot
+				await characterList.RemoveCharacter(request.Name, AuthenticatedIdentity);
+
+				// and re-throw the exception
+				throw;
+			}
 		}
 
 		public async Task Login(ObjectID characterId)
