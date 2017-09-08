@@ -20,23 +20,24 @@ using Drama.Shard.Interfaces.Utilities;
 using Orleans;
 using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Characters
+namespace Drama.Shard.Interfaces.Creatures
 {
 	/// <summary>
-	/// Defines initial values for a Character by Race and Class.
+	/// Defines the properties of a class of Creatures.
 	/// 
-	/// The key for this grain is (Race &lt;&lt; 8) + Class
+	/// The key for this grain is templateId of this Creature definition, also
+	/// known as the creature "entry".
 	/// </summary>
-	public interface ICharacterTemplate : IGrainWithIntegerKey, IMergeable<CharacterTemplateEntity>
+	public interface ICreatureTemplate : IGrainWithIntegerKey, IMergeable<CreatureTemplateEntity>
 	{
 		/// <summary>
-		/// Returns true if this CharacterTemplate is defined.
+		/// Returns true if this CreatureTemplate is defined.
 		/// </summary>
 		Task<bool> Exists();
 
 		/// <summary>
-		/// Gets a CharacterTemplateEntity describing this CharacterTemplate.
+		/// Gets a CreatureTemplateEntity describing this CreatureTemplate.
 		/// </summary>
-		Task<CharacterTemplateEntity> GetEntity();
+		Task<CreatureTemplateEntity> GetEntity();
 	}
 }

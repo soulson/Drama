@@ -16,27 +16,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Utilities;
-using Orleans;
-using System.Threading.Tasks;
+using Drama.Shard.Interfaces.Objects;
+using Drama.Shard.Interfaces.Units;
 
-namespace Drama.Shard.Interfaces.Characters
+namespace Drama.Shard.Interfaces.Creatures
 {
 	/// <summary>
-	/// Defines initial values for a Character by Race and Class.
-	/// 
-	/// The key for this grain is (Race &lt;&lt; 8) + Class
+	/// Persisted storage for Creature grains.
 	/// </summary>
-	public interface ICharacterTemplate : IGrainWithIntegerKey, IMergeable<CharacterTemplateEntity>
+	public class CreatureEntity : UnitEntity
 	{
 		/// <summary>
-		/// Returns true if this CharacterTemplate is defined.
+		/// Creates a new instance of the CreatureEntity class.
 		/// </summary>
-		Task<bool> Exists();
+		public CreatureEntity() : this((short)UnitFields.END)
+		{
+			// persistent object entity public default constructors defer to a protected constructor
+		}
 
-		/// <summary>
-		/// Gets a CharacterTemplateEntity describing this CharacterTemplate.
-		/// </summary>
-		Task<CharacterTemplateEntity> GetEntity();
+		protected CreatureEntity(short fieldCount) : base(fieldCount)
+		{
+			TypeId = ObjectTypeID.Unit;
+
+			UnitFlags2 |= UnitFlags2.CanHaveAuras;
+
+			// TODO: placeholder values
+			BoundingRadius = 1.0f * Scale;
+			CombatReach = 1.0f * Scale;
+			
+			HealthMax = Health = HealthBase = 100;
+			ManaMax = Mana = ManaBase = 100;
+			Armor = 100;
+			Strength = 1;
+			Agility = 1;
+			Stamina = 1;
+			Intellect = 1;
+			Spirit = 1;
+		}
 	}
 }

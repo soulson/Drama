@@ -16,27 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Drama.Shard.Interfaces.Utilities;
+using Drama.Shard.Interfaces.Units;
 using Orleans;
-using System.Threading.Tasks;
 
-namespace Drama.Shard.Interfaces.Characters
-{
-	/// <summary>
-	/// Defines initial values for a Character by Race and Class.
+namespace Drama.Shard.Interfaces.Creatures
+{ /// <summary>
+	/// The Creature grain represents a non-player character.
 	/// 
-	/// The key for this grain is (Race &lt;&lt; 8) + Class
+	/// The key for this grain is the ObjectID of the Creature.
 	/// </summary>
-	public interface ICharacterTemplate : IGrainWithIntegerKey, IMergeable<CharacterTemplateEntity>
+	public interface ICreature : ICreature<CreatureEntity>, IGrainWithIntegerKey
 	{
-		/// <summary>
-		/// Returns true if this CharacterTemplate is defined.
-		/// </summary>
-		Task<bool> Exists();
 
-		/// <summary>
-		/// Gets a CharacterTemplateEntity describing this CharacterTemplate.
-		/// </summary>
-		Task<CharacterTemplateEntity> GetEntity();
+	}
+
+	public interface ICreature<out TEntity> : IUnit<TEntity>, IGrainWithIntegerKey
+		where TEntity : CreatureEntity, new()
+	{
+
 	}
 }
