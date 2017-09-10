@@ -21,6 +21,7 @@ using Drama.Shard.Interfaces.Creatures;
 using Drama.Shard.Interfaces.Spells;
 using Drama.Shard.Interfaces.Units;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Drama.Tools.Load.Formats.Sql.Entities
@@ -127,6 +128,8 @@ namespace Drama.Tools.Load.Formats.Sql.Entities
 				Class = Class,
 				UnitFlags = UnitFlags,
 			};
+
+			grainEntity.ModelIds = new SortedSet<int>();
 
 			if (ModelId1 != 0)
 				grainEntity.ModelIds.Add(ModelId1);

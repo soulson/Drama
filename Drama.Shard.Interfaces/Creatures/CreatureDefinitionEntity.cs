@@ -30,7 +30,7 @@ namespace Drama.Shard.Interfaces.Creatures
 	public class CreatureDefinitionEntity : AbstractDefinitionEntity
 	{
 		public int Id { get; set; }
-		public ISet<int> ModelIds { get; } = new SortedSet<int>();
+		public ISet<int> ModelIds { get; set; }
 		public string Name { get; set; }
 		public string Subname { get; set; }
 		public Range<byte> Level { get; set; }
