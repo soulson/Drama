@@ -65,6 +65,8 @@ namespace Drama.Tools.Load
 					new SqlLoader<ICharacterTemplate, CharacterTemplateEntity, PlayerCreateInfo>(context).LoadEntities(GrainClient.GrainFactory);
 					Console.WriteLine($"loading sql {nameof(CreatureDefinitionEntity)}");
 					new SqlLoader<ICreatureDefinition, CreatureDefinitionEntity, CreatureTemplate>(context).LoadEntities(GrainClient.GrainFactory);
+					Console.WriteLine($"loading sql set {nameof(CreatureSpawnPoint)}");
+					new SqlSetLoader<ICreatureSpawnSet, CreatureSpawnPoint, Creature>(context).LoadEntities(GrainClient.GrainFactory);
 				}
 			}
 			finally

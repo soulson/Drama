@@ -18,21 +18,10 @@
 
 using System;
 
-namespace Drama.Tools.Load.Formats.Sql
+namespace Drama.Shard.Interfaces.Utilities
 {
-	/// <summary>
-	/// Interface for database-layer entities used in ORM.
-	/// </summary>
-	public interface ISqlEntity<TGrainEntity> where TGrainEntity : new()
+	public interface IDefinitionSetEntry
 	{
-		/// <summary>
-		/// Gets a 64-bit integer primary key for this entity.
-		/// </summary>
-		long GetKey();
-
-		/// <summary>
-		/// Converts this database-layer ORM entity into a Grain-layer entity.
-		/// </summary>
-		TGrainEntity ToGrainEntity();
+		long Discriminator { get; }
 	}
 }

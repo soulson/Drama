@@ -16,23 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using Drama.Shard.Interfaces.Utilities;
+using Orleans;
 
-namespace Drama.Tools.Load.Formats.Sql
+namespace Drama.Shard.Interfaces.Creatures
 {
 	/// <summary>
-	/// Interface for database-layer entities used in ORM.
+	/// Relates a set of CreatureSpawnPoints to a Map.
+	/// 
+	/// The key for this grain is the MapId of all CreatureSpawnPoints in this
+	/// CreatureSpawnSet.
 	/// </summary>
-	public interface ISqlEntity<TGrainEntity> where TGrainEntity : new()
+	public interface ICreatureSpawnSet : IGrainWithIntegerKey, IDefinitionSet<CreatureSpawnPoint>
 	{
-		/// <summary>
-		/// Gets a 64-bit integer primary key for this entity.
-		/// </summary>
-		long GetKey();
 
-		/// <summary>
-		/// Converts this database-layer ORM entity into a Grain-layer entity.
-		/// </summary>
-		TGrainEntity ToGrainEntity();
 	}
 }

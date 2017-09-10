@@ -16,23 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using Drama.Shard.Interfaces.Utilities;
+using Orleans;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace Drama.Tools.Load.Formats.Sql
+namespace Drama.Shard.Grains.Utilities
 {
-	/// <summary>
-	/// Interface for database-layer entities used in ORM.
-	/// </summary>
-	public interface ISqlEntity<TGrainEntity> where TGrainEntity : new()
+	public abstract class AbstractDefinitionSet<T> : Grain<DefinitionSetEntity<T>>, IDefinitionSet<T>
+		where T : IDefinitionSetEntry, new()
 	{
-		/// <summary>
-		/// Gets a 64-bit integer primary key for this entity.
-		/// </summary>
-		long GetKey();
+		public Task Clear()
+		{
+			State.Set.Clear();
+			return WriteStateAsync();
+		}
 
-		/// <summary>
-		/// Converts this database-layer ORM entity into a Grain-layer entity.
-		/// </summary>
-		TGrainEntity ToGrainEntity();
+		public Task AddEntry(T entry)
+		{
+			State.Set.Add(entry);
+			return Task.CompletedTask;
+		}
+
+		public Task Commit()
+			=> WriteStateAsync();
+
+		public Task<ISet<T>> GetSet()
+			=> Task.FromResult(State.Set);
 	}
 }

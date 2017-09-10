@@ -16,19 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using Drama.Shard.Interfaces.Utilities;
 
 namespace Drama.Tools.Load.Formats.Sql
 {
 	/// <summary>
-	/// Interface for database-layer entities used in ORM.
+	/// Interface for database-layer entities used in ORM as members of a
+	/// DefinitionSet.
 	/// </summary>
-	public interface ISqlEntity<TGrainEntity> where TGrainEntity : new()
+	public interface ISqlSetEntry<TGrainEntity>
+		where TGrainEntity : IDefinitionSetEntry, new()
 	{
 		/// <summary>
-		/// Gets a 64-bit integer primary key for this entity.
+		/// Gets a 64-bit integer discriminator determining which DefinitionSet
+		/// this definition belongs to.
 		/// </summary>
-		long GetKey();
+		long GetDiscriminator();
 
 		/// <summary>
 		/// Converts this database-layer ORM entity into a Grain-layer entity.

@@ -49,6 +49,8 @@ namespace Drama.Tools.Load.Formats.Sql
 				.HasKey("Race", "Class");
 			modelBuilder.Entity<CreatureTemplate>()
 				.HasKey("Id");
+			modelBuilder.Entity<Creature>()
+				.HasKey("Id");
 		}
 	}
 }

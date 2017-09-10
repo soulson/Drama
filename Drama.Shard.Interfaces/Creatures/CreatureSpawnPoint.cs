@@ -17,6 +17,8 @@
  */
 
 using Drama.Core.Interfaces.Numerics;
+using Drama.Shard.Interfaces.Utilities;
+using Newtonsoft.Json;
 using System;
 
 namespace Drama.Shard.Interfaces.Creatures
@@ -24,7 +26,7 @@ namespace Drama.Shard.Interfaces.Creatures
 	/// <summary>
 	/// Represents a static creature instance.
 	/// </summary>
-	public class CreatureSpawnPoint
+	public class CreatureSpawnPoint : IDefinitionSetEntry
 	{
 		public int Id { get; set; }
 		public int CreatureDefinitionId { get; set; }
@@ -34,5 +36,8 @@ namespace Drama.Shard.Interfaces.Creatures
 		public TimeSpan RespawnTime { get; set; }
 		public float SpawnRadius { get; set; }
 		public bool Dead { get; set; }
+
+		[JsonIgnore]
+		public long Discriminator => MapId;
 	}
 }

@@ -16,23 +16,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace Drama.Tools.Load.Formats.Sql
+namespace Drama.Shard.Interfaces.Utilities
 {
 	/// <summary>
-	/// Interface for database-layer entities used in ORM.
+	/// Defines the properties of a class of things.
 	/// </summary>
-	public interface ISqlEntity<TGrainEntity> where TGrainEntity : new()
+	public interface IDefinitionSet<T>
+		where T : IDefinitionSetEntry, new()
 	{
 		/// <summary>
-		/// Gets a 64-bit integer primary key for this entity.
+		/// Gets a Set of all definitions in this DefinitionSet.
 		/// </summary>
-		long GetKey();
+		Task<ISet<T>> GetSet();
 
 		/// <summary>
-		/// Converts this database-layer ORM entity into a Grain-layer entity.
+		/// Clears all definitions from this DefinitionSet.
 		/// </summary>
-		TGrainEntity ToGrainEntity();
+		Task Clear();
+
+		/// <summary>
+		/// Adds a new entry to this definition set if the provided entry does not
+		/// already exist in this definition set. Does not save to persisted
+		/// storage; use Commit for that.
+		/// </summary>
+		Task AddEntry(T entry);
+
+		/// <summary>
+		/// Commits all added entries to persisted storage.
+		/// </summary>
+		Task Commit();
 	}
 }
