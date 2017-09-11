@@ -18,6 +18,7 @@
 
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.Protocol;
+using Drama.Shard.Interfaces.Utilities;
 using System;
 using System.Threading.Tasks;
 
@@ -34,6 +35,21 @@ namespace Drama.Shard.Gateway
 				ForwardPacket(response);
 			}
 			catch (ObjectDoesNotExistException ex)
+			{
+				// TODO: logging
+				Console.Error.WriteLine(ex.Message);
+			}
+		}
+
+		[Handler(typeof(QueryCreatureRequest))]
+		private async Task HandleQueryCreature(QueryCreatureRequest request)
+		{
+			try
+			{
+				var response = await ShardSession.QueryCreature(request);
+				ForwardPacket(response);
+			}
+			catch (DefinitionDoesNotExistException ex)
 			{
 				// TODO: logging
 				Console.Error.WriteLine(ex.Message);

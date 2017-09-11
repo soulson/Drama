@@ -17,6 +17,7 @@
  */
 
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Creatures;
 using Drama.Shard.Interfaces.Protocol;
 using System.Threading.Tasks;
 
@@ -39,6 +40,30 @@ namespace Drama.Shard.Grains.Session
 				Name = entity.Name,
 				Race = entity.Race,
 				Sex = entity.Sex,
+			};
+
+			return response;
+		}
+
+		public async Task<QueryCreatureResponse> QueryCreature(QueryCreatureRequest request)
+		{
+			VerifyIngame();
+
+			var creature = await GrainFactory.GetGrain<ICreature>(request.ObjectId).GetCreatureEntity();
+			var creatureDefinition = await GrainFactory.GetGrain<ICreatureDefinition>(request.CreatureDefinitionId).GetEntity();
+
+			var response = new QueryCreatureResponse
+			{
+				Civilian = creatureDefinition.Civilian,
+				CreatureDefinitionId = creatureDefinition.Id,
+				Family = creatureDefinition.Family,
+				Flags = creatureDefinition.CreatureFlags,
+				ModelId = creature.DisplayID,
+				Name = creatureDefinition.Name,
+				PetSpellDataId = creatureDefinition.PetSpellDataId,
+				Rank = creatureDefinition.Rank,
+				Subname = creatureDefinition.Subname,
+				Type = creatureDefinition.Type,
 			};
 
 			return response;

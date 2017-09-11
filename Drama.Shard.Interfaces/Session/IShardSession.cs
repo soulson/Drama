@@ -131,6 +131,11 @@ namespace Drama.Shard.Interfaces.Session
 		/// Looks up the name, race, class, and sex of a Character.
 		/// </summary>
 		Task<QueryNameResponse> QueryName(QueryNameRequest request);
+
+		/// <summary>
+		/// Looks up the name and some other properties of a Creature.
+		/// </summary>
+		Task<QueryCreatureResponse> QueryCreature(QueryCreatureRequest request);
 		#endregion
 
 		#region Chat

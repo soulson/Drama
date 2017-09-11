@@ -41,8 +41,8 @@ namespace Drama.Shard.Interfaces.Creatures
 		public float SpeedWalking { get; set; }
 		public float SpeedRunning { get; set; }
 		public float Scale { get; set; }
-		public Range<int> AttackDamage { get; set; }
-		public Range<int> AttackDamageRanged { get; set; }
+		public Range<float> AttackDamage { get; set; }
+		public Range<float> AttackDamageRanged { get; set; }
 		public School AttackSchool { get; set; }
 		public int AttackPower { get; set; }
 		public int AttackPowerRanged { get; set; }
@@ -51,5 +51,11 @@ namespace Drama.Shard.Interfaces.Creatures
 		public float DamageMultiplier { get; set; }
 		public Class Class { get; set; }
 		public UnitFlags UnitFlags { get; set; }
+		public CreatureFlags CreatureFlags { get; set; }
+		public CreatureType Type { get; set; }
+		public CreatureFamily Family { get; set; }
+		public CreatureRank Rank { get; set; }
+		public bool Civilian { get; set; }
+		public int PetSpellDataId { get; set; }
 	}
 }

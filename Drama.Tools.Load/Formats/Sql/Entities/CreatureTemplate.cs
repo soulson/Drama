@@ -99,6 +99,28 @@ namespace Drama.Tools.Load.Formats.Sql.Entities
 		[Column("unit_flags")]
 		public UnitFlags UnitFlags { get; set; }
 
+		[Column("faction_A")]
+		public int FactionIdAlliance { get; set; }
+		[Column("faction_H")]
+		public int FactionIdHorde { get; set; }
+
+		[Column("rank")]
+		public CreatureRank Rank { get; set; }
+		[Column("family")]
+		public CreatureFamily Family { get; set; }
+		[Column("type")]
+		public CreatureType Type { get; set; }
+		[Column("type_flags")]
+		public CreatureFlags CreatureFlags { get; set; }
+
+		[Column("PetSpellDataId")]
+		public int PetSpellDataId { get; set; }
+		[Column("Civilian")]
+		public bool Civilian { get; set; }
+
+		[Column("equipment_id")]
+		public int EquipmentId { get; set; }
+
 		public long GetKey()
 			=> Id;
 
@@ -106,6 +128,7 @@ namespace Drama.Tools.Load.Formats.Sql.Entities
 		{
 			var grainEntity = new CreatureDefinitionEntity
 			{
+				Exists = true,
 				Id = Id,
 				Name = Name,
 				Subname = Subname,
@@ -117,8 +140,8 @@ namespace Drama.Tools.Load.Formats.Sql.Entities
 				SpeedWalking = SpeedWalking,
 				SpeedRunning = SpeedRunning,
 				Scale = Scale,
-				AttackDamage = RoundRange(AttackDamageMin, AttackDamageMax),
-				AttackDamageRanged = RoundRange(AttackDamageRangedMin, AttackDamageRangedMax),
+				AttackDamage = CheckRange(AttackDamageMin, AttackDamageMax),
+				AttackDamageRanged = CheckRange(AttackDamageRangedMin, AttackDamageRangedMax),
 				AttackSchool = AttackSchool,
 				AttackPower = AttackPower,
 				AttackPowerRanged = AttackPowerRanged,
@@ -127,6 +150,12 @@ namespace Drama.Tools.Load.Formats.Sql.Entities
 				DamageMultiplier = DamageMultiplier,
 				Class = Class,
 				UnitFlags = UnitFlags,
+				Civilian = Civilian,
+				CreatureFlags = CreatureFlags,
+				Family = Family,
+				PetSpellDataId = PetSpellDataId,
+				Rank = Rank,
+				Type = Type,
 			};
 
 			grainEntity.ModelIds = new SortedSet<int>();
@@ -141,17 +170,6 @@ namespace Drama.Tools.Load.Formats.Sql.Entities
 				grainEntity.ModelIds.Add(ModelId4);
 
 			return grainEntity;
-		}
-
-		private Range<int> RoundRange(float min, float max)
-		{
-			if (min > max)
-			{
-				Console.Error.WriteLine($"### WARN creature {Id} \"{Name}\" has bad float range with min > max. using [min, min]");
-				return new Range<int>((int)Math.Round(min), (int)Math.Round(min));
-			}
-
-			return new Range<int>((int)Math.Round(min), (int)Math.Round(max));
 		}
 
 		private Range<T> CheckRange<T>(T min, T max) where T : struct, IComparable<T>
