@@ -16,7 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Shard.Interfaces.WorldObjects;
 using System;
+using System.Collections.Generic;
 
 namespace Drama.Shard.Interfaces.Maps
 {
@@ -40,6 +42,11 @@ namespace Drama.Shard.Interfaces.Maps
 		/// Gets the time when this Map instance was created.
 		/// </summary>
 		public DateTime CreatedTime { get; set; }
+
+		/// <summary>
+		/// Gets a Set containing all objects currently in this Map.
+		/// </summary>
+		public ISet<WorldObjectEntity> Objects { get; } = new HashSet<WorldObjectEntity>();
 
 		// TODO: weather stuff
 	}

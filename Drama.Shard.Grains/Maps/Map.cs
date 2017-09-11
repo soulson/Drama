@@ -35,20 +35,37 @@ namespace Drama.Shard.Grains.Maps
 	[StorageProvider(ProviderName = StorageProviders.DynamicWorld)]
 	public class Map : Grain<MapEntity>, IMap, IObjectObserver
 	{
-		// contains all objects in the map. this is inefficient and will obviously
-		//  need to be replaced with something more performant eventually
-		private readonly ISet<WorldObjectEntity> objects = new HashSet<WorldObjectEntity>();
+		public override Task OnActivateAsync()
+		{
+			var invalidatedObjects = new HashSet<WorldObjectEntity>();
+
+			foreach(var @object in State.Objects)
+			{
+				if (@object.TypeId == ObjectTypeID.Player)
+					invalidatedObjects.Add(@object);
+			}
+
+			foreach (var @object in invalidatedObjects)
+			{
+				GetLogger().Debug($"removing invalidated object {@object.Id} from activating {nameof(Map)} {this.GetPrimaryKeyLong()}");
+				State.Objects.Remove(@object);
+			}
+
+			return base.OnActivateAsync();
+		}
 
 		public async Task AddObject(WorldObjectEntity objectEntity)
 		{
 			VerifyExists();
 
-			objects.Add(objectEntity);
+			State.Objects.Add(objectEntity);
 
 			var objectService = GrainFactory.GetGrain<IObjectService>(0);
 			var @object = await objectService.GetObject(objectEntity.Id);
 
 			await @object.Subscribe(this);
+
+			await WriteStateAsync();
 		}
 
 		public async Task RemoveObject(WorldObjectEntity objectEntity)
@@ -60,7 +77,9 @@ namespace Drama.Shard.Grains.Maps
 
 			await @object.Unsubscribe(this);
 
-			objects.Remove(objectEntity);
+			State.Objects.Remove(objectEntity);
+
+			await WriteStateAsync();
 		}
 
 		public async Task<MapEntity> Create(int mapId)
@@ -95,7 +114,7 @@ namespace Drama.Shard.Grains.Maps
 			var result = new HashSet<ObjectID>();
 			var distanceSquared = distance * distance;
 
-			foreach (var entity in objects)
+			foreach (var entity in State.Objects)
 			{
 				var xPart = objectEntity.Position.X - entity.Position.X;
 				var yPart = objectEntity.Position.Y - entity.Position.Y;
@@ -142,7 +161,7 @@ namespace Drama.Shard.Grains.Maps
 					await creature.Create(creatureDefinition);
 					await creature.SetPosition(spawn.Position, spawn.Orientation);
 
-					objects.Add(await creature.GetCreatureEntity());
+					State.Objects.Add(await creature.GetCreatureEntity());
 					await creature.Subscribe(this);
 				}
 			}
@@ -160,13 +179,13 @@ namespace Drama.Shard.Grains.Maps
 			{
 				if (objectEntity is WorldObjectEntity worldObjectEntity)
 				{
-					if (objects.Contains(worldObjectEntity))
+					if (State.Objects.Contains(worldObjectEntity))
 					{
 						GetLogger().Debug($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id}");
 
 						// ObjectEntity is equal on ID, so removing and re-adding it updates its other properties
-						objects.Remove(worldObjectEntity);
-						objects.Add(worldObjectEntity);
+						State.Objects.Remove(worldObjectEntity);
+						State.Objects.Add(worldObjectEntity);
 					}
 					else
 						GetLogger().Warn($"{nameof(Map)} instance {this.GetPrimaryKeyLong()} observes a movement update of object {objectEntity.Id} which is not in working memory");

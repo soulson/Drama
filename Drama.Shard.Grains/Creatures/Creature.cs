@@ -46,6 +46,8 @@ namespace Drama.Shard.Grains.Creatures
 			State.Enabled = true;
 
 			State.Scale = creatureDefinition.Scale;
+			State.CombatReach = 1.5f; // TODO: placeholders
+			State.BoundingRadius = 0.5f;
 
 			State.Level = await randomService.GetRandomRange(creatureDefinition.Level);
 			State.Health = State.HealthBase = State.HealthMax = await randomService.GetRandomRange(creatureDefinition.Health);
