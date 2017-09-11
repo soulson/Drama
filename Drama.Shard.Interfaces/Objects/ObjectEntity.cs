@@ -141,6 +141,12 @@ namespace Drama.Shard.Interfaces.Objects
 			get => GetFieldFloat(ObjectFields.Scale);
 			set => SetField(ObjectFields.Scale, value);
 		}
+
+		public int Entry
+		{
+			get => GetFieldSigned(ObjectFields.Entry);
+			set => SetField(ObjectFields.Entry, value);
+		}
 		#endregion
 
 		#region Field Management

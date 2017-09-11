@@ -41,9 +41,10 @@ namespace Drama.Shard.Grains.Creatures
 		{
 			var randomService = GrainFactory.GetGrain<IRandomService>(0);
 
-			State.Id = new ObjectID(this.GetPrimaryKeyLong());
-			State.CreatureDefinitionId = creatureDefinition.Id;
 			State.Enabled = true;
+
+			State.Id = new ObjectID(this.GetPrimaryKeyLong());
+			State.Entry = creatureDefinition.Id;
 
 			State.Scale = creatureDefinition.Scale;
 			State.CombatReach = 1.5f; // TODO: placeholders
