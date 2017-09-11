@@ -40,7 +40,7 @@ namespace Drama.Core.Gateway.Networking
 
 					buffer.Position = startingPosition;
 					var packet = CreatePacket(buffer, out int packetSize);
-					
+
 					if (packet == null)
 						throw new DramaException($"packet returned by {nameof(CreatePacket)} was null! this may mean that we're receiving non-whole packets");
 

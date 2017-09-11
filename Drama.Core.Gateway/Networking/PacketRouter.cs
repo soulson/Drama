@@ -37,9 +37,9 @@ namespace Drama.Core.Gateway.Networking
       Session = session;
       initialized = new ManualResetEvent(false);
 
-      // session events are raised in IOCP threads—under Windows, at least—so it's important not to wait within their handlers
-      sessionDataReceived = async (sender, e) => await SessionDataReceivedAsync(sender, e);
-      sessionDisconnected = async (sender, e) => await SessionDisconnectedAsync(sender, e);
+      // session events are raised in IOCP threads—under Windows, at least—so it's important that their handlers finish quickly
+      sessionDataReceived = (sender, e) => SessionDataReceivedAsync(sender, e).Wait();
+      sessionDisconnected = (sender, e) => SessionDisconnectedAsync(sender, e).Wait();
       Session.DataReceived += sessionDataReceived;
       Session.Disconnected += sessionDisconnected;
     }

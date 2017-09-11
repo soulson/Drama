@@ -24,6 +24,7 @@ using Drama.Shard.Interfaces.Protocol;
 using Drama.Shard.Interfaces.Session;
 using Orleans;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
@@ -100,18 +101,28 @@ namespace Drama.Shard.Gateway
 			// if the session failed to authenticate, it cannot be recovered. just discard all incoming data
 			if (!authenticationFailed)
 			{
+				var tasks = new LinkedList<Task>();
+
 				foreach (var packet in packetReader.ProcessData(e.ReceivedData))
 				{
-					var packetType = packet.GetType();
-
-					if (PacketHandlers.ContainsKey(packetType))
+					// process packets on a separate thread to keep the networking thread freed up.
+					//  however, it's important to process up to here on the networking thread, because the packet
+					//  cipher is not thread-safe
+					tasks.AddLast(Task.Run(async () =>
 					{
-						var handlerMethod = PacketHandlers[packetType];
-						await (Task)handlerMethod.Invoke(this, new object[] { packet });
-					}
-					else
-						Console.WriteLine($"received an unimplemented packet: {packet.GetType().Name}");
+						var packetType = packet.GetType();
+
+						if (PacketHandlers.ContainsKey(packetType))
+						{
+							var handlerMethod = PacketHandlers[packetType];
+							await (Task)handlerMethod.Invoke(this, new object[] { packet });
+						}
+						else
+							Console.WriteLine($"received an unimplemented packet: {packet.GetType().Name}");
+					}));
 				}
+
+				await Task.WhenAll(tasks);
 			}
 		}
 
