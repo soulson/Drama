@@ -373,6 +373,12 @@ namespace Drama.Shard.Interfaces.Units
 			set => SetField((short)UnitFields.Bytes2, 1, (byte)value);
 		}
 
+		public NpcFlags NpcFlags
+		{
+			get => (NpcFlags)GetFieldSigned((short)UnitFields.NpcFlags);
+			set => SetField((short)UnitFields.NpcFlags, (int)value);
+		}
+
 		public ObjectID TargetId
 		{
 			get => new ObjectID(GetFieldLong(UnitFields.Target));

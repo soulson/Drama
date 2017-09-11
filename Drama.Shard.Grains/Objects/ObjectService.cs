@@ -17,6 +17,7 @@
  */
 
 using Drama.Shard.Interfaces.Characters;
+using Drama.Shard.Interfaces.Creatures;
 using Drama.Shard.Interfaces.Objects;
 using Orleans;
 using Orleans.Concurrency;
@@ -35,6 +36,11 @@ namespace Drama.Shard.Grains.Objects
 				case ObjectID.Type.Player:
 					var character = GrainFactory.GetGrain<ICharacter>(id);
 					return Task.FromResult<IObject<ObjectEntity>>(character);
+
+				case ObjectID.Type.Unit:
+					var creature = GrainFactory.GetGrain<ICreature>(id);
+					return Task.FromResult<IObject<ObjectEntity>>(creature);
+
 				default:
 					return Task.FromException<IObject<ObjectEntity>>(new NotImplementedException($"object type {id.ObjectType} is not yet implemented by {nameof(ObjectService)}.{nameof(GetObject)}"));
 			}

@@ -53,5 +53,10 @@ namespace Drama.Shard.Interfaces.Creatures
 			Intellect = 1;
 			Spirit = 1;
 		}
+
+		/// <summary>
+		/// The ID of the CreatureDefinition grain that defines what this Creature is.
+		/// </summary>
+		public int CreatureDefinitionId { get; set; }
 	}
 }

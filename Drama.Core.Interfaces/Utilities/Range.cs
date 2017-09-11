@@ -33,5 +33,11 @@ namespace Drama.Core.Interfaces.Utilities
 			if (high.CompareTo(low) < 0)
 				throw new ArgumentException($"{nameof(low)} ({low}) must be less than or equal to {nameof(high)} ({high})");
 		}
+
+		public void Deconstruct(out T low, out T high)
+		{
+			low = Low;
+			high = High;
+		}
 	}
 }

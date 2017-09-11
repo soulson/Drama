@@ -49,6 +49,7 @@ namespace Drama.Shard.Grains.Characters
 		public AbstractCharacter()
 		{
 			UpdatePeriodSeconds = 1.0 / 20.0;
+			ViewDistance = 75.0f;
 		}
 
 		public async Task<CharacterEntity> Create(string name, string account, string shard, Race race, Class @class, Sex sex, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)

@@ -34,7 +34,8 @@ namespace Drama.Auth.Grains.Utilities
 	{
 		private readonly RandomNumberGenerator randomGenerator;
 
-		public RandomService() => randomGenerator = RandomNumberGenerator.Create();
+		public RandomService()
+			=> randomGenerator = RandomNumberGenerator.Create();
 
 		public Task<BigInteger> GetRandomBigInteger(int sizeInBytes)
 		{
@@ -51,7 +52,8 @@ namespace Drama.Auth.Grains.Utilities
 			return Task.FromResult(bytes);
 		}
 
-		public Task<int> GetRandomInt() => Task.FromResult(BitConverter.ToInt32(GetRandomBytes(sizeof(int)).Result, 0));
+		public Task<int> GetRandomInt()
+			=> Task.FromResult(BitConverter.ToInt32(GetRandomBytes(sizeof(int)).Result, 0));
 
 		public Task<int> GetRandomInt(int exclusiveUpperBound)
 		{
@@ -62,6 +64,25 @@ namespace Drama.Auth.Grains.Utilities
 			return Task.FromResult((int)(Math.Abs((long)GetRandomInt().Result) % exclusiveUpperBound));
 		}
 
-		public void Dispose() => randomGenerator.Dispose();
+		public Task<byte> GetRandomRange(Range<byte> range)
+		{
+			if (range.High == range.Low)
+				return Task.FromResult(range.Low);
+
+			var random = GetRandomInt(range.High - range.Low + 1).Result;
+			return Task.FromResult((byte)(random + range.Low));
+		}
+
+		public Task<int> GetRandomRange(Range<int> range)
+		{
+			if (range.High == range.Low)
+				return Task.FromResult(range.Low);
+
+			var random = GetRandomInt(range.High - range.Low + 1).Result;
+			return Task.FromResult(random + range.Low);
+		}
+
+		public void Dispose()
+			=> randomGenerator.Dispose();
 	}
 }

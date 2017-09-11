@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Drama.Core.Interfaces.Utilities;
 using Orleans;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -28,5 +29,8 @@ namespace Drama.Auth.Interfaces.Utilities
 		Task<byte[]> GetRandomBytes(int size);
 		Task<int> GetRandomInt();
 		Task<int> GetRandomInt(int exclusiveUpperBound);
+
+		Task<byte> GetRandomRange(Range<byte> range);
+		Task<int> GetRandomRange(Range<int> range);
 	}
 }

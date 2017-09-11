@@ -18,6 +18,7 @@
 
 using Drama.Shard.Interfaces.Units;
 using Orleans;
+using System.Threading.Tasks;
 
 namespace Drama.Shard.Interfaces.Creatures
 { /// <summary>
@@ -33,6 +34,14 @@ namespace Drama.Shard.Interfaces.Creatures
 	public interface ICreature<out TEntity> : IUnit<TEntity>, IGrainWithIntegerKey
 		where TEntity : CreatureEntity, new()
 	{
+		/// <summary>
+		/// Assigns properties from a provided CreatureDefinition to this Creature.
+		/// </summary>
+		Task Create(CreatureDefinitionEntity creatureDefinition);
 
+		/// <summary>
+		/// Gets a snapshot of the current state of this Creature.
+		/// </summary>
+		Task<CreatureEntity> GetCreatureEntity();
 	}
 }

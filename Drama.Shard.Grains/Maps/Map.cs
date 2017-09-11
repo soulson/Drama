@@ -19,7 +19,9 @@
 using Drama.Auth.Interfaces;
 using Drama.Auth.Interfaces.Utilities;
 using Drama.Core.Interfaces;
+using Drama.Core.Interfaces.Numerics;
 using Drama.Shard.Interfaces.Chat;
+using Drama.Shard.Interfaces.Creatures;
 using Drama.Shard.Interfaces.Maps;
 using Drama.Shard.Interfaces.Objects;
 using Drama.Shard.Interfaces.WorldObjects;
@@ -44,9 +46,9 @@ namespace Drama.Shard.Grains.Maps
 			objects.Add(objectEntity);
 
 			var objectService = GrainFactory.GetGrain<IObjectService>(0);
-			var persistentObject = await objectService.GetObject(objectEntity.Id);
+			var @object = await objectService.GetObject(objectEntity.Id);
 
-			await persistentObject.Subscribe(this);
+			await @object.Subscribe(this);
 		}
 
 		public async Task RemoveObject(WorldObjectEntity objectEntity)
@@ -54,9 +56,9 @@ namespace Drama.Shard.Grains.Maps
 			VerifyExists();
 
 			var objectService = GrainFactory.GetGrain<IObjectService>(0);
-			var persistentObject = await objectService.GetObject(objectEntity.Id);
+			var @object = await objectService.GetObject(objectEntity.Id);
 
-			await persistentObject.Unsubscribe(this);
+			await @object.Unsubscribe(this);
 
 			objects.Remove(objectEntity);
 		}
@@ -68,6 +70,8 @@ namespace Drama.Shard.Grains.Maps
 			State.CreatedTime = await timeService.GetNow();
 			State.Exists = true;
 			State.MapId = mapId;
+
+			await InitializeCreatures();
 
 			await WriteStateAsync();
 
@@ -114,6 +118,34 @@ namespace Drama.Shard.Grains.Maps
 		{
 			if (!Exists().Result)
 				throw new MapDoesNotExistException($"{nameof(Map)} instance id {this.GetPrimaryKeyLong()} does not exist");
+		}
+
+		private async Task InitializeCreatures()
+		{
+			var creatureSpawns = await GrainFactory.GetGrain<ICreatureSpawnSet>(State.MapId).GetSet();
+			var objectIdService = GrainFactory.GetGrain<IObjectIDGenerator>(0);
+
+			float removeMeDistanceSquare = 120.0f * 120.0f;
+			var removeMeStartingArea = new Vector3(-8922.057f, -116.406067f, 82.5350342f);
+
+			foreach (var spawn in creatureSpawns)
+			{
+				var dist = (spawn.Position.X - removeMeStartingArea.X) * (spawn.Position.X - removeMeStartingArea.X)
+				 + (spawn.Position.Y - removeMeStartingArea.Y) * (spawn.Position.Y - removeMeStartingArea.Y)
+				 + (spawn.Position.Z - removeMeStartingArea.Z) * (spawn.Position.Z - removeMeStartingArea.Z);
+				if (dist < removeMeDistanceSquare)
+				{
+					var creatureDefinition = await GrainFactory.GetGrain<ICreatureDefinition>(spawn.CreatureDefinitionId).GetEntity();
+					var newId = await objectIdService.GenerateObjectId(ObjectID.Type.Unit);
+					var creature = GrainFactory.GetGrain<ICreature>(newId);
+
+					await creature.Create(creatureDefinition);
+					await creature.SetPosition(spawn.Position, spawn.Orientation);
+
+					objects.Add(await creature.GetCreatureEntity());
+					await creature.Subscribe(this);
+				}
+			}
 		}
 
 		public void HandleObjectCreate(ObjectEntity objectEntity, CreationUpdate update)
